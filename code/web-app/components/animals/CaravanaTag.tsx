@@ -49,7 +49,7 @@ export function CaravanaTag({
         fontSize="16"
         fontWeight="600"
         fill={TEXT_SERIE}
-        fontFamily="'DM Sans', system-ui, sans-serif"
+        fontFamily="'Bebas Kai', 'DM Sans', sans-serif"
       >
         {serie}
       </text>
@@ -63,7 +63,7 @@ export function CaravanaTag({
         fontSize="30"
         fontWeight="800"
         fill={TEXT_NUM}
-        fontFamily="'DM Sans', system-ui, sans-serif"
+        fontFamily="'Bebas Kai', 'DM Sans', sans-serif"
       >
         {num}
       </text>

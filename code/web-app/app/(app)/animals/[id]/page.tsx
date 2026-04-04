@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { EmptyState } from "@/components/ui/empty-state"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { CaravanaTag } from "@/components/animals/CaravanaTag"
-import { categoryLabel, formatDate, formatDateTime, formatCaravana } from "@/lib/utils"
+import Image from "next/image"
+import { categoryLabel, formatDate, formatDateTime, formatCaravana, caravanaParts } from "@/lib/utils"
 import type { TraceabilityEventType } from "@/lib/types"
 
 const eventTypeLabel: Record<TraceabilityEventType, string> = {
@@ -60,24 +60,39 @@ export default function AnimalDetailPage({
         </Link>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <CaravanaTag caravana={animal.caravana} size="lg" />
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-mono text-muted-foreground">
-                {formatCaravana(animal.caravana, "full")}
+      <Card className="overflow-hidden">
+        {/* Tag hero background */}
+        <div className="flex items-center gap-5 px-6 pt-6 pb-2">
+          <div className="relative flex items-center justify-center shrink-0" style={{ width: 160, height: 144 }}>
+            <Image
+              src="/tag-bg.png"
+              alt=""
+              fill
+              className="object-contain pointer-events-none"
+              priority
+            />
+            <div className="relative z-10 flex flex-col items-center gap-1 text-center" style={{ paddingTop: 46 }}>
+              <span className="text-muted-foreground tracking-widest" style={{ fontFamily: "'Bebas Kai', sans-serif", fontSize: '18pt', lineHeight: 0.8 }}>
+                {caravanaParts(animal.caravana).serie}
               </span>
-              <div className="flex items-center gap-2">
-                <StatusBadge variant={animal.status === "active" ? "success" : "neutral"}>
-                  {animal.status === "active" ? "Activo" : "Egresado"}
-                </StatusBadge>
-                <CarenciaIndicator animal={animal} />
-              </div>
+              <span className="text-foreground tracking-wider" style={{ fontFamily: "'Bebas Kai', sans-serif", fontSize: '38pt', lineHeight: 0.8 }}>
+                {caravanaParts(animal.caravana).num}
+              </span>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <StatusBadge variant={animal.status === "active" ? "success" : "neutral"}>
+                {animal.status === "active" ? "Activo" : "Egresado"}
+              </StatusBadge>
+              <CarenciaIndicator animal={animal} />
+            </div>
+            <span className="text-xs font-mono text-muted-foreground/50">
+              {formatCaravana(animal.caravana, "full")}
+            </span>
+          </div>
+        </div>
+        <CardContent className="pt-5">
           <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
             <div>
               <dt className="text-xs text-muted-foreground">Categoría</dt>
