@@ -1,6 +1,6 @@
 # Trazabilidad
 
-**Dependencias:** Animales (`02-animales.md`), Lotes (`03-lotes.md`), Actividades sanitarias (`04-actividades-sanitarias.md`), Actividades comerciales (`05-actividades-comerciales.md`)
+**Dependencias:** Animales (`02-animales.md`), Lotes (`03-lotes.md`), Framework de actividades (`04-actividades-framework.md`) y todos los specs de tipos de actividad (`04` al `13`)
 
 ---
 
@@ -22,9 +22,14 @@ Todos los eventos incluyen como mínimo: **tipo, fecha, responsable** (quién re
 | `asignación a lote` | Agregar animal a un lote | Lote asignado |
 | `cambio de lote` | Mover animal de lote | Lote anterior, lote nuevo |
 | `salida de lote` | Quitar animal de lote o disolver lote | Lote del que salió |
-| `actividad sanitaria` | Registro de vacuna o tratamiento (individual o por lote) | Tipo, producto, dosis, vía, días de carencia, vencimiento de carencia |
-| `actividad comercial` | Confirmación de venta o despacho | Tipo (venta/despacho), comprador, destino, precio |
-| `egreso` | Cualquier tipo de egreso | Tipo de egreso (venta, muerte, transferencia), referencia a operación comercial si aplica |
+| `actividad sanitaria` | Registro de vacuna o tratamiento | Subtipo, producto, dosis, vía, días de carencia, vencimiento |
+| `actividad comercial` | Confirmación de venta o despacho | Subtipo (venta/despacho), comprador, destino, precio |
+| `control de campo` | Pesaje, conteo, revisión, etc. | Subtipo, valor/resultado |
+| `movimiento` | Traslado entre potreros o campos | Subtipo, origen, destino |
+| `reproducción` | Servicio, preñez, parto, destete | Subtipo, resultado |
+| `actividad general` | Registro libre del usuario | Título |
+| `lectura RFID` | Lectura con lector RFID (Bluetooth o archivo) | Método (bluetooth/archivo), actividad asociada si aplica |
+| `egreso` | Cualquier tipo de egreso | Tipo de egreso (venta, muerte, transferencia), referencia a actividad si aplica |
 | `corrección` | Registro manual de corrección | Descripción de la corrección, referencia al evento corregido |
 
 ---

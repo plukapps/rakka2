@@ -18,8 +18,9 @@ Inicializar el proyecto Next.js y construir toda la capa de datos (tipos, mock d
 ### Tipos TypeScript (`lib/types/`)
 - [ ] `animal.ts` — `Animal`, `AnimalStatus`, `AnimalCategory`, `AnimalSex`, `EntryType`, `ExitType`
 - [ ] `lot.ts` — `Lot`, `LotStatus`
-- [ ] `activity.ts` — `SanitaryActivity`, `CommercialActivity`, `ActivityType`, `SanitarySubtype`, `CommercialSubtype`, `AdministrationRoute`
-- [ ] `traceability.ts` — `TraceabilityEvent`, `TraceabilityEventType`
+- [ ] `activity.ts` — `Activity` (tipo base unificado), `ActivityType`, `SelectionMethod`, `SanitarySubtype`, `CommercialSubtype`, `FieldControlSubtype`, `MovementSubtype`, `ReproductionSubtype`, `AdministrationRoute`
+- [ ] `rfid.ts` — `RfidReading`, `RfidMethod`
+- [ ] `traceability.ts` — `TraceabilityEvent`, `TraceabilityEventType` (incluyendo todos los tipos nuevos: `field_control`, `movement`, `reproduction`, `general_activity`, `rfid_reading`)
 - [ ] `alert.ts` — `Alert`, `AlertType`, `AlertUrgency`, `AlertStatus`
 
 ### Utilidades (`lib/utils/`)
@@ -32,9 +33,9 @@ Inicializar el proyecto Next.js y construir toda la capa de datos (tipos, mock d
 - [ ] 2 establecimientos: "La Esperanza" (id: `est_1`), "El Ombú" (id: `est_2`)
 - [ ] 40 animales en `est_1`: mix de categorías, 3 con carencia activa, 2 egresados
 - [ ] 4 lotes en `est_1`: "Lote Norte", "Lote Sur", "Recría 2024", "Toros"
-- [ ] 15 actividades sanitarias (últimos 60 días)
-- [ ] 3 actividades comerciales (2 ventas, 1 despacho)
-- [ ] Eventos de trazabilidad por animal
+- [ ] Actividades variadas (últimos 60 días): 10 sanitarias, 3 comerciales, 4 pesajes, 2 movimientos entre potreros, 2 reproductivas, 2 generales
+- [ ] 3 lecturas RFID (2 por archivo, 1 Bluetooth) — una independiente y dos asociadas a actividades
+- [ ] Eventos de trazabilidad por animal (incluyendo todos los tipos de evento)
 - [ ] 5 alertas: 3 carencia próxima, 2 lote inactivo
 
 ### Mock store (`lib/mock/store.ts`)
@@ -44,7 +45,8 @@ Inicializar el proyecto Next.js y construir toda la capa de datos (tipos, mock d
 ### Repositories (`lib/repositories/`)
 - [ ] `animalRepository.ts` — `getAnimals(estId)`, `getAnimal(estId, id)`, `createAnimal()`, `updateAnimal()`, `subscribeToAnimals(estId, cb)`
 - [ ] `lotRepository.ts` — `getLots(estId)`, `getLot()`, `createLot()`, `updateLot()`, `dissolveLot()`
-- [ ] `activityRepository.ts` — `getActivities(estId)`, `createSanitaryActivity()`, `createCommercialActivity()`
+- [ ] `activityRepository.ts` — `getActivities(estId)`, `createActivity(activity)` (genérico para todos los tipos), `subscribeToActivities(estId, cb)`
+- [ ] `rfidRepository.ts` — `createRfidReading(estId, reading)`, `getRfidReadings(estId)`
 - [ ] `traceabilityRepository.ts` — `getTraceability(estId, animalId)`, `addEvent()`
 - [ ] `alertRepository.ts` — `getAlerts(estId)`, `dismissAlert()`
 
@@ -55,9 +57,10 @@ Inicializar el proyecto Next.js y construir toda la capa de datos (tipos, mock d
 ### Custom hooks (`hooks/`)
 - [ ] `useAnimals.ts` — subscribe a animales del est. activo con filtros
 - [ ] `useLots.ts` — subscribe a lotes del est. activo
-- [ ] `useActivities.ts` — subscribe a actividades del est. activo
+- [ ] `useActivities.ts` — subscribe a actividades del est. activo (todos los tipos)
 - [ ] `useTraceability.ts` — subscribe a trazabilidad de un animal
 - [ ] `useAlerts.ts` — subscribe a alertas del est. activo
+- [ ] `useRfidReadings.ts` — subscribe a lecturas RFID del est. activo
 
 ---
 

@@ -59,7 +59,7 @@ Atajos fijos a las acciones más frecuentes en campo:
 
 | Acceso rápido | Destino |
 |---|---|
-| Registrar actividad sanitaria | Formulario de actividad sanitaria (animal o lote) |
+| Registrar actividad | Selector de tipo de actividad → formulario correspondiente |
 | Ingresar animal | Formulario de ingreso de animal |
 | Ver lotes | Listado de lotes del establecimiento activo |
 | Ver animales | Listado de animales del establecimiento activo |

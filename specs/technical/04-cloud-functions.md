@@ -27,19 +27,18 @@ Las Cloud Functions contienen la lógica de negocio que no puede quedar en el cl
 
 **Trigger**: `database.onValueCreated("/activities/{estId}/{activityId}")`
 
-**Condición**: solo se ejecuta si el nodo creado tiene `type === "sanitary"`.
+**Condición**: solo se ejecuta si `type === "sanitary"`.
 
 **Responsabilidades**:
-1. Leer la actividad sanitaria creada.
-2. Generar el evento de trazabilidad en `/traceability/{estId}/{animalId}/{eventId}` con tipo `"sanitary_activity"`.
-3. Calcular `carenciaExpiresAt = applicationDate + (carenciaDays * 86400000)`.
-4. Leer la carencia actual del animal (`/animals/{estId}/{animalId}/carenciaExpiresAt`).
-5. Si la nueva carencia vence **después** que la actual (o el animal no tiene carencia), actualizar en el animal:
-   - `hasActiveCarencia: true`
-   - `carenciaExpiresAt: <nuevo vencimiento>`
-6. Actualizar `updatedAt` del animal.
-
-**Nota sobre lotes**: si `appliedToLot === true`, la actividad ya fue creada con `animalId` individual (el cliente crea una actividad por animal al registrar sobre lote). La Function no necesita expandir lotes.
+1. Leer la actividad creada (`animalIds`, `carenciaDays`, `applicationDate`).
+2. Para cada `animalId` en `animalIds`:
+   a. Calcular `carenciaExpiresAt = applicationDate + (carenciaDays * 86400000)`.
+   b. Leer la carencia actual del animal (`/animals/{estId}/{animalId}/carenciaExpiresAt`).
+   c. Si la nueva carencia vence después que la actual (o el animal no tiene carencia activa), actualizar:
+      - `hasActiveCarencia: true`
+      - `carenciaExpiresAt: <nuevo vencimiento>`
+      - `updatedAt: <now>`
+   d. Crear evento en `/traceability/{estId}/{animalId}/{activityId}_{animalId}` con tipo `"sanitary_activity"`.
 
 ---
 
@@ -47,72 +46,84 @@ Las Cloud Functions contienen la lógica de negocio que no puede quedar en el cl
 
 **Trigger**: `database.onValueUpdated("/activities/{estId}/{activityId}")`
 
-**Condición**: solo se ejecuta si el nodo cambió de `status: "draft"` a `status: "confirmed"` y `type === "commercial"`.
+**Condición**: solo se ejecuta si cambió de `status: "draft"` a `status: "confirmed"` y `type === "commercial"`.
 
 **Responsabilidades**:
-1. Leer la actividad comercial confirmada (`animalIds`, `subtype`, `operationDate`).
-2. Para cada `animalId` en la lista:
-   a. Leer el animal en `/animals/{estId}/{animalId}`.
-   b. Verificar que `hasActiveCarencia === false`. Si alguno tiene carencia activa, **no procesar** y escribir `status: "error_carencia"` en la actividad + lista de IDs bloqueados. (Esto es una segunda línea de defensa; el cliente ya validó antes de confirmar.)
-   c. Actualizar el animal:
-      - `status: "exited"`
-      - `exitType: <subtype de la actividad>`
-      - `exitDate: <operationDate>`
-      - `lotId: null`
-      - `updatedAt: <now>`
-   d. Si el animal tenía `lotId`, borrar `/lot_animals/{estId}/{lotId}/{animalId}` y decrementar `animalCount` en el lote.
-   e. Crear evento de trazabilidad en `/traceability/{estId}/{animalId}/{eventId}` con tipo `"exit"` y referencia a la actividad comercial.
+1. Leer la actividad confirmada (`animalIds`, `subtype`, `activityDate`).
+2. Para cada `animalId` en `animalIds`:
+   a. Verificar `hasActiveCarencia === false`. Si alguno tiene carencia activa: escribir `status: "error_carencia"` en la actividad con lista de IDs bloqueados. Abortar.
+   b. Actualizar animal: `status: "exited"`, `exitType: subtype`, `exitDate`, `lotId: null`, `updatedAt`.
+   c. Si tenía `lotId`: borrar de `/lot_animals/`, decrementar `animalCount` en el lote.
+   d. Crear evento de trazabilidad tipo `"exit"` con referencia a la actividad.
 3. Actualizar `updatedAt` de la actividad.
 
 ---
 
-### 3. `onLotDissolved`
+### 3. `onActivityCreated` (actividades no sanitarias ni comerciales)
+
+**Trigger**: `database.onValueCreated("/activities/{estId}/{activityId}")`
+
+**Condición**: `type` es uno de `"field_control"`, `"movement"`, `"reproduction"`, `"general"`.
+
+**Responsabilidades**:
+1. Para cada `animalId` en `animalIds`: crear evento de trazabilidad con el tipo correspondiente:
+   - `field_control` → `"field_control"`
+   - `movement` → `"movement"`
+   - `reproduction` → `"reproduction"`
+   - `general` → `"general_activity"`
+2. **Casos especiales**:
+   - Si `type === "movement"` y `subtype === "field_transfer"`: para cada animal, crear egreso en el establecimiento origen e ingreso en `destinationEstablishmentId`.
+   - Si `type === "reproduction"` y `subtype === "birth"` y `offspringCaravana` está presente: crear el nuevo animal en el establecimiento con `entryType: "birth"` y `entryDate: activityDate`.
+
+---
+
+### 4. `onRfidReadingCreated`
+
+**Trigger**: `database.onValueCreated("/rfid_readings/{estId}/{readingId}")`
+
+**Responsabilidades**:
+1. Para cada `animalId` en `animalIds` (los reconocidos): crear evento de trazabilidad tipo `"rfid_reading"` con `method`, `activityId` (si tiene uno asociado) y `readingId`.
+2. Los `unknownCaravanas` se loguean pero no generan trazabilidad (no hay animal a quien asignarlos).
+
+---
+
+### 5. `onLotDissolved`
 
 **Trigger**: `database.onValueUpdated("/lots/{estId}/{lotId}")`
 
-**Condición**: solo se ejecuta si el nodo cambió de `status: "active"` a `status: "dissolved"`.
+**Condición**: cambió de `status: "active"` a `status: "dissolved"`.
 
 **Responsabilidades**:
 1. Leer todos los animales del lote desde `/lot_animals/{estId}/{lotId}`.
-2. Para cada animal:
-   a. Actualizar `/animals/{estId}/{animalId}/lotId` a `null`.
-   b. Borrar `/lot_animals/{estId}/{lotId}/{animalId}`.
-   c. Crear evento de trazabilidad tipo `"lot_removal"` con el nombre del lote disuelto.
+2. Para cada animal: actualizar `lotId: null`, borrar de `/lot_animals/`, crear evento de trazabilidad `"lot_removal"`.
 3. Actualizar `animalCount: 0` en el lote.
 
 ---
 
-### 4. `onAnimalLotChanged`
+### 6. `onAnimalLotChanged`
 
 **Trigger**: `database.onValueUpdated("/animals/{estId}/{animalId}")`
 
-**Condición**: solo se ejecuta si cambió el campo `lotId`.
+**Condición**: cambió el campo `lotId`.
 
 **Responsabilidades**:
-1. Leer el `lotId` anterior y el nuevo.
-2. Si había lote anterior:
-   - Borrar `/lot_animals/{estId}/{lotIdAnterior}/{animalId}`.
-   - Decrementar `animalCount` en el lote anterior.
-3. Si hay lote nuevo:
-   - Escribir `/lot_animals/{estId}/{lotIdNuevo}/{animalId}: true`.
-   - Incrementar `animalCount` en el lote nuevo.
-4. Crear evento de trazabilidad tipo `"lot_change"` (o `"lot_assignment"` si no había lote anterior).
+1. Leer `lotId` anterior y nuevo.
+2. Si había lote anterior: borrar de `/lot_animals/{anterior}/`, decrementar `animalCount`.
+3. Si hay lote nuevo: escribir `/lot_animals/{nuevo}/{animalId}: true`, incrementar `animalCount`.
+4. Crear evento de trazabilidad: `"lot_change"` si venía de un lote, `"lot_assignment"` si no tenía lote previo.
 
 ---
 
-### 5. `generateAlerts` (programada)
+### 7. `generateAlerts` (programada)
 
 **Trigger**: `scheduler.onSchedule("every 24 hours")`
 
 **Responsabilidades**:
-1. Leer todos los establecimientos activos.
-2. Para cada establecimiento:
-   a. **Alertas de carencia próxima a vencer**: leer animales con `hasActiveCarencia === true`. Para cada uno, calcular días hasta `carenciaExpiresAt`. Si los días son ≤ 7 (umbral por defecto), crear o actualizar alerta en `/alerts/{estId}/`:
-      - Si ya existe alerta activa de tipo `"carencia_expiring"` para ese animal, actualizar `daysUntilExpiry`.
-      - Si no existe, crear nueva.
-   b. **Resolver alertas vencidas**: leer alertas activas de tipo `"carencia_expiring"`. Si `relevantDate < now`, marcar como `status: "resolved"`.
-   c. **Alertas de lote inactivo**: leer lotes activos. Para cada lote, buscar la última actividad sanitaria en `/activities/{estId}` con `lotId === lotId` y `type === "sanitary"`. Si la última fue hace más de 30 días (o nunca hubo), crear alerta de tipo `"lot_inactive"` si no existe ya una activa.
-   d. **Resolver alertas de lote**: si se registró actividad sanitaria reciente, marcar la alerta de lote como `status: "resolved"`.
+1. Para cada establecimiento activo:
+   a. **Carencia próxima a vencer**: animales con `hasActiveCarencia === true` y `carenciaExpiresAt` ≤ 7 días. Crear/actualizar alerta `"carencia_expiring"`.
+   b. **Resolver alertas de carencia**: si `carenciaExpiresAt < now`, marcar `status: "resolved"` y actualizar `hasActiveCarencia: false` en el animal.
+   c. **Lote inactivo**: lotes activos sin actividad de `type === "sanitary"` en los últimos 30 días. Crear alerta `"lot_inactive"` si no existe una activa.
+   d. **Resolver alertas de lote**: si se registró actividad sanitaria reciente en el lote, marcar alerta como `"resolved"`.
 
 ---
 
@@ -124,6 +135,8 @@ functions/
 │   ├── index.ts                    ← Exporta todas las functions
 │   ├── sanitaryActivity.ts         ← onSanitaryActivityCreated
 │   ├── commercialActivity.ts       ← onCommercialActivityConfirmed
+│   ├── activity.ts                 ← onActivityCreated (field_control, movement, reproduction, general)
+│   ├── rfidReading.ts              ← onRfidReadingCreated
 │   ├── lot.ts                      ← onLotDissolved, onAnimalLotChanged
 │   └── alerts.ts                   ← generateAlerts
 ├── package.json
@@ -134,6 +147,6 @@ functions/
 
 ## Idempotencia y errores
 
-- Las Functions deben ser **idempotentes**: si se ejecutan dos veces por el mismo evento (puede pasar por reintentos de Firebase), el resultado debe ser el mismo.
-- Para eventos de trazabilidad: usar el `activityId` como parte del `eventId` de trazabilidad para evitar duplicados.
-- En caso de error dentro de una Function, el error queda en los logs de Cloud Functions. No se revierte automáticamente lo escrito antes del error; diseñar las operaciones para que los pasos intermedios no dejen el sistema en estado inconsistente.
+- Todas las Functions deben ser **idempotentes**: usar `{activityId}_{animalId}` como clave del evento de trazabilidad para evitar duplicados en reintentos.
+- En `onActivityCreated` y `onSanitaryActivityCreated`: iterar `animalIds` y procesar cada uno en un bloque try/catch individual para que el fallo de un animal no aborte el procesamiento de los demás.
+- Los errores quedan en Cloud Functions logs. No hay rollback automático: diseñar los pasos para que sean safe en caso de ejecución parcial.
