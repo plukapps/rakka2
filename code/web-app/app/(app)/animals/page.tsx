@@ -72,7 +72,7 @@ export default function AnimalsPage() {
           description="No hay animales que coincidan con los filtros."
         />
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-3 gap-3">
           {filtered.map((animal) => (
             <AnimalCard
               key={animal.id}

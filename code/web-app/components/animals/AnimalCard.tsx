@@ -13,29 +13,20 @@ interface AnimalCardProps {
 export function AnimalCard({ animal, lot }: AnimalCardProps) {
   return (
     <Link href={`/animals/${animal.id}`}>
-      <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 hover:border-foreground/20 hover:shadow-sm transition-all cursor-pointer">
-        <div className="flex items-center gap-3">
-          <TagView caravana={animal.caravana} size="md" />
-          <div>
-            <div className="flex items-center gap-2">
-              <StatusBadge variant={animal.status === "active" ? "success" : "neutral"}>
-                {animal.status === "active" ? "Activo" : "Egresado"}
-              </StatusBadge>
-            </div>
-            <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{categoryLabel(animal.category)}</span>
-              <span>·</span>
-              <span>{animal.breed}</span>
-              {lot && (
-                <>
-                  <span>·</span>
-                  <span>{lot.name}</span>
-                </>
-              )}
-            </div>
+      <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 hover:border-foreground/20 hover:shadow-sm transition-all cursor-pointer">
+        <TagView caravana={animal.caravana} size="md" />
+        <div className="flex flex-col gap-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <StatusBadge variant={animal.status === "active" ? "success" : "neutral"}>
+              {animal.status === "active" ? "Activo" : "Egresado"}
+            </StatusBadge>
+            <CarenciaIndicator animal={animal} size="sm" />
           </div>
+          <span className="text-xs text-muted-foreground truncate">
+            {categoryLabel(animal.category)} · {animal.breed}
+            {lot ? ` · ${lot.name}` : ""}
+          </span>
         </div>
-        <CarenciaIndicator animal={animal} size="sm" />
       </div>
     </Link>
   )

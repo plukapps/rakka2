@@ -195,6 +195,34 @@ export const MOCK_ANIMALS: Animal[] = [
     exitType: "sale",
   }),
 
+  // --- Extra animals with random caravanas (est_001) ---
+  makeAnimal("a041", "est_001", "858000047328415", "vaca", "female", "lot_001"),
+  makeAnimal("a042", "est_001", "858000091637204", "novillo", "male", "lot_002"),
+  makeAnimal("a043", "est_001", "858000063524817", "vaquillona", "female", "lot_002"),
+  makeAnimal("a044", "est_001", "858000015489362", "toro", "male", "lot_001"),
+  makeAnimal("a045", "est_001", "858000082716953", "ternero", "male", "lot_003"),
+  makeAnimal("a046", "est_001", "858000034951728", "ternera", "female", "lot_003"),
+  makeAnimal("a047", "est_001", "858000078263491", "vaca", "female", null),
+  makeAnimal("a048", "est_001", "858000056842107", "novillo", "male", "lot_002", {
+    hasActiveCarencia: true,
+    carenciaExpiresAt: daysFromNow(9),
+  }),
+  makeAnimal("a049", "est_001", "858000023197640", "vaquillona", "female", "lot_001"),
+  makeAnimal("a050", "est_001", "858000069435182", "vaca", "female", "lot_001"),
+  makeAnimal("a051", "est_001", "858000041872596", "novillo", "male", null),
+  makeAnimal("a052", "est_001", "858000097261034", "ternera", "female", "lot_003"),
+  makeAnimal("a053", "est_001", "858000054618273", "toro", "male", "lot_001"),
+  makeAnimal("a054", "est_001", "858000086743921", "vaquillona", "female", "lot_002"),
+  makeAnimal("a055", "est_001", "858000012385467", "vaca", "female", "lot_001", {
+    hasActiveCarencia: true,
+    carenciaExpiresAt: daysFromNow(2),
+  }),
+  makeAnimal("a056", "est_001", "858000073924158", "novillo", "male", "lot_002"),
+  makeAnimal("a057", "est_001", "858000028561394", "ternero", "male", "lot_003"),
+  makeAnimal("a058", "est_001", "858000065219847", "vaca", "female", null),
+  makeAnimal("a059", "est_001", "858000049873216", "vaquillona", "female", "lot_002"),
+  makeAnimal("a060", "est_001", "858000081346729", "toro", "male", "lot_001"),
+
   // --- Los Pinos (est_002) ---
   makeAnimal("a039", "est_002", "858000100010001", "vaca", "female", "lot_004"),
   makeAnimal("a040", "est_002", "858000100020002", "vaca", "female", "lot_004"),
