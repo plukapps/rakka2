@@ -11,7 +11,7 @@ import { useAnimals } from "@/hooks/useAnimals"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { CaravanaTag } from "@/components/animals/CaravanaTag"
+import { TagView } from "@/components/animals/TagView"
 import { cn, formatCaravana, categoryLabel } from "@/lib/utils"
 
 interface FormValues {
@@ -174,7 +174,7 @@ export default function NewLotPage() {
                       onChange={() => toggleAnimal(animal.id)}
                       className="rounded border-input"
                     />
-                    <CaravanaTag caravana={animal.caravana} size="sm" />
+                    <TagView caravana={animal.caravana} size="sm" />
                     <div className="text-xs text-muted-foreground">
                       <span>{categoryLabel(animal.category)}</span>
                       {animal.breed && (

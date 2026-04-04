@@ -6,7 +6,7 @@ import { useAnimal } from "@/hooks/useAnimals"
 import { useLots } from "@/hooks/useLots"
 import { useTraceability } from "@/hooks/useTraceability"
 import { TimelineEvent } from "@/components/traceability/TimelineEvent"
-import { CaravanaTag } from "@/components/animals/CaravanaTag"
+import { TagView } from "@/components/animals/TagView"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -98,7 +98,7 @@ export default function AnimalTraceabilityPage({
 
       {/* Animal header */}
       <div className="flex items-center gap-4">
-        <CaravanaTag caravana={animal.caravana} size="md" />
+        <TagView caravana={animal.caravana} size="md" />
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <StatusBadge variant={animal.status === "active" ? "success" : "neutral"}>

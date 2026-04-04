@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import type { Animal } from "@/lib/types"
 import { animalRepository } from "@/lib/repositories/animal"
-import { CaravanaTag } from "@/components/animals/CaravanaTag"
+import { TagView } from "@/components/animals/TagView"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -136,7 +136,7 @@ export function AnimalSelector({
                 className="flex items-center justify-between rounded-md bg-muted/50 px-2 py-1.5"
               >
                 <div className="flex items-center gap-2">
-                  <CaravanaTag caravana={animal.caravana} size="sm" />
+                  <TagView caravana={animal.caravana} size="sm" />
                   <div className="text-xs">
                     <span className="font-medium">{categoryLabel(animal.category)}</span>
                     {animal.breed && (
@@ -202,7 +202,7 @@ function IndividualTab({
               onClick={() => onAdd(animal)}
               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-muted"
             >
-              <CaravanaTag caravana={animal.caravana} size="sm" />
+              <TagView caravana={animal.caravana} size="sm" />
               <span className="text-xs">
                 {formatCaravana(animal.caravana, "serie")} - {categoryLabel(animal.category)}
               </span>

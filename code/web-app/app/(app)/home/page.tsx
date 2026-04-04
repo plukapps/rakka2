@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
-import { CaravanaTag } from "@/components/animals/CaravanaTag"
+import { TagView } from "@/components/animals/TagView"
 import { formatDate, formatCaravana, activityTypeLabel, categoryLabel, cn } from "@/lib/utils"
 
 const quickActions = [
@@ -187,7 +187,7 @@ export default function HomePage() {
                         router.push(`/animals/${animal.id}`)
                       }}
                     >
-                      <CaravanaTag caravana={animal.caravana} size="sm" />
+                      <TagView caravana={animal.caravana} size="sm" />
                       <span className="text-sm text-muted-foreground">{categoryLabel(animal.category)}</span>
                     </button>
                   </li>

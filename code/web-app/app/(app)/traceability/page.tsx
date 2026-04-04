@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import Link from "next/link"
 import { useAnimals } from "@/hooks/useAnimals"
-import { CaravanaTag } from "@/components/animals/CaravanaTag"
+import { TagView } from "@/components/animals/TagView"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { formatCaravana, categoryLabel } from "@/lib/utils"
@@ -57,7 +57,7 @@ export default function TraceabilityPage() {
               href={`/traceability/${animal.id}`}
               className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors"
             >
-              <CaravanaTag caravana={animal.caravana} size="sm" />
+              <TagView caravana={animal.caravana} size="sm" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground">
                   {formatCaravana(animal.caravana)}

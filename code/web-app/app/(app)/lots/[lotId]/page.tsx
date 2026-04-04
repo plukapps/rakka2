@@ -10,7 +10,7 @@ import { lotRepository } from "@/lib/repositories/lot"
 import { animalRepository } from "@/lib/repositories/animal"
 import { useAppStore } from "@/lib/stores/appStore"
 import { AnimalCard } from "@/components/animals/AnimalCard"
-import { CaravanaTag } from "@/components/animals/CaravanaTag"
+import { TagView } from "@/components/animals/TagView"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -256,7 +256,7 @@ export default function LotDetailPage({
                       className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
                     >
                       <div className="flex items-center gap-3">
-                        <CaravanaTag caravana={animal.caravana} size="sm" />
+                        <TagView caravana={animal.caravana} size="sm" />
                         <div>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <span>{categoryLabel(animal.category)}</span>
