@@ -8,7 +8,7 @@
 
 | Atributo | Tipo | Obligatorio | Notas |
 |---|---|---|---|
-| Caravana | Texto | Sí | Único dentro del establecimiento. Inmutable una vez asignado. |
+| Caravana | Texto (15 dígitos) | Sí | Único dentro del establecimiento. Inmutable una vez asignado. Formato: `CCCFFFSSSSSNNNN` donde CCC = código de país (3 dígitos), FFF = fijos en cero (3 dígitos), SSSSS = serie (5 dígitos), NNNN = número de caravana (4 dígitos). Ejemplo: `858000123456789` (858 = Uruguay). |
 | Categoría | Enum | No | Vaca, toro, ternero/a, vaquillona, novillo, toro reproductor, otro |
 | Raza | Texto | No | Texto libre en MVP |
 | Sexo | Enum | No | Macho, hembra |

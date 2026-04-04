@@ -12,7 +12,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { EmptyState } from "@/components/ui/empty-state"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { categoryLabel, formatDate, formatDateTime } from "@/lib/utils"
+import { CaravanaTag } from "@/components/animals/CaravanaTag"
+import { categoryLabel, formatDate, formatDateTime, formatCaravana } from "@/lib/utils"
 import type { TraceabilityEventType } from "@/lib/types"
 
 const eventTypeLabel: Record<TraceabilityEventType, string> = {
@@ -61,14 +62,19 @@ export default function AnimalDetailPage({
 
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-3">
-            <span className="text-xl font-bold font-mono text-foreground">
-              {animal.caravana}
-            </span>
-            <StatusBadge variant={animal.status === "active" ? "success" : "neutral"}>
-              {animal.status === "active" ? "Activo" : "Egresado"}
-            </StatusBadge>
-            <CarenciaIndicator animal={animal} />
+          <div className="flex items-center gap-4">
+            <CaravanaTag caravana={animal.caravana} size="lg" />
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-mono text-muted-foreground">
+                {formatCaravana(animal.caravana, "full")}
+              </span>
+              <div className="flex items-center gap-2">
+                <StatusBadge variant={animal.status === "active" ? "success" : "neutral"}>
+                  {animal.status === "active" ? "Activo" : "Egresado"}
+                </StatusBadge>
+                <CarenciaIndicator animal={animal} />
+              </div>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

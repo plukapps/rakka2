@@ -72,6 +72,33 @@ export function carenciaLabel(carenciaExpiresAt: number | null): string {
   return `Vence en ${days} días`
 }
 
+// Caravana formatting
+// Storage: 15 raw digits — CCC(country) FFF(fixed zeros) SSSSS(serie) NNNN(num)
+// Display modes: full | short | serie
+
+export type CaravanaMode = "full" | "short" | "serie"
+
+export function formatCaravana(caravana: string, mode: CaravanaMode = "serie"): string {
+  if (caravana.length !== 15) return caravana
+  switch (mode) {
+    case "full":
+      return caravana
+    case "short":
+      return caravana.slice(6)
+    case "serie":
+      return `${caravana.slice(6, 11)} ${caravana.slice(11)}`
+  }
+}
+
+export function caravanaParts(caravana: string) {
+  return {
+    country: caravana.slice(0, 3),
+    fixed: caravana.slice(3, 6),
+    serie: caravana.slice(6, 11),
+    num: caravana.slice(11),
+  }
+}
+
 // Label helpers
 export function categoryLabel(cat: string): string {
   const labels: Record<string, string> = {

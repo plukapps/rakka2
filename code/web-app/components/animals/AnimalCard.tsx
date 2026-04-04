@@ -2,6 +2,7 @@ import Link from "next/link"
 import type { Animal, Lot } from "@/lib/types"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { CarenciaIndicator } from "@/components/animals/CarenciaIndicator"
+import { CaravanaTag } from "@/components/animals/CaravanaTag"
 import { categoryLabel } from "@/lib/utils"
 
 interface AnimalCardProps {
@@ -14,11 +15,9 @@ export function AnimalCard({ animal, lot }: AnimalCardProps) {
     <Link href={`/animals/${animal.id}`}>
       <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 hover:border-foreground/20 hover:shadow-sm transition-all cursor-pointer">
         <div className="flex items-center gap-3">
+          <CaravanaTag caravana={animal.caravana} size="sm" />
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-foreground font-mono">
-                {animal.caravana}
-              </span>
               <StatusBadge variant={animal.status === "active" ? "success" : "neutral"}>
                 {animal.status === "active" ? "Activo" : "Egresado"}
               </StatusBadge>

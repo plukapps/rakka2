@@ -124,13 +124,14 @@ export default function NewAnimalPage() {
         <FormField
           label="Caravana *"
           error={errors.caravana?.message}
-          hint="Debe ser única en este establecimiento. No se puede modificar."
+          hint="15 dígitos: código país (3) + ceros (3) + serie (5) + número (4). No se puede modificar."
         >
           <Input
-            placeholder="AR-0001-1234"
+            placeholder="858000123456789"
+            maxLength={15}
             {...register("caravana", {
               required: "La caravana es obligatoria",
-              pattern: { value: /^[A-Z]{2}-\d{4}-\d{4}$/, message: "Formato: AR-0000-0000" },
+              pattern: { value: /^\d{15}$/, message: "Deben ser exactamente 15 dígitos numéricos" },
             })}
           />
         </FormField>

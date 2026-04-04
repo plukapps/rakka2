@@ -132,72 +132,72 @@ function makeAnimal(
 
 export const MOCK_ANIMALS: Animal[] = [
   // --- Lot 001: Vacas (12) ---
-  makeAnimal("a001", "est_001", "AR-0001-1234", "vaca", "female", "lot_001"),
-  makeAnimal("a002", "est_001", "AR-0002-5678", "vaca", "female", "lot_001"),
-  makeAnimal("a003", "est_001", "AR-0003-9012", "vaca", "female", "lot_001"),
-  makeAnimal("a004", "est_001", "AR-0004-3456", "vaca", "female", "lot_001"),
-  makeAnimal("a005", "est_001", "AR-0005-7890", "vaca", "female", "lot_001"),
-  makeAnimal("a006", "est_001", "AR-0006-2345", "vaca", "female", "lot_001"),
-  makeAnimal("a007", "est_001", "AR-0007-6789", "vaca", "female", "lot_001"),
-  makeAnimal("a008", "est_001", "AR-0008-0123", "vaca", "female", "lot_001", {
+  makeAnimal("a001", "est_001", "858000000011234", "vaca", "female", "lot_001"),
+  makeAnimal("a002", "est_001", "858000000025678", "vaca", "female", "lot_001"),
+  makeAnimal("a003", "est_001", "858000000039012", "vaca", "female", "lot_001"),
+  makeAnimal("a004", "est_001", "858000000043456", "vaca", "female", "lot_001"),
+  makeAnimal("a005", "est_001", "858000000057890", "vaca", "female", "lot_001"),
+  makeAnimal("a006", "est_001", "858000000062345", "vaca", "female", "lot_001"),
+  makeAnimal("a007", "est_001", "858000000076789", "vaca", "female", "lot_001"),
+  makeAnimal("a008", "est_001", "858000000080123", "vaca", "female", "lot_001", {
     hasActiveCarencia: true,
     carenciaExpiresAt: daysFromNow(5),
   }),
-  makeAnimal("a009", "est_001", "AR-0009-4567", "vaca", "female", "lot_001", {
+  makeAnimal("a009", "est_001", "858000000094567", "vaca", "female", "lot_001", {
     hasActiveCarencia: true,
     carenciaExpiresAt: daysFromNow(3),
   }),
-  makeAnimal("a010", "est_001", "AR-0010-8901", "vaca", "female", "lot_001", {
+  makeAnimal("a010", "est_001", "858000000108901", "vaca", "female", "lot_001", {
     hasActiveCarencia: true,
     carenciaExpiresAt: daysFromNow(12),
   }),
-  makeAnimal("a011", "est_001", "AR-0011-2345", "toro", "male", "lot_001"),
-  makeAnimal("a012", "est_001", "AR-0012-6789", "vaca", "female", "lot_001"),
+  makeAnimal("a011", "est_001", "858000000112345", "toro", "male", "lot_001"),
+  makeAnimal("a012", "est_001", "858000000126789", "vaca", "female", "lot_001"),
 
   // --- Lot 002: Recría (15) ---
-  makeAnimal("a013", "est_001", "AR-0013-1111", "novillo", "male", "lot_002"),
-  makeAnimal("a014", "est_001", "AR-0014-2222", "novillo", "male", "lot_002"),
-  makeAnimal("a015", "est_001", "AR-0015-3333", "novillo", "male", "lot_002"),
-  makeAnimal("a016", "est_001", "AR-0016-4444", "novillo", "male", "lot_002"),
-  makeAnimal("a017", "est_001", "AR-0017-5555", "novillo", "male", "lot_002"),
-  makeAnimal("a018", "est_001", "AR-0018-6666", "novillo", "male", "lot_002"),
-  makeAnimal("a019", "est_001", "AR-0019-7777", "vaquillona", "female", "lot_002"),
-  makeAnimal("a020", "est_001", "AR-0020-8888", "vaquillona", "female", "lot_002"),
-  makeAnimal("a021", "est_001", "AR-0021-9999", "vaquillona", "female", "lot_002"),
-  makeAnimal("a022", "est_001", "AR-0022-1010", "vaquillona", "female", "lot_002"),
-  makeAnimal("a023", "est_001", "AR-0023-1111", "vaquillona", "female", "lot_002"),
-  makeAnimal("a024", "est_001", "AR-0024-1212", "novillo", "male", "lot_002", {
+  makeAnimal("a013", "est_001", "858000000131111", "novillo", "male", "lot_002"),
+  makeAnimal("a014", "est_001", "858000000142222", "novillo", "male", "lot_002"),
+  makeAnimal("a015", "est_001", "858000000153333", "novillo", "male", "lot_002"),
+  makeAnimal("a016", "est_001", "858000000164444", "novillo", "male", "lot_002"),
+  makeAnimal("a017", "est_001", "858000000175555", "novillo", "male", "lot_002"),
+  makeAnimal("a018", "est_001", "858000000186666", "novillo", "male", "lot_002"),
+  makeAnimal("a019", "est_001", "858000000197777", "vaquillona", "female", "lot_002"),
+  makeAnimal("a020", "est_001", "858000000208888", "vaquillona", "female", "lot_002"),
+  makeAnimal("a021", "est_001", "858000000219999", "vaquillona", "female", "lot_002"),
+  makeAnimal("a022", "est_001", "858000000221010", "vaquillona", "female", "lot_002"),
+  makeAnimal("a023", "est_001", "858000000231111", "vaquillona", "female", "lot_002"),
+  makeAnimal("a024", "est_001", "858000000241212", "novillo", "male", "lot_002", {
     hasActiveCarencia: true,
     carenciaExpiresAt: daysFromNow(6),
   }),
-  makeAnimal("a025", "est_001", "AR-0025-1313", "novillo", "male", "lot_002"),
-  makeAnimal("a026", "est_001", "AR-0026-1414", "vaquillona", "female", "lot_002"),
-  makeAnimal("a027", "est_001", "AR-0027-1515", "novillo", "male", "lot_002"),
+  makeAnimal("a025", "est_001", "858000000251313", "novillo", "male", "lot_002"),
+  makeAnimal("a026", "est_001", "858000000261414", "vaquillona", "female", "lot_002"),
+  makeAnimal("a027", "est_001", "858000000271515", "novillo", "male", "lot_002"),
 
   // --- Lot 003: Terneros (8) ---
-  makeAnimal("a028", "est_001", "AR-0028-2001", "ternero", "male", "lot_003"),
-  makeAnimal("a029", "est_001", "AR-0029-2002", "ternero", "male", "lot_003"),
-  makeAnimal("a030", "est_001", "AR-0030-2003", "ternera", "female", "lot_003"),
-  makeAnimal("a031", "est_001", "AR-0031-2004", "ternera", "female", "lot_003"),
-  makeAnimal("a032", "est_001", "AR-0032-2005", "ternero", "male", "lot_003"),
-  makeAnimal("a033", "est_001", "AR-0033-2006", "ternera", "female", "lot_003"),
-  makeAnimal("a034", "est_001", "AR-0034-2007", "ternero", "male", "lot_003"),
-  makeAnimal("a035", "est_001", "AR-0035-2008", "ternera", "female", "lot_003"),
+  makeAnimal("a028", "est_001", "858000000282001", "ternero", "male", "lot_003"),
+  makeAnimal("a029", "est_001", "858000000292002", "ternero", "male", "lot_003"),
+  makeAnimal("a030", "est_001", "858000000302003", "ternera", "female", "lot_003"),
+  makeAnimal("a031", "est_001", "858000000312004", "ternera", "female", "lot_003"),
+  makeAnimal("a032", "est_001", "858000000322005", "ternero", "male", "lot_003"),
+  makeAnimal("a033", "est_001", "858000000332006", "ternera", "female", "lot_003"),
+  makeAnimal("a034", "est_001", "858000000342007", "ternero", "male", "lot_003"),
+  makeAnimal("a035", "est_001", "858000000352008", "ternera", "female", "lot_003"),
 
   // --- No lot (est_001) ---
-  makeAnimal("a036", "est_001", "AR-0036-9001", "vaca", "female", null),
-  makeAnimal("a037", "est_001", "AR-0037-9002", "toro", "male", null),
+  makeAnimal("a036", "est_001", "858000000369001", "vaca", "female", null),
+  makeAnimal("a037", "est_001", "858000000379002", "toro", "male", null),
 
   // --- Exited animal ---
-  makeAnimal("a038", "est_001", "AR-0038-9003", "novillo", "male", null, {
+  makeAnimal("a038", "est_001", "858000000389003", "novillo", "male", null, {
     status: "exited",
     exitDate: daysAgo(30),
     exitType: "sale",
   }),
 
   // --- Los Pinos (est_002) ---
-  makeAnimal("a039", "est_002", "LP-0001-0001", "vaca", "female", "lot_004"),
-  makeAnimal("a040", "est_002", "LP-0002-0002", "vaca", "female", "lot_004"),
+  makeAnimal("a039", "est_002", "858000100010001", "vaca", "female", "lot_004"),
+  makeAnimal("a040", "est_002", "858000100020002", "vaca", "female", "lot_004"),
 ];
 
 // --- Activities ---
@@ -350,7 +350,7 @@ export const MOCK_RFID_READINGS: RfidReading[] = [
     method: "file_upload",
     fileName: "lectura_campo_norte.txt",
     animalIds: ["a001", "a002", "a003", "a004", "a005"],
-    unknownCaravanas: ["AR-XXXX-9999"],
+    unknownCaravanas: ["858000999999999"],
     activityId: null,
     responsible: "Juan Pérez",
     notes: "Lectura independiente de rutina",
@@ -465,7 +465,7 @@ export const MOCK_ALERTS: Alert[] = [
     urgency: "critical",
     status: "active",
     animalId: "a009",
-    animalCaravana: "AR-0009-4567",
+    animalCaravana: "858000000094567",
     lotId: "lot_001",
     lotName: "Lote Norte",
     description: "Carencia de Ivermectina vence en 3 días",
@@ -482,7 +482,7 @@ export const MOCK_ALERTS: Alert[] = [
     urgency: "warning",
     status: "active",
     animalId: "a008",
-    animalCaravana: "AR-0008-0123",
+    animalCaravana: "858000000080123",
     lotId: "lot_001",
     lotName: "Lote Norte",
     description: "Carencia de Ivermectina vence en 5 días",
@@ -499,7 +499,7 @@ export const MOCK_ALERTS: Alert[] = [
     urgency: "warning",
     status: "active",
     animalId: "a024",
-    animalCaravana: "AR-0024-1212",
+    animalCaravana: "858000000241212",
     lotId: "lot_002",
     lotName: "Recría Sur",
     description: "Carencia de Flunixin meglumine vence en 6 días",
@@ -516,7 +516,7 @@ export const MOCK_ALERTS: Alert[] = [
     urgency: "info",
     status: "active",
     animalId: "a010",
-    animalCaravana: "AR-0010-8901",
+    animalCaravana: "858000000108901",
     lotId: "lot_001",
     lotName: "Lote Norte",
     description: "Carencia de Ivermectina vence en 12 días",
