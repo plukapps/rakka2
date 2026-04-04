@@ -1,6 +1,8 @@
 # Actividades Sanitarias
 
-**Dependencias:** Animales (`02-animales.md`), Lotes (`03-lotes.md`)
+**Dependencias:** Framework de actividades (`04-actividades-framework.md`), Animales (`02-animales.md`), Lotes (`03-lotes.md`)
+
+> La selección de animales (RFID, archivo, lote, individual) sigue el mecanismo común definido en `04-actividades-framework.md`. Este archivo documenta solo los atributos y reglas específicos del tipo sanitario.
 
 ---
 

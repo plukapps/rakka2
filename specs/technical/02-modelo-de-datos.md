@@ -135,23 +135,18 @@ Este nodo se escribe/borra en conjunto con el campo `lotId` del animal. La Cloud
 
 ### `/activities/{estId}/{activityId}`
 
-Todas las actividades (sanitarias y comerciales) comparten este nodo, diferenciadas por `type`.
+Todas las actividades comparten este nodo, diferenciadas por `type`. Ver tipos en `specs/functional/04-actividades-framework.md`.
 
-#### Actividad sanitaria
+#### Campos comunes a todas las actividades
 
 ```json
 {
-  "type": "sanitary",
-  "subtype": "vaccination",
-  "animalId": "animal_111",
-  "lotId": null,
-  "appliedToLot": false,
-  "product": "Ivermectina 1%",
-  "dose": "5 ml",
-  "route": "subcutaneous",
-  "carenciaDays": 28,
-  "carenciaExpiresAt": 1714592000000,
-  "applicationDate": 1712000000000,
+  "type": "sanitary | commercial | field_control | movement | reproduction | general",
+  "subtype": "...",
+  "animalIds": ["animal_111", "animal_222"],
+  "selectionMethod": "rfid_bluetooth | rfid_file | lot | individual",
+  "rfidReadingId": "reading_abc",
+  "activityDate": 1712000000000,
   "responsible": "Dr. González",
   "notes": "",
   "createdAt": 1712000000000,
@@ -159,35 +154,99 @@ Todas las actividades (sanitarias y comerciales) comparten este nodo, diferencia
 }
 ```
 
-- `subtype`: `"vaccination"` | `"treatment"`
-- `appliedToLot`: `true` si se registró sobre un lote completo (la Function crea un registro individual por animal).
-- `route`: `"subcutaneous"` | `"intramuscular"` | `"oral"` | `"topical"` | `"other"`
-- `carenciaExpiresAt`: `applicationDate + carenciaDays` (en ms). Calculado y almacenado para no recalcular.
+- `type`: `"sanitary"` | `"commercial"` | `"field_control"` | `"movement"` | `"reproduction"` | `"general"`
+- `animalIds`: siempre una lista. Un solo animal = lista de uno. Nunca campo `animalId` singular.
+- `selectionMethod`: cómo se seleccionaron los animales. `"rfid_bluetooth"` | `"rfid_file"` | `"lot"` | `"individual"`
+- `rfidReadingId`: referencia al nodo `/rfid_readings/{estId}/{readingId}` si la selección fue por RFID. `null` si no aplica.
 
-#### Actividad comercial
+#### Campos adicionales por tipo
 
+**Sanitaria** (`type: "sanitary"`):
 ```json
 {
-  "type": "commercial",
-  "subtype": "sale",
-  "animalIds": ["animal_111", "animal_222"],
+  "subtype": "vaccination | treatment",
+  "product": "Ivermectina 1%",
+  "dose": "5 ml",
+  "route": "subcutaneous | intramuscular | oral | topical | other",
+  "carenciaDays": 28,
+  "carenciaExpiresAt": 1714592000000
+}
+```
+
+**Comercial** (`type: "commercial"`):
+```json
+{
+  "subtype": "sale | dispatch",
   "buyer": "Frigorífico Central",
   "destination": "Buenos Aires",
   "pricePerHead": 1500,
   "totalPrice": 3000,
-  "operationDate": 1712000000000,
+  "status": "draft | confirmed"
+}
+```
+- `status`: `"draft"` → `"confirmed"` dispara `onCommercialActivityConfirmed`.
+
+**Control de campo** (`type: "field_control"`):
+```json
+{
+  "subtype": "weighing | count | body_condition | pregnancy_check | other",
+  "weightKg": 320.5,
+  "scale": "Báscula Potrero Norte",
+  "result": "texto libre para otros subtipos"
+}
+```
+
+**Movimiento** (`type: "movement"`):
+```json
+{
+  "subtype": "paddock_move | field_transfer | external_transfer",
+  "origin": "Potrero Norte",
+  "destination": "Potrero Sur",
+  "destinationEstablishmentId": null
+}
+```
+
+**Reproducción** (`type: "reproduction"`):
+```json
+{
+  "subtype": "service | pregnancy_diagnosis | birth | weaning",
+  "serviceType": "natural | artificial_insemination | embryo_transfer",
+  "pregnancyResult": "positive | negative | uncertain",
+  "birthResult": "live | stillborn | abortion",
+  "offspringCaravana": "AR-9999"
+}
+```
+
+**General** (`type: "general"`):
+```json
+{
+  "title": "Revisión veterinaria general"
+}
+```
+
+---
+
+### `/rfid_readings/{estId}/{readingId}`
+
+Registra cada lectura RFID como evento independiente. Existe aunque no esté asociada a ninguna actividad.
+
+```json
+{
+  "method": "bluetooth | file_upload",
+  "fileName": "lectura_2024-04-03.txt",
+  "animalIds": ["animal_111", "animal_222", "animal_333"],
+  "unknownCaravanas": ["AR-XXXX"],
+  "activityId": "activity_zzz",
+  "responsible": "Juan Pérez",
   "notes": "",
-  "status": "confirmed",
-  "createdAt": 1712000000000,
+  "timestamp": 1712000000000,
   "createdBy": "uid_usuario"
 }
 ```
 
-- `subtype`: `"sale"` | `"dispatch"`
-- `animalIds`: lista de animales incluidos en la operación.
-- `status`: `"draft"` (antes de confirmar) | `"confirmed"` (trigger para la Function).
-
-> El cliente escribe la actividad comercial con `status: "draft"`. Al confirmar (luego de la validación de carencia en cliente), actualiza a `status: "confirmed"`. Esto dispara `onCommercialActivityConfirmed`.
+- `method`: `"bluetooth"` (tiempo real) | `"file_upload"` (archivo previo)
+- `unknownCaravanas`: caravanas leídas que no existen en el establecimiento activo
+- `activityId`: referencia a la actividad que usó esta lectura. `null` si fue una lectura independiente.
 
 ---
 
@@ -206,7 +265,7 @@ Todas las actividades (sanitarias y comerciales) comparten este nodo, diferencia
 }
 ```
 
-- `type`: `"entry"` | `"lot_assignment"` | `"lot_change"` | `"lot_removal"` | `"sanitary_activity"` | `"commercial_activity"` | `"exit"` | `"correction"`
+- `type`: `"entry"` | `"lot_assignment"` | `"lot_change"` | `"lot_removal"` | `"sanitary_activity"` | `"commercial_activity"` | `"field_control"` | `"movement"` | `"reproduction"` | `"general_activity"` | `"rfid_reading"` | `"exit"` | `"correction"`
 - Los campos `lotName`, `responsible`, etc. se **desnormalizan en el momento de creación** para que el historial sea autocontenido (no depender de leer otros nodos para mostrar el historial).
 - Los eventos de trazabilidad son escritos **exclusivamente por Cloud Functions**, nunca por el cliente directamente.
 
