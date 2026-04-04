@@ -1,0 +1,53 @@
+/*
+ * Theme: Slate + Blue
+ * Base gris azulada + acento azul índigo
+ * Sensación: enterprise, confiable, tech
+ */
+
+:root {
+  --background: oklch(0.99 0.002 240);
+  --foreground: oklch(0.15 0.02 250);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.02 250);
+
+  --muted: oklch(0.96 0.005 240);
+  --muted-foreground: oklch(0.5 0.018 250);
+
+  --border: oklch(0.88 0.008 240);
+  --input: oklch(0.88 0.008 240);
+
+  /* Primary: azul índigo */
+  --primary: oklch(0.5 0.2 265);
+  --primary-foreground: oklch(0.99 0 0);
+
+  --accent: oklch(0.93 0.04 265);
+  --accent-foreground: oklch(0.3 0.12 265);
+
+  --destructive: oklch(0.53 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: oklch(0.13 0.015 250);
+    --foreground: oklch(0.95 0.005 240);
+
+    --card: oklch(0.16 0.015 250);
+    --card-foreground: oklch(0.95 0.005 240);
+
+    --muted: oklch(0.21 0.015 250);
+    --muted-foreground: oklch(0.6 0.018 240);
+
+    --border: oklch(0.28 0.018 250);
+    --input: oklch(0.28 0.018 250);
+
+    --primary: oklch(0.6 0.2 265);
+    --primary-foreground: oklch(0.1 0 0);
+
+    --accent: oklch(0.22 0.06 265);
+    --accent-foreground: oklch(0.8 0.12 265);
+  }
+}

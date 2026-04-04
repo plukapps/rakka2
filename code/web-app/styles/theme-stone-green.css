@@ -1,0 +1,54 @@
+/*
+ * Theme: Stone + Green
+ * Base neutra cálida (tierra/campo) + acento verde esmeralda
+ * Sensación: campo, naturaleza, orgánico
+ */
+
+:root {
+  --background: oklch(0.99 0.002 80);
+  --foreground: oklch(0.2 0.01 60);
+
+  --card: oklch(0.98 0.003 80);
+  --card-foreground: oklch(0.2 0.01 60);
+
+  --muted: oklch(0.94 0.005 80);
+  --muted-foreground: oklch(0.5 0.015 60);
+
+  --border: oklch(0.88 0.008 80);
+  --input: oklch(0.88 0.008 80);
+
+  /* Primary: verde esmeralda */
+  --primary: oklch(0.54 0.16 158);
+  --primary-foreground: oklch(0.99 0 0);
+
+  /* Accent: verde más suave */
+  --accent: oklch(0.93 0.04 158);
+  --accent-foreground: oklch(0.3 0.1 158);
+
+  --destructive: oklch(0.55 0.2 25);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: oklch(0.15 0.008 60);
+    --foreground: oklch(0.93 0.005 80);
+
+    --card: oklch(0.18 0.008 60);
+    --card-foreground: oklch(0.93 0.005 80);
+
+    --muted: oklch(0.22 0.008 60);
+    --muted-foreground: oklch(0.6 0.015 80);
+
+    --border: oklch(0.28 0.01 60);
+    --input: oklch(0.28 0.01 60);
+
+    --primary: oklch(0.62 0.16 158);
+    --primary-foreground: oklch(0.1 0 0);
+
+    --accent: oklch(0.25 0.05 158);
+    --accent-foreground: oklch(0.75 0.1 158);
+  }
+}
