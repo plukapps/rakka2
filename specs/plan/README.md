@@ -1,29 +1,69 @@
 # Plan de Implementación — Rakka2
 
-## Estado general
+## Estructura del código
 
-| Fase | Web | Android | iOS |
-|---|---|---|---|
-| [1 — Setup y fundamentos](web/phase-1-setup.md) | ⏳ | — | — |
-| [2 — Layout y navegación](web/phase-2-layout.md) | ⏳ | — | — |
-| [3 — Módulo Animales](web/phase-3-animales.md) | ⏳ | — | — |
-| [4 — Módulo Lotes](web/phase-4-lotes.md) | ⏳ | — | — |
-| [5 — Actividades](web/phase-5-actividades.md) | ⏳ | — | — |
-| [6 — Trazabilidad y Alertas](web/phase-6-trazabilidad-alertas.md) | ⏳ | — | — |
-| [7 — Home y Establecimientos](web/phase-7-home-establecimientos.md) | ⏳ | — | — |
-
-**Estados:** `⏳ pendiente` · `🔄 en curso` · `✅ completo` · `—` no iniciado
+```
+code/
+├── web-app/        ← Next.js 14 + TypeScript + Tailwind
+├── android-app/    ← Kotlin + Jetpack Compose + Hilt
+├── ios-app/        ← Swift + SwiftUI
+└── functions/      ← Firebase Cloud Functions (Node.js + TypeScript)
+```
 
 ---
 
-## Contexto de implementación
+## Estado general
 
-- **Web**: Next.js 14 App Router + TypeScript + Tailwind + Zustand. Datos mockeados (sin Firebase). Ver `specs/technical/06-cliente-web.md`.
-- **Android**: Kotlin + Jetpack Compose + MVVM + Hilt. Ver `specs/technical/07-cliente-android.md`. _(pendiente de planificar)_
-- **iOS**: Swift + SwiftUI + MVVM. Ver `specs/technical/08-cliente-ios.md`. _(pendiente de planificar)_
+### Web (`code/web-app/`)
 
-## Convenciones de este directorio
+| Fase | Estado |
+|---|---|
+| [1 — Setup y fundamentos](web/phase-1-setup.md) | ⏳ |
+| [2 — Layout y navegación](web/phase-2-layout.md) | ⏳ |
+| [3 — Módulo Animales](web/phase-3-animales.md) | ⏳ |
+| [4 — Módulo Lotes](web/phase-4-lotes.md) | ⏳ |
+| [5 — Actividades](web/phase-5-actividades.md) | ⏳ |
+| [6 — Trazabilidad y Alertas](web/phase-6-trazabilidad-alertas.md) | ⏳ |
+| [7 — Home y Establecimientos](web/phase-7-home-establecimientos.md) | ⏳ |
 
-- Actualizar el estado en esta tabla al iniciar (`🔄`) y completar (`✅`) cada fase.
-- Marcar las tareas con `[x]` en el archivo de la fase a medida que se completan.
-- No adelantar fases: cada una debe estar `✅` antes de iniciar la siguiente.
+### Android (`code/android-app/`)
+
+| Fase | Estado |
+|---|---|
+| [1 — Setup y arquitectura base](android/phase-1-setup.md) | ⏳ |
+| [2 — Auth y navegación](android/phase-2-auth-nav.md) | ⏳ |
+| [3 — Módulo Animales](android/phase-3-animales.md) | ⏳ |
+| [4 — Módulo Lotes](android/phase-4-lotes.md) | ⏳ |
+| [5 — Actividades y RFID](android/phase-5-actividades.md) | ⏳ |
+| [6 — Trazabilidad y Alertas](android/phase-6-trazabilidad-alertas.md) | ⏳ |
+| [7 — Home y Establecimientos](android/phase-7-home-establecimientos.md) | ⏳ |
+
+### iOS (`code/ios-app/`)
+
+| Fase | Estado |
+|---|---|
+| [1 — Setup y arquitectura base](ios/phase-1-setup.md) | ⏳ |
+| [2 — Auth y navegación](ios/phase-2-auth-nav.md) | ⏳ |
+| [3 — Módulo Animales](ios/phase-3-animales.md) | ⏳ |
+| [4 — Módulo Lotes](ios/phase-4-lotes.md) | ⏳ |
+| [5 — Actividades y RFID](ios/phase-5-actividades.md) | ⏳ |
+| [6 — Trazabilidad y Alertas](ios/phase-6-trazabilidad-alertas.md) | ⏳ |
+| [7 — Home y Establecimientos](ios/phase-7-home-establecimientos.md) | ⏳ |
+
+### Cloud Functions (`code/functions/`)
+
+| Fase | Estado |
+|---|---|
+| [1 — Setup y functions base](functions/phase-1-setup.md) | ⏳ |
+| [2 — Functions de actividades](functions/phase-2-activities.md) | ⏳ |
+| [3 — Alertas programadas](functions/phase-3-alerts.md) | ⏳ |
+
+---
+
+## Estados: `⏳ pendiente` · `🔄 en curso` · `✅ completo`
+
+## Convenciones
+- Actualizar estado al iniciar (`🔄`) y completar (`✅`) cada fase.
+- Marcar tareas con `[x]` en el archivo de la fase.
+- No adelantar fases: cada una debe estar `✅` antes de iniciar la siguiente dentro de la misma plataforma.
+- Las plataformas pueden avanzar en paralelo.
