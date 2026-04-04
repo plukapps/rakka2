@@ -110,6 +110,20 @@ cd code/functions && npm run build
 
 ## Reglas para Claude
 
+### Specs como fuente de verdad
+
+Las specs son la fuente de verdad del proyecto. El código debe reflejar las specs, nunca al revés.
+
+- Si el código introduce algo que no está en las specs (nueva regla de negocio, nuevo campo, nuevo flujo, decisión técnica), **actualizar la spec correspondiente antes o en el mismo paso**.
+- Si hay conflicto entre el código y la spec, la spec manda — salvo que el usuario explícitamente indique lo contrario.
+- Al finalizar cualquier tarea de implementación, verificar que las specs relevantes estén al día.
+
+Specs funcionales: `specs/functional/` — qué hace el sistema  
+Specs técnicas: `specs/technical/` — cómo está construido  
+Planes: `specs/plan/` — estado de implementación por fase
+
+---
+
 ### Hacer siempre
 - Leer el spec del módulo antes de implementar cualquier feature
 - Usar `keepSynced(true)` al cambiar de establecimiento activo

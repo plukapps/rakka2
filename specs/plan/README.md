@@ -18,9 +18,9 @@ code/
 
 | Fase | Estado |
 |---|---|
-| [1 — Setup y fundamentos](web/phase-1-setup.md) | ⏳ |
-| [2 — Layout y navegación](web/phase-2-layout.md) | ⏳ |
-| [3 — Módulo Animales](web/phase-3-animales.md) | ⏳ |
+| [1 — Setup y fundamentos](web/phase-1-setup.md) | ✅ |
+| [2 — Layout y navegación](web/phase-2-layout.md) | ✅ |
+| [3 — Módulo Animales](web/phase-3-animales.md) | ✅ |
 | [4 — Módulo Lotes](web/phase-4-lotes.md) | ⏳ |
 | [5 — Actividades](web/phase-5-actividades.md) | ⏳ |
 | [6 — Trazabilidad y Alertas](web/phase-6-trazabilidad-alertas.md) | ⏳ |
