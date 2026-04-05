@@ -62,21 +62,33 @@
 
 ---
 
-## 2. Formulario nuevo animal (`/animals/new`)
+## 2. Ingreso de animales (`/animals/new`)
 
-### Layout
+### Selector de método
+
+Al entrar a `/animals/new`, el usuario primero elige cómo ingresar:
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│ Page Header: "Ingresar animal"   [← Volver]            │
+│ Page Header: "Ingresar animales"   [← Volver]          │
 ├────────────────────────────────────────────────────────┤
 │                                                        │
-│  Formulario (columna única, ancho máximo 640px)        │
+│   ┌──────────────────────┐  ┌──────────────────────┐   │
+│   │                      │  │                      │   │
+│   │   Individual         │  │   Desde lectura RFID │   │
+│   │   Un animal a la vez │  │   Importar caravanas │   │
+│   │                      │  │   de una lectura     │   │
+│   └──────────────────────┘  └──────────────────────┘   │
 │                                                        │
 └────────────────────────────────────────────────────────┘
 ```
 
-### Campos del formulario
+- Dos cards con ícono + título + descripción corta.
+- Click en una card muestra el formulario correspondiente debajo (o navega a subvista).
+
+---
+
+### 2a. Formulario individual
 
 **Sección: Identificación**
 - Caravana * (input texto, 15 dígitos, validación en tiempo real)
@@ -85,8 +97,8 @@
 - Vista previa de caravana (TagView) que se actualiza al tipear.
 
 **Sección: Datos del animal**
-- Categoría * (select: vaca / toro / ternero / ternera / vaquillona / novillo / otro)
-- Sexo * (radio: Macho / Hembra)
+- Categoría (select: vaca / toro / ternero / ternera / vaquillona / novillo / otro)
+- Sexo (radio: Macho / Hembra)
 - Raza (input texto, opcional)
 - Fecha de nacimiento (date picker, opcional)
 
@@ -104,9 +116,87 @@
 - Botón secundario: "Cancelar" (vuelve a `/animals`)
 - Al guardar exitoso: redirige al detalle del animal recién creado.
 
-### Validaciones visibles
+**Validaciones visibles**
 - Caravana duplicada: error "Ya existe un animal con esta caravana".
 - Campos obligatorios: marcados con * y mensaje de error al intentar guardar.
+
+---
+
+### 2b. Flujo desde lectura RFID
+
+#### Paso 1: Seleccionar lectura
+
+```
+┌────────────────────────────────────────────────────────┐
+│  Seleccioná una lectura RFID                           │
+│                                                        │
+│  [ReadingRow]  "terneros sopas.txt" · 3 sin registrar  │
+│  [ReadingRow]  Bluetooth · 12 sin registrar            │
+│  [ReadingRow]  "campo norte.txt" · 0 sin registrar     │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+```
+
+- Lista de lecturas RFID del establecimiento activo, ordenadas por fecha desc.
+- Por cada lectura: método (badge), nombre de archivo (si aplica), fecha, y **cantidad de caravanas no registradas** en el sistema.
+- Lecturas con 0 caravanas sin registrar aparecen al final con estado deshabilitado y tooltip: "Todos los animales de esta lectura ya están registrados."
+- Click en una lectura → avanza al paso 2.
+
+#### Paso 2: Revisar y completar datos
+
+```
+┌────────────────────────────────────────────────────────┐
+│ [← Cambiar lectura]  "terneros sopas.txt" — 3 animales │
+├──────────────────────────────────────────────────────  │
+│  Datos comunes (se aplican a todos)                    │
+│  Tipo de ingreso * [Compra ▾]  Fecha * [05/04/2025]   │
+│  Procedencia [________________]  Categoría [Ternero ▾] │
+│  Raza [________________]                               │
+├────────────────────────────────────────────────────────┤
+│  Animales a ingresar (3)                               │
+│                                                        │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │ ☑  858 000 054 596 559              [Expandir ▾]│   │
+│  │    Usando datos comunes                         │   │
+│  └─────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │ ☑  858 000 054 365 782  ⚠ Ya existe  [—]       │   │
+│  └─────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │ ☑  858 000 054 201 093              [Expandir ▾]│   │
+│  │    Usando datos comunes                         │   │
+│  └─────────────────────────────────────────────────┘   │
+│                                                        │
+│  Lote (opcional): [Sin lote ▾]                         │
+│                                                        │
+│  [  Ingresar 2 animales  ]   [Cancelar]                │
+└────────────────────────────────────────────────────────┘
+```
+
+**Sección: Datos comunes**
+- Tipo de ingreso * (select: Compra / Transferencia — Nacimiento no aplica para ingreso masivo)
+- Fecha de ingreso * (date picker, default hoy)
+- Procedencia (input texto, opcional)
+- Categoría (select, opcional — se puede dejar sin categoría)
+- Raza (input texto, opcional)
+
+**Lista de animales**
+- Checkbox por animal para excluir de la operación.
+- Cada fila muestra la caravana.
+- Estado "Ya existe": badge de error, checkbox deshabilitado y excluido automáticamente.
+- Expandir fila: permite sobrescribir atributos individuales (categoría, raza, procedencia) para ese animal.
+
+**Sección: Lote (opcional)**
+- Select con lotes activos + "Sin lote" + "Crear lote nuevo" (abre input de nombre inline).
+
+**Botón de confirmación**
+- Texto dinámico: "Ingresar N animales" donde N es la cantidad seleccionada (sin los excluidos ni los que ya existen).
+- Deshabilitado si N = 0.
+
+**Al confirmar**
+- Crea todos los animales seleccionados en estado `activo`.
+- Si se eligió lote: los asigna al lote.
+- Redirige a `/animals` con un banner de éxito: "X animales ingresados correctamente."
 
 ---
 

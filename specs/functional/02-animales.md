@@ -23,6 +23,8 @@
 
 ## Ingreso de animales
 
+El sistema ofrece dos métodos de ingreso. El usuario elige el método al iniciar el flujo de ingreso.
+
 ### Ingreso individual
 
 - El usuario completa el formulario de ingreso con caravana (obligatoria) y datos opcionales.
@@ -30,13 +32,23 @@
 - El usuario indica el motivo de ingreso: `compra`, `nacimiento`, `transferencia desde otro establecimiento`.
 - Al confirmar, se crea el animal en estado `activo` y se genera el primer evento de trazabilidad: `ingreso`.
 
-### Ingreso masivo
+### Ingreso desde lectura RFID
 
-- El usuario puede ingresar un grupo de animales en una sola operación (por ejemplo, al comprar una tropa).
-- Se indica una lista de caravanas y los atributos comunes del lote de compra (procedencia, categoría, fecha).
-- Cada animal se puede personalizar individualmente si es necesario.
-- El sistema valida que ninguna caravana de la lista esté duplicada en el establecimiento o dentro de la misma carga.
-- Al confirmar, se crean todos los animales y opcionalmente se los puede asignar directamente a un lote nuevo.
+Permite registrar como stock un grupo de animales a partir de una lectura RFID ya existente en el sistema.
+
+**Flujo:**
+1. El usuario selecciona una lectura RFID registrada previamente en el módulo de Lecturas.
+2. El sistema muestra únicamente las caravanas **no encontradas** de esa lectura (las reconocidas ya están en el sistema).
+3. El usuario completa los **atributos comunes** del grupo: tipo de ingreso, fecha, procedencia, categoría, raza (todos opcionales excepto tipo y fecha). Estos valores se aplican a todos los animales.
+4. Si algún animal difiere del grupo, el usuario puede sobrescribir sus atributos individualmente.
+5. El usuario puede excluir caravanas de la lista antes de confirmar.
+6. Opcionalmente, puede asignar todos los animales ingresados a un lote (nuevo o existente).
+7. Al confirmar, se crean todos los animales en estado `activo` y se genera el evento de trazabilidad `ingreso` para cada uno.
+
+**Validaciones:**
+- Las caravanas de la lectura no pueden existir ya en el establecimiento (misma regla que el ingreso individual).
+- Si alguna caravana del lote ya existe en el establecimiento, se marca con error individual y se excluye automáticamente del ingreso; el resto se procesa normalmente.
+- La lectura RFID seleccionada debe pertenecer al establecimiento activo.
 
 ---
 
