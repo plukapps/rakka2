@@ -33,9 +33,9 @@ Specs: `specs/functional/04-actividades-framework.md` y `04` al `13`.
 - [ ] `ReproductionScreen.kt` + VM — subtipo con campos dinámicos; si parto con cría: crear animal
 - [ ] `GeneralActivityScreen.kt` + VM — título, descripción
 
-### RFID independiente (`RfidReaderScreen.kt`)
-- [ ] Misma UI que el selector RFID pero sin paso 2 de actividad
-- [ ] Crea `RfidReading` en el repository sin `activityId`
+### Lectura RFID como actividad (`ReadingActivityScreen.kt`)
+- [ ] Formulario de lectura: método RFID (Bluetooth/archivo), responsable, notas
+- [ ] Al confirmar: crea actividad `type: "reading"` con `animalIds` + `unknownCaravanas` + `fileName`
 
 ---
 

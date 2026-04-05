@@ -70,6 +70,7 @@ export interface Lot {
 // --- Activities ---
 
 export type ActivityType =
+  | "reading"
   | "sanitary"
   | "commercial"
   | "field_control"
@@ -176,12 +177,17 @@ export interface ActivityBase {
   type: ActivityType;
   animalIds: string[];
   selectionMethod: SelectionMethod;
-  rfidReadingId: string | null;
+  unknownCaravanas?: string[];
+  fileName?: string | null;
   activityDate: number;
   responsible: string;
   notes: string;
   createdAt: number;
   createdBy: string;
+}
+
+export interface ReadingActivity extends ActivityBase {
+  type: "reading";
 }
 
 export interface SanitaryActivity extends ActivityBase, SanitaryFields {
@@ -209,30 +215,13 @@ export interface GeneralActivity extends ActivityBase, GeneralFields {
 }
 
 export type Activity =
+  | ReadingActivity
   | SanitaryActivity
   | CommercialActivity
   | FieldControlActivity
   | MovementActivity
   | ReproductionActivity
   | GeneralActivity;
-
-// --- RFID Reading ---
-
-export type RfidMethod = "bluetooth" | "file_upload";
-
-export interface RfidReading {
-  id: string;
-  estId: string;
-  method: RfidMethod;
-  fileName: string | null;
-  animalIds: string[];
-  unknownCaravanas: string[];
-  activityId: string | null;
-  responsible: string;
-  notes: string;
-  timestamp: number;
-  createdBy: string;
-}
 
 // --- Traceability ---
 
@@ -247,7 +236,7 @@ export type TraceabilityEventType =
   | "movement"
   | "reproduction"
   | "general_activity"
-  | "rfid_reading"
+  | "reading"
   | "exit"
   | "correction";
 

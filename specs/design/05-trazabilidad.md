@@ -153,7 +153,7 @@ Más antiguo ↓
 | `movement` | Subtipo, origen → destino |
 | `reproduction` | Subtipo + dato clave (resultado preñez, caravana cría, etc.) |
 | `general_activity` | Título + descripción |
-| `rfid_reading` | Método (Bluetooth/Archivo), nombre de archivo si aplica |
+| `reading` | Método (Bluetooth/Archivo), nombre de archivo si aplica |
 | `exit` | Tipo de egreso, fecha |
 | `correction` | Texto libre de la corrección + referencia al evento corregido |
 

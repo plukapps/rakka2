@@ -11,7 +11,7 @@ Firebase Realtime Database almacena todo como un árbol JSON. La raíz del árbo
 ├── animals/
 ├── lots/
 ├── lot_animals/          ← índice de denormalización
-├── activities/
+├── activities/           ← incluye lecturas RFID como type: "reading"
 ├── traceability/
 └── alerts/
 ```
@@ -155,11 +155,12 @@ Todas las actividades comparten este nodo, diferenciadas por `type`. Ver tipos e
 
 ```json
 {
-  "type": "sanitary | commercial | field_control | movement | reproduction | general",
+  "type": "reading | sanitary | commercial | field_control | movement | reproduction | general",
   "subtype": "...",
   "animalIds": ["animal_111", "animal_222"],
   "selectionMethod": "rfid_bluetooth | rfid_file | lot | individual",
-  "rfidReadingId": "reading_abc",
+  "unknownCaravanas": ["858000054596559", "858000054365782"],
+  "fileName": "terneros sopas.txt",
   "activityDate": 1712000000000,
   "responsible": "Dr. González",
   "notes": "",
@@ -168,10 +169,11 @@ Todas las actividades comparten este nodo, diferenciadas por `type`. Ver tipos e
 }
 ```
 
-- `type`: `"sanitary"` | `"commercial"` | `"field_control"` | `"movement"` | `"reproduction"` | `"general"`
-- `animalIds`: siempre una lista. Un solo animal = lista de uno. Nunca campo `animalId` singular.
-- `selectionMethod`: cómo se seleccionaron los animales. `"rfid_bluetooth"` | `"rfid_file"` | `"lot"` | `"individual"`
-- `rfidReadingId`: referencia al nodo `/rfid_readings/{estId}/{readingId}` si la selección fue por RFID. `null` si no aplica.
+- `type`: `"reading"` | `"sanitary"` | `"commercial"` | `"field_control"` | `"movement"` | `"reproduction"` | `"general"`
+- `animalIds`: siempre una lista. Un solo animal = lista de uno. Nunca campo `animalId` singular. Para `type: "reading"` puede estar vacía (solo caravanas desconocidas).
+- `selectionMethod`: cómo se seleccionaron los animales. `"rfid_bluetooth"` | `"rfid_file"` | `"lot"` | `"individual"`. Para `type: "reading"` siempre es `rfid_bluetooth` o `rfid_file`.
+- `unknownCaravanas`: caravanas leídas por RFID que no existen en el establecimiento (15 dígitos cada una). Solo presente cuando `selectionMethod` es `rfid_bluetooth` o `rfid_file`. Puede estar vacía.
+- `fileName`: nombre del archivo cargado. Solo presente cuando `selectionMethod` es `rfid_file`.
 
 #### Campos adicionales por tipo
 
@@ -240,35 +242,6 @@ Todas las actividades comparten este nodo, diferenciadas por `type`. Ver tipos e
 
 ---
 
-### `/rfid_readings/{estId}/{readingId}`
-
-Registra cada lectura RFID como evento independiente. Existe aunque no esté asociada a ninguna actividad.
-
-```json
-{
-  "method": "bluetooth | file_upload",
-  "fileName": "terneros sopas.txt",
-  "animalIds": ["animal_111", "animal_222"],
-  "unknownCaravanas": ["858000054596559", "858000054365782", "858000054596550"],
-  "activityId": "activity_zzz",
-  "responsible": "Juan Pérez",
-  "notes": "",
-  "timestamp": 1712000000000,
-  "createdBy": "uid_usuario"
-}
-```
-
-- `animalIds`: IDs de animales que coincidieron con caravanas del establecimiento (en stock).
-- `unknownCaravanas`: caravanas completas (15 dígitos) que no existen en el establecimiento. Se almacenan siempre para trazabilidad.
-- Una lectura puede tener solo `unknownCaravanas` (sin animales en stock) y sigue siendo válida.
-```
-
-- `method`: `"bluetooth"` (tiempo real) | `"file_upload"` (archivo previo)
-- `unknownCaravanas`: caravanas leídas que no existen en el establecimiento activo
-- `activityId`: referencia a la actividad que usó esta lectura. `null` si fue una lectura independiente.
-
----
-
 ### `/traceability/{estId}/{animalId}/{eventId}`
 
 ```json
@@ -284,7 +257,7 @@ Registra cada lectura RFID como evento independiente. Existe aunque no esté aso
 }
 ```
 
-- `type`: `"entry"` | `"lot_assignment"` | `"lot_change"` | `"lot_removal"` | `"sanitary_activity"` | `"commercial_activity"` | `"field_control"` | `"movement"` | `"reproduction"` | `"general_activity"` | `"rfid_reading"` | `"exit"` | `"correction"`
+- `type`: `"entry"` | `"lot_assignment"` | `"lot_change"` | `"lot_removal"` | `"reading"` | `"sanitary_activity"` | `"commercial_activity"` | `"field_control"` | `"movement"` | `"reproduction"` | `"general_activity"` | `"exit"` | `"correction"`
 - Los campos `lotName`, `responsible`, etc. se **desnormalizan en el momento de creación** para que el historial sea autocontenido (no depender de leer otros nodos para mostrar el historial).
 - Los eventos de trazabilidad son escritos **exclusivamente por Cloud Functions**, nunca por el cliente directamente.
 

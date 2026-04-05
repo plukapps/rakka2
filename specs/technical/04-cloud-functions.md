@@ -77,12 +77,14 @@ Las Cloud Functions contienen la lógica de negocio que no puede quedar en el cl
 
 ---
 
-### 4. `onRfidReadingCreated`
+### 4. `onReadingActivityCreated`
 
-**Trigger**: `database.onValueCreated("/rfid_readings/{estId}/{readingId}")`
+**Trigger**: `database.onValueCreated("/activities/{estId}/{activityId}")` (filtrar por `type === "reading"`)
+
+> **Nota**: esta función se ejecuta como parte del trigger general `onActivityCreated`. Se incluye como sección separada para documentar el comportamiento específico del tipo `reading`.
 
 **Responsabilidades**:
-1. Para cada `animalId` en `animalIds` (los reconocidos): crear evento de trazabilidad tipo `"rfid_reading"` con `method`, `activityId` (si tiene uno asociado) y `readingId`.
+1. Para cada `animalId` en `animalIds` (los reconocidos): crear evento de trazabilidad tipo `"reading"` con `selectionMethod` (bluetooth/file).
 2. Los `unknownCaravanas` se loguean pero no generan trazabilidad (no hay animal a quien asignarlos).
 
 ---
@@ -135,8 +137,7 @@ functions/
 │   ├── index.ts                    ← Exporta todas las functions
 │   ├── sanitaryActivity.ts         ← onSanitaryActivityCreated
 │   ├── commercialActivity.ts       ← onCommercialActivityConfirmed
-│   ├── activity.ts                 ← onActivityCreated (field_control, movement, reproduction, general)
-│   ├── rfidReading.ts              ← onRfidReadingCreated
+│   ├── activity.ts                 ← onActivityCreated (reading, field_control, movement, reproduction, general)
 │   ├── lot.ts                      ← onLotDissolved, onAnimalLotChanged
 │   └── alerts.ts                   ← generateAlerts
 ├── package.json

@@ -26,7 +26,7 @@ Un usuario puede crear y gestionar múltiples establecimientos. Dentro de cada e
 | **Animal** | Individuo bovino registrado en el sistema. Siempre identificado por una caravana única. |
 | **Caravana** | Identificador físico del animal (tag auricular). Es el identificador principal en el sistema: obligatorio, único dentro del establecimiento e inmutable una vez asignado. |
 | **Lote** | Agrupación operativa y dinámica de animales. Se usa para ejecutar actividades sobre un conjunto de animales a la vez. Un animal puede pertenecer a un solo lote o a ninguno. |
-| **Actividad** | Evento registrado sobre un animal o lote. Puede ser sanitaria (vacuna, tratamiento) o comercial (venta, despacho). |
+| **Actividad** | Evento registrado sobre un animal o lote. Tipos: lectura RFID, sanitaria, comercial, control de campo, movimiento, reproducción, general. |
 | **Actividad sanitaria** | Vacuna o tratamiento aplicado a uno o más animales. Incluye datos de producto, dosis, vía, carencia y responsable. |
 | **Actividad comercial** | Venta o despacho de animales. Incluye comprador, destino, precio y genera el egreso de los animales involucrados. |
 | **Carencia** | Período de espera obligatorio después de aplicar un producto sanitario, durante el cual el animal no puede ser enviado a faena ni vendido. Se expresa en días. |

@@ -27,7 +27,7 @@ const eventTypeLabel: Record<TraceabilityEventType, string> = {
   movement: "Movimiento",
   reproduction: "Reproducción",
   general_activity: "Actividad general",
-  rfid_reading: "Lectura RFID",
+  reading: "Lectura RFID",
   exit: "Egreso",
   correction: "Corrección",
 }

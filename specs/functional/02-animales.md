@@ -34,11 +34,11 @@ El sistema ofrece dos métodos de ingreso. El usuario elige el método al inicia
 
 ### Ingreso desde lectura RFID
 
-Permite registrar como stock un grupo de animales a partir de una lectura RFID ya existente en el sistema.
+Permite registrar como stock un grupo de animales a partir de una actividad de lectura RFID (`type: "reading"`) ya registrada en el sistema.
 
 **Flujo:**
-1. El usuario selecciona una lectura RFID registrada previamente en el módulo de Lecturas.
-2. El sistema muestra únicamente las caravanas **no encontradas** de esa lectura (las reconocidas ya están en el sistema).
+1. El usuario selecciona una actividad de tipo `reading` registrada previamente.
+2. El sistema muestra únicamente las caravanas **desconocidas** (`unknownCaravanas`) de esa actividad (las reconocidas ya están en el sistema).
 3. El usuario completa los **atributos comunes** del grupo: tipo de ingreso, fecha, procedencia, categoría, raza (todos opcionales excepto tipo y fecha). Estos valores se aplican a todos los animales.
 4. Si algún animal difiere del grupo, el usuario puede sobrescribir sus atributos individualmente.
 5. El usuario puede excluir caravanas de la lista antes de confirmar.
@@ -46,9 +46,9 @@ Permite registrar como stock un grupo de animales a partir de una lectura RFID y
 7. Al confirmar, se crean todos los animales en estado `activo` y se genera el evento de trazabilidad `ingreso` para cada uno.
 
 **Validaciones:**
-- Las caravanas de la lectura no pueden existir ya en el establecimiento (misma regla que el ingreso individual).
-- Si alguna caravana del lote ya existe en el establecimiento, se marca con error individual y se excluye automáticamente del ingreso; el resto se procesa normalmente.
-- La lectura RFID seleccionada debe pertenecer al establecimiento activo.
+- Las caravanas no pueden existir ya en el establecimiento (misma regla que el ingreso individual).
+- Si alguna caravana ya existe en el establecimiento, se marca con error individual y se excluye automáticamente del ingreso; el resto se procesa normalmente.
+- La actividad de lectura seleccionada debe pertenecer al establecimiento activo.
 
 ---
 

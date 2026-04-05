@@ -19,8 +19,7 @@ Inicializar el proyecto Next.js y construir toda la capa de datos (tipos, mock d
 - [ ] `animal.ts` — `Animal`, `AnimalStatus`, `AnimalCategory`, `AnimalSex`, `EntryType`, `ExitType`
 - [ ] `lot.ts` — `Lot`, `LotStatus`
 - [ ] `activity.ts` — `Activity` (tipo base unificado), `ActivityType`, `SelectionMethod`, `SanitarySubtype`, `CommercialSubtype`, `FieldControlSubtype`, `MovementSubtype`, `ReproductionSubtype`, `AdministrationRoute`
-- [ ] `rfid.ts` — `RfidReading`, `RfidMethod`
-- [ ] `traceability.ts` — `TraceabilityEvent`, `TraceabilityEventType` (incluyendo todos los tipos nuevos: `field_control`, `movement`, `reproduction`, `general_activity`, `rfid_reading`)
+- [ ] `traceability.ts` — `TraceabilityEvent`, `TraceabilityEventType` (incluyendo todos los tipos: `reading`, `field_control`, `movement`, `reproduction`, `general_activity`)
 - [ ] `alert.ts` — `Alert`, `AlertType`, `AlertUrgency`, `AlertStatus`
 
 ### Utilidades (`lib/utils/`)
@@ -45,8 +44,7 @@ Inicializar el proyecto Next.js y construir toda la capa de datos (tipos, mock d
 ### Repositories (`lib/repositories/`)
 - [ ] `animalRepository.ts` — `getAnimals(estId)`, `getAnimal(estId, id)`, `createAnimal()`, `updateAnimal()`, `subscribeToAnimals(estId, cb)`
 - [ ] `lotRepository.ts` — `getLots(estId)`, `getLot()`, `createLot()`, `updateLot()`, `dissolveLot()`
-- [ ] `activityRepository.ts` — `getActivities(estId)`, `createActivity(activity)` (genérico para todos los tipos), `subscribeToActivities(estId, cb)`
-- [ ] `rfidRepository.ts` — `createRfidReading(estId, reading)`, `getRfidReadings(estId)`
+- [ ] `activityRepository.ts` — `getActivities(estId)`, `createActivity(activity)` (genérico para todos los tipos incluido `reading`), `subscribeToActivities(estId, cb)`
 - [ ] `traceabilityRepository.ts` — `getTraceability(estId, animalId)`, `addEvent()`
 - [ ] `alertRepository.ts` — `getAlerts(estId)`, `dismissAlert()`
 
@@ -60,7 +58,6 @@ Inicializar el proyecto Next.js y construir toda la capa de datos (tipos, mock d
 - [ ] `useActivities.ts` — subscribe a actividades del est. activo (todos los tipos)
 - [ ] `useTraceability.ts` — subscribe a trazabilidad de un animal
 - [ ] `useAlerts.ts` — subscribe a alertas del est. activo
-- [ ] `useRfidReadings.ts` — subscribe a lecturas RFID del est. activo
 
 ---
 

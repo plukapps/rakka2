@@ -19,7 +19,7 @@ Spec técnica: `specs/technical/04-cloud-functions.md`
   - Genera evento de trazabilidad por cada animal
   - Caso especial `field_transfer`: egreso en origen + ingreso en destino
   - Caso especial parto con cría: crear nuevo animal
-- [ ] `rfidReading.ts` — `onRfidReadingCreated`: genera evento `rfid_reading` en trazabilidad de cada animal reconocido
+- [ ] Dentro de `onActivityCreated`: cuando `type === "reading"`, genera evento `reading` en trazabilidad de cada animal reconocido
 - [ ] `lot.ts` — `onLotDissolved` + `onAnimalLotChanged`: mantiene índice `lot_animals` y contadores
 
 ### Idempotencia

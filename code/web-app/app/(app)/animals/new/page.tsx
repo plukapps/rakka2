@@ -9,12 +9,12 @@ import { useAppStore } from "@/lib/stores/appStore"
 import { useAuthStore } from "@/lib/stores/authStore"
 import { useLots } from "@/hooks/useLots"
 import { useAnimals } from "@/hooks/useAnimals"
-import { useRfidReadings } from "@/hooks/useRfidReadings"
+import { activityRepository } from "@/lib/repositories/activity"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { cn, formatDate, formatCaravana, categoryLabel } from "@/lib/utils"
-import type { Animal, AnimalCategory, AnimalSex, AnimalEntryType, RfidReading } from "@/lib/types"
+import type { Animal, AnimalCategory, AnimalSex, AnimalEntryType, Activity } from "@/lib/types"
 
 // ─── Shared UI helpers ────────────────────────────────────────────────────────
 
@@ -285,14 +285,14 @@ function RfidPickReading({
   onSelect,
   onBack,
 }: {
-  readings: RfidReading[]
+  readings: Activity[]
   existingCaravanas: Set<string>
-  onSelect: (reading: RfidReading) => void
+  onSelect: (reading: Activity) => void
   onBack: () => void
 }) {
   const readingsWithCount = readings.map((r) => ({
     reading: r,
-    registerable: r.unknownCaravanas.filter((c) => !existingCaravanas.has(c)),
+    registerable: (r.unknownCaravanas ?? []).filter((c) => !existingCaravanas.has(c)),
   }))
 
   return (
@@ -305,15 +305,15 @@ function RfidPickReading({
       {readingsWithCount.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-8 text-center">
           <p className="text-sm text-muted-foreground">No hay lecturas RFID registradas.</p>
-          <Link href="/rfid" className="mt-2 inline-block text-sm text-primary hover:underline">
-            Ir a Lecturas RFID →
+          <Link href="/activities/new/reading" className="mt-2 inline-block text-sm text-primary hover:underline">
+            Registrar lectura RFID →
           </Link>
         </div>
       ) : (
         <div className="space-y-2">
           {readingsWithCount.map(({ reading, registerable }) => {
             const disabled = registerable.length === 0
-            const name = reading.method === "file_upload" && reading.fileName
+            const name = reading.selectionMethod === "rfid_file" && reading.fileName
               ? reading.fileName
               : "Lectura Bluetooth"
             return (
@@ -331,7 +331,7 @@ function RfidPickReading({
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-0.5">
                     <p className="text-sm font-medium text-foreground">{name}</p>
-                    <p className="text-xs text-muted-foreground">{formatDate(reading.timestamp)}</p>
+                    <p className="text-xs text-muted-foreground">{formatDate(reading.activityDate)}</p>
                     {reading.responsible && (
                       <p className="text-xs text-muted-foreground">{reading.responsible}</p>
                     )}
@@ -365,7 +365,7 @@ function RfidReview({
   lots,
   onBack,
 }: {
-  reading: RfidReading
+  reading: Activity
   existingCaravanas: Set<string>
   estId: string
   userId: string
@@ -384,14 +384,16 @@ function RfidReview({
     lotId: "",
   })
 
+  const unknownCaravanas = reading.unknownCaravanas ?? []
+
   const registerable = useMemo(
-    () => reading.unknownCaravanas.filter((c) => !existingCaravanas.has(c)),
-    [reading, existingCaravanas]
+    () => unknownCaravanas.filter((c) => !existingCaravanas.has(c)),
+    [unknownCaravanas, existingCaravanas]
   )
 
   const [rows, setRows] = useState<Record<string, AnimalRow>>(() =>
     Object.fromEntries(
-      reading.unknownCaravanas.map((c) => [
+      unknownCaravanas.map((c) => [
         c,
         {
           included: !existingCaravanas.has(c),
@@ -453,7 +455,7 @@ function RfidReview({
   }
 
   const readingName =
-    reading.method === "file_upload" && reading.fileName
+    reading.selectionMethod === "rfid_file" && reading.fileName
       ? reading.fileName
       : "Lectura Bluetooth"
 
@@ -463,7 +465,7 @@ function RfidReview({
         <Button variant="ghost" size="sm" onClick={onBack}>← Cambiar lectura</Button>
         <div>
           <h1 className="text-lg font-semibold text-foreground">{readingName}</h1>
-          <p className="text-xs text-muted-foreground">{formatDate(reading.timestamp)}</p>
+          <p className="text-xs text-muted-foreground">{formatDate(reading.activityDate)}</p>
         </div>
       </div>
 
@@ -546,7 +548,7 @@ function RfidReview({
           </span>
         </div>
 
-        {reading.unknownCaravanas.map((caravana) => {
+        {unknownCaravanas.map((caravana) => {
           const row = rows[caravana]
           if (!row) return null
           const hasOverride = Object.keys(row.overrides).length > 0
@@ -655,10 +657,14 @@ export default function NewAnimalPage() {
   const user = useAuthStore((s) => s.user)
   const lots = useLots()
   const animals = useAnimals()
-  const readings = useRfidReadings()
 
   const [step, setStep] = useState<Step>("select-method")
-  const [selectedReading, setSelectedReading] = useState<RfidReading | null>(null)
+  const [selectedReading, setSelectedReading] = useState<Activity | null>(null)
+
+  const readings = useMemo(() => {
+    if (!estId) return []
+    return activityRepository.getAll(estId).filter((a) => a.type === "reading")
+  }, [estId])
 
   const existingCaravanas = useMemo(
     () => new Set(animals.map((a) => a.caravana)),

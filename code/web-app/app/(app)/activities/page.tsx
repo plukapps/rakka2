@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { formatDate, activityTypeLabel } from "@/lib/utils"
 
 const urgencyMap: Record<string, "neutral" | "success" | "warning" | "danger" | "info"> = {
+  reading: "info",
   sanitary: "warning",
   commercial: "danger",
   field_control: "info",
@@ -56,7 +57,9 @@ export default function ActivitiesPage() {
                 </StatusBadge>
                 <div>
                   <p className="text-sm font-medium text-foreground">
-                    {act.animalIds.length} animal{act.animalIds.length !== 1 ? "es" : ""}
+                    {act.type === "reading"
+                      ? `${act.animalIds.length + (act.unknownCaravanas?.length ?? 0)} caravana${(act.animalIds.length + (act.unknownCaravanas?.length ?? 0)) !== 1 ? "s" : ""}`
+                      : `${act.animalIds.length} animal${act.animalIds.length !== 1 ? "es" : ""}`}
                   </p>
                   <p className="text-xs text-muted-foreground">{act.responsible}</p>
                 </div>

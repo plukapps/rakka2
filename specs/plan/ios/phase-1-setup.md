@@ -21,8 +21,7 @@ Spec técnica: `specs/technical/08-cliente-ios.md`
 ### Modelos de dominio (`Models/`)
 - [ ] `Animal.swift` — struct con todos los campos + enums `AnimalStatus`, `AnimalCategory`, `AnimalSex`, `EntryType`, `ExitType`
 - [ ] `Lot.swift` — `Lot`, `LotStatus`
-- [ ] `Activity.swift` — `Activity` base + `ActivityType`, `SelectionMethod` + extensiones por tipo
-- [ ] `RfidReading.swift` — `RfidReading`, `RfidMethod`
+- [ ] `Activity.swift` — `Activity` base + `ActivityType` (incluye `reading`), `SelectionMethod` + extensiones por tipo
 - [ ] `TraceabilityEvent.swift` — `TraceabilityEvent`, `TraceabilityEventType`
 - [ ] `Alert.swift` — `Alert`, `AlertType`, `AlertUrgency`, `AlertStatus`
 - [ ] `Establishment.swift` — `Establishment`, `EstablishmentStatus`
@@ -42,8 +41,7 @@ Spec técnica: `specs/technical/08-cliente-ios.md`
 ### Repositories (`Repositories/`)
 - [ ] `AnimalRepository.swift` — `func animals(estId:) -> AnyPublisher<[Animal], Never>`; `func createAnimal(_:)`
 - [ ] `LotRepository.swift`
-- [ ] `ActivityRepository.swift` — `func createActivity(_:)` genérico
-- [ ] `RfidRepository.swift`
+- [ ] `ActivityRepository.swift` — `func createActivity(_:)` genérico (incluye tipo `reading`)
 - [ ] `TraceabilityRepository.swift`
 - [ ] `AlertRepository.swift`
 - [ ] `EstablishmentRepository.swift`
@@ -59,13 +57,13 @@ Spec técnica: `specs/technical/08-cliente-ios.md`
 ```
 code/ios-app/Rakka/
 ├── RakkaApp.swift
-├── Models/Animal.swift, Lot.swift, Activity.swift, RfidReading.swift,
+├── Models/Animal.swift, Lot.swift, Activity.swift,
 │         TraceabilityEvent.swift, Alert.swift, Establishment.swift, UserProfile.swift
 ├── Core/
 │   ├── Mock/MockData.swift, MockStore.swift
 │   └── State/AppState.swift, AuthState.swift
 └── Repositories/AnimalRepository.swift, LotRepository.swift, ActivityRepository.swift,
-                  RfidRepository.swift, TraceabilityRepository.swift,
+                  TraceabilityRepository.swift,
                   AlertRepository.swift, EstablishmentRepository.swift
 ```
 

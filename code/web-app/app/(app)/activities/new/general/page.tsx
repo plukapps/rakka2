@@ -71,7 +71,7 @@ export default function GeneralActivityPage() {
         type: "general",
         animalIds: selected.map((a) => a.id),
         selectionMethod,
-        rfidReadingId: null,
+        unknownCaravanas: [],
         activityDate: ts,
         responsible: user.name,
         notes,

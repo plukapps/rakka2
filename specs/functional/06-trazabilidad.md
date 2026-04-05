@@ -28,7 +28,7 @@ Todos los eventos incluyen como mínimo: **tipo, fecha, responsable** (quién re
 | `movimiento` | Traslado entre potreros o campos | Subtipo, origen, destino |
 | `reproducción` | Servicio, preñez, parto, destete | Subtipo, resultado |
 | `actividad general` | Registro libre del usuario | Título |
-| `lectura RFID` | Lectura con lector RFID (Bluetooth o archivo) | Método (bluetooth/archivo), actividad asociada si aplica |
+| `lectura RFID` | Actividad de lectura RFID (Bluetooth o archivo) | Método (bluetooth/archivo) |
 | `egreso` | Cualquier tipo de egreso | Tipo de egreso (venta, muerte, transferencia), referencia a actividad si aplica |
 | `corrección` | Registro manual de corrección | Descripción de la corrección, referencia al evento corregido |
 

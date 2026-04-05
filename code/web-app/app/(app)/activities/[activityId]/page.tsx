@@ -9,6 +9,7 @@ import { useAppStore } from "@/lib/stores/appStore"
 import type {
   Activity,
   Animal,
+  ReadingActivity,
   SanitaryActivity,
   CommercialActivity,
   FieldControlActivity,
@@ -22,9 +23,11 @@ import { TagView } from "@/components/animals/TagView"
 import {
   activityTypeLabel,
   formatDateTime,
+  formatCaravana,
 } from "@/lib/utils"
 
 const typeVariant: Record<string, "neutral" | "success" | "warning" | "danger" | "info"> = {
+  reading: "info",
   sanitary: "warning",
   commercial: "danger",
   field_control: "info",
@@ -42,6 +45,11 @@ const selectionMethodLabel: Record<string, string> = {
 
 function activityDescription(act: Activity): string {
   switch (act.type) {
+    case "reading": {
+      const method = act.selectionMethod === "rfid_bluetooth" ? "Bluetooth" : "Archivo"
+      const total = act.animalIds.length + (act.unknownCaravanas?.length ?? 0)
+      return `Lectura RFID — ${method} (${total} caravanas)`
+    }
     case "sanitary": {
       const s = act as SanitaryActivity
       const sub = s.subtype === "vaccination" ? "Vacunación" : "Tratamiento"
@@ -85,8 +93,6 @@ function activityDescription(act: Activity): string {
       const g = act as GeneralActivity
       return g.title || "Actividad general"
     }
-    default:
-      return activityTypeLabel(act.type)
   }
 }
 
@@ -212,8 +218,21 @@ function GeneralDetails({ act }: { act: GeneralActivity }) {
   )
 }
 
+function ReadingDetails({ act }: { act: ReadingActivity }) {
+  const method = act.selectionMethod === "rfid_bluetooth" ? "Bluetooth" : "Archivo"
+  return (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <DetailField label="Método" value={method} />
+      {act.fileName && <DetailField label="Archivo" value={act.fileName} />}
+      <DetailField label="En stock" value={`${act.animalIds.length}`} />
+      <DetailField label="Sin registro" value={`${act.unknownCaravanas?.length ?? 0}`} />
+    </div>
+  )
+}
+
 function ActivityTypeDetails({ act }: { act: Activity }) {
   switch (act.type) {
+    case "reading": return <ReadingDetails act={act as ReadingActivity} />
     case "sanitary": return <SanitaryDetails act={act as SanitaryActivity} />
     case "commercial": return <CommercialDetails act={act as CommercialActivity} />
     case "field_control": return <FieldControlDetails act={act as FieldControlActivity} />
@@ -221,6 +240,79 @@ function ActivityTypeDetails({ act }: { act: Activity }) {
     case "reproduction": return <ReproductionDetails act={act as ReproductionActivity} />
     case "general": return <GeneralDetails act={act as GeneralActivity} />
   }
+}
+
+function ReadingCaravanaGrid({ animals, unknownCaravanas }: { animals: Animal[]; unknownCaravanas: string[] }) {
+  const [filter, setFilter] = useState<"all" | "stock" | "unknown">("all")
+  const total = animals.length + unknownCaravanas.length
+  const filteredStock = filter === "unknown" ? [] : animals
+  const filteredUnknown = filter === "stock" ? [] : unknownCaravanas
+
+  return (
+    <section className="rounded-xl border border-border bg-card p-5 space-y-3">
+      <h2 className="text-sm font-semibold text-foreground">
+        Caravanas <span className="font-normal text-muted-foreground">({total})</span>
+      </h2>
+
+      <div className="flex gap-1 rounded-lg bg-muted p-1">
+        {([
+          { key: "all", label: `Todas (${total})` },
+          { key: "stock", label: `En stock (${animals.length})` },
+          { key: "unknown", label: `Sin registro (${unknownCaravanas.length})` },
+        ] as const).map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            className={`flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
+              filter === t.key
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            onClick={() => setFilter(t.key)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        {filteredStock.map((animal) => (
+          <Link key={animal.id} href={`/animals/${animal.id}`}>
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 hover:border-foreground/20 hover:shadow-sm transition-all cursor-pointer">
+              <TagView caravana={animal.caravana} size="md" />
+              <div className="min-w-0">
+                <p className="text-xs font-mono text-foreground truncate">
+                  {formatCaravana(animal.caravana, "serie")}
+                </p>
+                <p className="text-xs text-emerald-600">En stock</p>
+              </div>
+            </div>
+          </Link>
+        ))}
+
+        {filteredUnknown.map((caravana) => (
+          <div
+            key={caravana}
+            className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2"
+          >
+            <TagView caravana={caravana} size="md" />
+            <div className="min-w-0">
+              <p className="text-xs font-mono text-foreground truncate">
+                {formatCaravana(caravana, "serie")}
+              </p>
+              <p className="text-xs text-amber-600">Sin registro</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filteredStock.length === 0 && filteredUnknown.length === 0 && (
+        <p className="text-sm text-muted-foreground text-center py-6">
+          No hay caravanas en esta categoría.
+        </p>
+      )}
+    </section>
+  )
 }
 
 export default function ActivityDetailPage() {
@@ -288,24 +380,28 @@ export default function ActivityDetailPage() {
         <ActivityTypeDetails act={activity} />
       </section>
 
-      {/* Animales */}
-      <section className="rounded-xl border border-border bg-card p-5 space-y-3">
-        <h2 className="text-sm font-semibold text-foreground">
-          Animales{" "}
-          <span className="font-normal text-muted-foreground">({animals.length})</span>
-        </h2>
-        {animals.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Sin animales registrados.</p>
-        ) : (
-          <div className="flex flex-wrap gap-3">
-            {animals.map((animal) => (
-              <Link key={animal.id} href={`/animals/${animal.id}`} className="hover:opacity-80 transition-opacity">
-                <TagView caravana={animal.caravana} size="md" />
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
+      {/* Animales / Caravanas */}
+      {activity.type === "reading" ? (
+        <ReadingCaravanaGrid animals={animals} unknownCaravanas={activity.unknownCaravanas ?? []} />
+      ) : (
+        <section className="rounded-xl border border-border bg-card p-5 space-y-3">
+          <h2 className="text-sm font-semibold text-foreground">
+            Animales{" "}
+            <span className="font-normal text-muted-foreground">({animals.length})</span>
+          </h2>
+          {animals.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Sin animales registrados.</p>
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              {animals.map((animal) => (
+                <Link key={animal.id} href={`/animals/${animal.id}`} className="hover:opacity-80 transition-opacity">
+                  <TagView caravana={animal.caravana} size="md" />
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
     </div>
   )
 }

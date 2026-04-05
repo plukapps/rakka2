@@ -33,9 +33,9 @@ Specs: `specs/functional/04-actividades-framework.md` y `04` al `13`.
 - [ ] `ReproductionView.swift` + VM — campos por subtipo; parto con cría crea animal
 - [ ] `GeneralActivityView.swift` + VM — título, descripción
 
-### RFID independiente (`RfidReaderView.swift`)
-- [ ] Solo el selector RFID + confirmar sin actividad asociada
-- [ ] Crea `RfidReading` en repository con `activityId: nil`
+### Lectura RFID como actividad (`ReadingActivityView.swift`)
+- [ ] Formulario de lectura: método RFID (Bluetooth/archivo), responsable, notas
+- [ ] Al confirmar: crea actividad `type: "reading"` con `animalIds` + `unknownCaravanas` + `fileName`
 
 ---
 

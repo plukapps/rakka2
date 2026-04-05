@@ -11,6 +11,7 @@ interface ActivityOption {
 }
 
 const ACTIVITY_OPTIONS: ActivityOption[] = [
+  { type: "reading", label: "Lectura RFID", icon: "📡", href: "/activities/new/reading" },
   { type: "sanitary", label: "Sanitaria", icon: "💉", href: "/activities/new/sanitary" },
   { type: "commercial", label: "Comercial", icon: "💰", href: "/activities/new/commercial" },
   { type: "field_control", label: "Control de campo", icon: "📋", href: "/activities/new/field-control" },

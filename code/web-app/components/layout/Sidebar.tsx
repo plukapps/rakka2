@@ -25,11 +25,6 @@ const navItems = [
     ),
   },
   {
-    href: "/rfid",
-    label: "Lecturas",
-    icon: <Image src="/ic_tag_group.png" alt="" width={20} height={20} className="opacity-100" />,
-  },
-  {
     href: "/lots",
     label: "Lotes",
     icon: <Image src="/ic_menu_lotes.png" alt="" width={20} height={20} className="opacity-100" />,

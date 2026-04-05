@@ -106,7 +106,7 @@ export default function MovementActivityPage() {
         type: "movement",
         animalIds: selected.map((a) => a.id),
         selectionMethod,
-        rfidReadingId: null,
+        unknownCaravanas: [],
         activityDate: ts,
         responsible: user.name,
         notes,

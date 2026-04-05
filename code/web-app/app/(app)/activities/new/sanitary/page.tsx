@@ -103,7 +103,7 @@ export default function SanitaryActivityPage() {
         type: "sanitary",
         animalIds: selected.map((a) => a.id),
         selectionMethod,
-        rfidReadingId: null,
+        unknownCaravanas: [],
         activityDate: new Date(activityDate).getTime(),
         responsible,
         notes,

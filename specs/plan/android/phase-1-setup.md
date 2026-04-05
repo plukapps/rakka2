@@ -30,15 +30,14 @@ Spec técnica: `specs/technical/07-cliente-android.md`
 ### Modelos de dominio (`data/model/`)
 - [ ] `Animal.kt` — data class con todos los campos del spec + `AnimalStatus`, `AnimalCategory`, `AnimalSex`, `EntryType`, `ExitType`
 - [ ] `Lot.kt` — `Lot`, `LotStatus`
-- [ ] `Activity.kt` — `Activity` base unificada + `ActivityType`, `SelectionMethod`, subtipos por tipo
-- [ ] `RfidReading.kt` — `RfidReading`, `RfidMethod`
+- [ ] `Activity.kt` — `Activity` base unificada + `ActivityType` (incluye `reading`), `SelectionMethod`, subtipos por tipo
 - [ ] `TraceabilityEvent.kt` — `TraceabilityEvent`, `TraceabilityEventType`
 - [ ] `Alert.kt` — `Alert`, `AlertType`, `AlertUrgency`, `AlertStatus`
 - [ ] `Establishment.kt` — `Establishment`, `EstablishmentStatus`
 - [ ] `UserProfile.kt`
 
 ### Mock data (`data/mock/MockData.kt`)
-- [ ] Mismos datos que el web: 2 establecimientos, 40 animales, 4 lotes, actividades variadas, alertas, RFID readings
+- [ ] Mismos datos que el web: 2 establecimientos, 40 animales, 4 lotes, actividades variadas (incluyendo tipo reading), alertas
 - [ ] Object singleton `MockData` con listas inmutables de datos iniciales
 
 ### Mock store (`data/mock/MockStore.kt`)
@@ -51,8 +50,7 @@ Spec técnica: `specs/technical/07-cliente-android.md`
 ### Repositories (`data/repository/`)
 - [ ] `AnimalRepository.kt` — `getAnimals(estId): Flow<List<Animal>>`, `getAnimal(id)`, `createAnimal()`, `updateAnimal()`
 - [ ] `LotRepository.kt` — `getLots(estId)`, `createLot()`, `updateLot()`, `dissolveLot()`
-- [ ] `ActivityRepository.kt` — `getActivities(estId)`, `createActivity()`
-- [ ] `RfidRepository.kt` — `createRfidReading()`, `getRfidReadings(estId)`
+- [ ] `ActivityRepository.kt` — `getActivities(estId)`, `createActivity()` (incluye tipo `reading`)
 - [ ] `TraceabilityRepository.kt` — `getTraceability(estId, animalId)`, `addEvent()`
 - [ ] `AlertRepository.kt` — `getAlerts(estId)`, `dismissAlert()`
 - [ ] `EstablishmentRepository.kt` — `getEstablishments(userId)`, `createEstablishment()`, `updateEstablishment()`
@@ -74,12 +72,12 @@ Spec técnica: `specs/technical/07-cliente-android.md`
 code/android-app/app/src/main/java/com/rakka/app/
 ├── RakkaApplication.kt
 ├── data/
-│   ├── model/Animal.kt, Lot.kt, Activity.kt, RfidReading.kt,
+│   ├── model/Animal.kt, Lot.kt, Activity.kt,
 │   │         TraceabilityEvent.kt, Alert.kt, Establishment.kt, UserProfile.kt
 │   ├── mock/MockData.kt
 │   ├── mock/MockStore.kt
 │   └── repository/AnimalRepository.kt, LotRepository.kt, ActivityRepository.kt,
-│                   RfidRepository.kt, TraceabilityRepository.kt,
+│                   TraceabilityRepository.kt,
 │                   AlertRepository.kt, EstablishmentRepository.kt
 └── di/
     ├── RepositoryModule.kt

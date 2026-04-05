@@ -26,7 +26,7 @@
 ```
 
 ### Toolbar
-- **Tipo**: select multi (Sanitaria, Comercial, Campo, Movimiento, Reproducción, General).
+- **Tipo**: select multi (Lectura, Sanitaria, Comercial, Campo, Movimiento, Reproducción, General).
 - **Fecha desde / hasta**: date pickers para filtrar por rango.
 - **Contador**: "X actividades" (las que cumplen los filtros).
 
@@ -41,6 +41,7 @@
 
 - Layout: lista vertical, filas separadas por divider o con gap.
 - **Badge de tipo**: color-coded.
+  - Lectura: teal
   - Sanitaria: azul
   - Comercial: verde
   - Campo: amber
@@ -68,13 +69,16 @@
 │ Page Header: "¿Qué tipo de actividad?"   [← Cancelar] │
 ├────────────────────────────────────────────────────────┤
 │                                                        │
-│  [Sanitaria]     [Comercial]    [Control de campo]     │
-│  (vacunación,    (venta,        (pesaje, conteo,       │
-│   tratamiento)   despacho)       cond. corporal...)    │
+│  [Lectura RFID]  [Sanitaria]    [Comercial]            │
+│  (bluetooth,     (vacunación,   (venta,                │
+│   archivo)        tratamiento)   despacho)             │
 │                                                        │
-│  [Movimiento]    [Reproducción] [General]              │
-│  (traslado,      (servicio,     (libre)                │
-│   transferencia)  diagnóstico...)                      │
+│  [Control campo] [Movimiento]   [Reproducción]         │
+│  (pesaje, conteo,(traslado,     (servicio,             │
+│   cond. corp...) transferencia)  diagnóstico...)       │
+│                                                        │
+│  [General]                                             │
+│  (libre)                                               │
 │                                                        │
 └────────────────────────────────────────────────────────┘
 ```
@@ -376,6 +380,8 @@ Grid 2 columnas con los campos comunes:
 **Sanitaria**: Tipo (Vacunación/Tratamiento), Producto, Dosis, Vía, Días de carencia, Fecha de vencimiento de carencia.
 
 **Comercial**: Tipo (Venta/Despacho), Comprador/Destinatario, Destino, Precio por cabeza, Precio total.
+
+**Lectura RFID**: Método (Bluetooth/Archivo), nombre del archivo (si aplica). La sección "Animales" se reemplaza por la grilla de caravanas con tabs (Todas / En stock / Sin registro). Ver detalle en `specs/design/07-rfid.md`.
 
 **Control de campo**: Subtipo, campos específicos según subtipo (peso, resultado, etc.).
 

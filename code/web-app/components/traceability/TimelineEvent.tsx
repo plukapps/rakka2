@@ -21,7 +21,7 @@ const eventTypeLabel: Record<TraceabilityEventType, string> = {
   movement: "Movimiento",
   reproduction: "Reproduccion",
   general_activity: "Actividad general",
-  rfid_reading: "Lectura RFID",
+  reading: "Lectura RFID",
   exit: "Egreso",
   correction: "Correccion",
 }
@@ -37,7 +37,7 @@ const eventTypeColor: Record<TraceabilityEventType, string> = {
   movement: "#14b8a6",
   reproduction: "#ec4899",
   general_activity: "#6b7280",
-  rfid_reading: "#6366f1",
+  reading: "#6366f1",
   exit: "#ef4444",
   correction: "#9ca3af",
 }

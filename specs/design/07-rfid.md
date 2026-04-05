@@ -1,42 +1,36 @@
-# Diseño Desktop — Módulo Lecturas RFID
+# Diseño Desktop — Actividad de Lectura RFID
 
-**Rutas**: `/rfid` · `/rfid/[readingId]`  
-**Propósito**: Registrar y consultar lecturas de caravanas electrónicas, ya sea via Bluetooth o por carga de archivo.
+**Rutas**: `/activities/new/reading` (formulario) · `/activities/[activityId]` (detalle, cuando es tipo `reading`)  
+**Propósito**: Registrar lecturas de caravanas electrónicas como actividad, ya sea via Bluetooth o por carga de archivo.
 
----
-
-## 1. Listado y carga de lecturas (`/rfid`)
-
-### Layout general
-
-```
-┌────────────────────────────────────────────────────────┐
-│ Page Header: "Lecturas RFID"                           │
-├────────────────────────────────────────────────────────┤
-│ ┌──── Nueva lectura (colapsable) ────────────────────┐ │
-│ │  [Método ▾]  [Campos del formulario]  [Registrar] │ │
-│ └────────────────────────────────────────────────────┘ │
-├────────────────────────────────────────────────────────┤
-│ Historial de lecturas                                  │
-│                                "N lecturas registradas"│
-│ [ReadingRow]                                           │
-│ [ReadingRow]                                           │
-│ [ReadingRow]                                           │
-│ ...                                                    │
-└────────────────────────────────────────────────────────┘
-```
+> **Nota**: La lectura RFID es un tipo de actividad (`type: "reading"`). Se accede desde el hub de actividades como cualquier otro tipo. El historial de lecturas se ve en el listado general de actividades filtrando por tipo "Lectura".
 
 ---
 
-## 2. Panel: Nueva lectura
+## 1. Formulario: Nueva lectura (`/activities/new/reading`)
 
-Panel colapsable en la parte superior. Expandido por defecto.
+### Layout
 
-### Método de lectura (radio/tabs)
-- **Bluetooth**: lectura en tiempo real desde dispositivo.
-- **Archivo**: carga de archivo `.txt` / `.csv`.
+```
+┌──────────────────────────────────────────────────────────┐
+│ Page Header: "Lectura RFID"                 [← Tipo]     │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  Método: ● Bluetooth  ○ Archivo                          │
+│                                                          │
+│  [Panel de lectura según método]                         │
+│                                                          │
+│  Responsable: [____________]                             │
+│  Notas: [____________]                                   │
+│                                                          │
+│  [Registrar lectura (N)]                                 │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+```
 
-### Formulario — método Bluetooth
+A diferencia de otros tipos de actividad, el formulario de lectura NO tiene el layout de dos columnas (selector de animales + datos). La lectura en sí misma ES la selección de animales.
+
+### Método Bluetooth
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -64,7 +58,7 @@ Panel colapsable en la parte superior. Expandido por defecto.
 - **Caravanas no encontradas**: badge warning "No encontrada en el establecimiento".
 - **Botón "Registrar lectura (N)"**: muestra la cantidad de caravanas capturadas.
 
-### Formulario — método Archivo
+### Método Archivo
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -94,54 +88,29 @@ Panel colapsable en la parte superior. Expandido por defecto.
 
 - **Drag & drop**: área destacada. Acepta `.txt` y `.csv`.
 - **Preview post-carga**: lista separada en "Reconocidas" y "No encontradas".
-- Las no encontradas se guardan en el registro pero no se asocian a animales del sistema.
+- Las no encontradas se almacenan como `unknownCaravanas` en la actividad.
 
 ---
 
-## 3. Historial de lecturas
+## 2. Detalle de lectura (`/activities/[activityId]` donde `type: "reading"`)
 
-### ReadingRow
-
-```
-┌────────────────────────────────────────────────────────┐
-│  [Bluetooth / Archivo]  48 caravanas                   │
-│  Responsable: Juan Pérez · hace 3 días                 │
-│  "terneros sopas.txt"  (si es por archivo)             │
-│                                   [Ver detalle →]      │
-└────────────────────────────────────────────────────────┘
-```
-
-- Badge de método: "Bluetooth" (azul) / "Archivo" (amber).
-- Cantidad de caravanas (total, no solo las reconocidas).
-- Responsable y fecha relativa.
-- Nombre del archivo (si es por archivo).
-- Click → `/rfid/[readingId]`.
-
-### Estados
-- **Vacío**: EmptyState "No hay lecturas registradas."
-- **Cargando**: skeleton de filas.
-
----
-
-## 4. Detalle de lectura (`/rfid/[readingId]`)
+El detalle de una actividad tipo `reading` tiene un layout especializado que prioriza la grilla de caravanas.
 
 ### Layout general
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│ [← Lecturas RFID]  Breadcrumb                          │
+│ [← Actividades]  [Badge Lectura]  "Lectura — 28 mar"   │
 ├────────────────────────────────────────────────────────┤
-│ Page Header: "Lectura — 28 mar 2025"                   │
+│ Metadatos: Método · Responsable · Notas · Archivo       │
 ├────────────────────────────────────────────────────────┤
-│ Metadatos: Método · Responsable · Notas · Actividad    │
+│ Tabs: [Todas (48)] [En stock (45)] [Sin registro (3)]   │
 ├───────────────────────┬────────────────────────────────┤
-│  RECONOCIDAS (45)     │  NO ENCONTRADAS (3)            │
+│  858000000011234      │  858000000033456               │
+│  Vaca · Lote Norte    │  Ternera · Sin lote            │
 │                       │                                │
-│  858000000011234      │  858000054596559               │
-│  Vaca · Lote Norte    │  858000054365782               │
-│                       │  858000054201093               │
-│  858000000022345      │                                │
-│  Toro · Sin lote      │                                │
+│  858000000022345      │  858000054596559               │
+│  Toro · Sin lote      │  ⚠ Sin registro               │
 │  ...                  │                                │
 └───────────────────────┴────────────────────────────────┘
 ```
@@ -151,10 +120,32 @@ Panel colapsable en la parte superior. Expandido por defecto.
 - Fecha y hora exacta.
 - Responsable.
 - Notas (si tiene).
-- Actividad asociada (si la lectura derivó en una actividad): link a la actividad.
 
 ### Grilla de caravanas
-- Grilla unificada con tabs: Todas / En stock / Sin registro.
+- Tabs: **Todas** / **En stock** / **Sin registro**, cada uno con contador.
 - Cada caravana se muestra como `TagView` tamaño `md`.
 - Caravanas en stock: clickeables → `/animals/[id]`.
-- Caravanas sin registro: indicador visual diferenciado (amber).
+- Caravanas sin registro: indicador visual diferenciado (amber). No clickeables.
+
+---
+
+## 3. Lectura en el listado de actividades (`/activities`)
+
+Las actividades tipo `reading` aparecen en el listado general de actividades como cualquier otro tipo.
+
+### ActivityRow para tipo `reading`
+
+```
+┌────────────────────────────────────────────────────────┐
+│ [Lectura]  48 caravanas · Bluetooth                     │
+│            Responsable: Juan Pérez · hace 3 días       │
+└────────────────────────────────────────────────────────┘
+```
+
+- **Badge**: "Lectura" con color teal/cyan (diferenciado de los demás tipos).
+- **Descripción corta**: "N caravanas · [Bluetooth/Archivo]". Si es archivo, opcionalmente incluye el nombre del archivo.
+- **Metadatos**: responsable, fecha relativa.
+
+### Filtro por tipo
+
+El filtro de tipo en la toolbar de actividades incluye "Lectura" como opción, permitiendo ver solo las lecturas RFID.

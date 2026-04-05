@@ -20,6 +20,7 @@ interface AnimalSelectorProps {
   onUnrecognized?: (caravanas: string[]) => void
   onMethodChange?: (method: "rfid_bluetooth" | "rfid_file" | "lot" | "individual") => void
   onWeightMap?: (map: Record<string, number>) => void
+  onFileName?: (name: string | null) => void
   filterFn?: (animal: Animal) => boolean
   rfidOnly?: boolean
 }
@@ -62,6 +63,7 @@ export function AnimalSelector({
   onUnrecognized,
   onMethodChange,
   onWeightMap,
+  onFileName,
   filterFn,
   rfidOnly,
 }: AnimalSelectorProps) {
@@ -130,7 +132,7 @@ export function AnimalSelector({
         <LotTab lots={lots} animals={available} selected={selected} onChange={onChange} />
       )}
       {tab === "rfid_file" && (
-        <RfidFileTab animals={available} selected={selected} onChange={onChange} onAdd={addAnimal} onUnrecognized={onUnrecognized} onWeightMap={onWeightMap} />
+        <RfidFileTab animals={available} selected={selected} onChange={onChange} onAdd={addAnimal} onUnrecognized={onUnrecognized} onWeightMap={onWeightMap} onFileName={onFileName} />
       )}
       {tab === "rfid_bluetooth" && (
         <BluetoothTab animals={available} selected={selected} onAdd={addAnimal} />
@@ -281,6 +283,7 @@ function RfidFileTab({
   onAdd,
   onUnrecognized,
   onWeightMap,
+  onFileName,
 }: {
   animals: Animal[]
   selected: Animal[]
@@ -288,6 +291,7 @@ function RfidFileTab({
   onAdd: (a: Animal) => void
   onUnrecognized?: (caravanas: string[]) => void
   onWeightMap?: (map: Record<string, number>) => void
+  onFileName?: (name: string | null) => void
 }) {
   const [inStock, setInStock] = useState<Animal[]>([])
   const [notInStock, setNotInStock] = useState<string[]>([])
@@ -298,6 +302,7 @@ function RfidFileTab({
     const file = e.target.files?.[0]
     if (!file) return
     setFileName(file.name)
+    onFileName?.(file.name)
     const reader = new FileReader()
     reader.onload = (ev) => {
       const text = ev.target?.result as string

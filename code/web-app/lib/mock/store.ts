@@ -10,7 +10,6 @@ import type {
   Animal,
   Lot,
   Activity,
-  RfidReading,
   TraceabilityEvent,
   Alert,
 } from "@/lib/types";
@@ -19,7 +18,7 @@ import {
   MOCK_ANIMALS,
   MOCK_LOTS,
   MOCK_ACTIVITIES,
-  MOCK_RFID_READINGS,
+  MOCK_READING_ACTIVITIES,
   MOCK_TRACEABILITY,
   MOCK_ALERTS,
 } from "@/lib/mock/data";
@@ -38,7 +37,6 @@ class MockStore {
   private animals: Map<string, Animal> = new Map(); // key: `${estId}/${animalId}`
   private lots: Map<string, Lot> = new Map(); // key: `${estId}/${lotId}`
   private activities: Map<string, Activity> = new Map(); // key: `${estId}/${activityId}`
-  private rfidReadings: Map<string, RfidReading> = new Map();
   private traceability: Map<string, TraceabilityEvent> = new Map(); // key: `${estId}/${animalId}/${eventId}`
   private alerts: Map<string, Alert> = new Map(); // key: `${estId}/${alertId}`
 
@@ -58,11 +56,8 @@ class MockStore {
     for (const l of MOCK_LOTS) {
       this.lots.set(`${l.estId}/${l.id}`, clone(l));
     }
-    for (const act of MOCK_ACTIVITIES) {
+    for (const act of [...MOCK_ACTIVITIES, ...MOCK_READING_ACTIVITIES]) {
       this.activities.set(`${act.estId}/${act.id}`, clone(act));
-    }
-    for (const r of MOCK_RFID_READINGS) {
-      this.rfidReadings.set(`${r.estId}/${r.id}`, clone(r));
     }
     for (const t of MOCK_TRACEABILITY) {
       this.traceability.set(`${t.estId}/${t.animalId}/${t.id}`, clone(t));
@@ -150,23 +145,6 @@ class MockStore {
   setActivity(activity: Activity) {
     this.activities.set(`${activity.estId}/${activity.id}`, clone(activity));
     this.emit(`activities/${activity.estId}`);
-  }
-
-  // ---- RFID Readings ----
-
-  getRfidReadings(estId: string): RfidReading[] {
-    return Array.from(this.rfidReadings.values()).filter(
-      (r) => r.estId === estId
-    );
-  }
-
-  getRfidReading(estId: string, readingId: string): RfidReading | undefined {
-    return this.rfidReadings.get(`${estId}/${readingId}`);
-  }
-
-  setRfidReading(reading: RfidReading) {
-    this.rfidReadings.set(`${reading.estId}/${reading.id}`, clone(reading));
-    this.emit(`rfid/${reading.estId}`);
   }
 
   // ---- Traceability ----

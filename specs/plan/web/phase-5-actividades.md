@@ -22,7 +22,7 @@ Specs: `specs/functional/04-actividades-framework.md` y los archivos `04` al `13
   - **RFID Bluetooth**: UI de conexión (simulada en mock) → lista de caravanas leídas en tiempo real → revisión final
 - [x] Lista editable de animales seleccionados: ver caravana + categoría + carencia activa (badge), poder remover
 - [x] Caravanas no reconocidas: mostrar en sección separada con advertencia (no bloquean, el usuario decide ignorar)
-- [x] Al confirmar selección, pasar la lista + `selectionMethod` + `rfidReadingId` (si aplica) al formulario de la actividad
+- [x] Al confirmar selección, pasar la lista + `selectionMethod` + `unknownCaravanas` + `fileName` (si aplica) al formulario de la actividad
 
 ### Actividad sanitaria (`/actividades/sanitarias/nueva`)
 - [x] Paso 1: `AnimalSelector`
@@ -62,10 +62,10 @@ Specs: `specs/functional/04-actividades-framework.md` y los archivos `04` al `13
 - [x] Paso 2: título (obligatorio), descripción
 - [x] Al confirmar: crear actividad + evento de trazabilidad tipo `general_activity`
 
-### Lectura RFID independiente (`/rfid`)
-- [x] Flujo simplificado: solo `AnimalSelector` en modo RFID (archivo o Bluetooth)
+### Lectura RFID como actividad (`/activities/new/reading`)
+- [x] Flujo simplificado: formulario de lectura con método RFID (archivo o Bluetooth)
 - [x] Sin paso 2: la lectura en sí misma es el registro
-- [x] Al confirmar: crear evento `rfid_reading` en trazabilidad de cada animal leído, sin actividad asociada
+- [x] Al confirmar: crear actividad `type: "reading"` con `animalIds` + `unknownCaravanas` + `fileName`
 
 ### Entrada unificada
 - [x] Página `/activities/new`: selector de tipo de actividad con iconos → redirige al formulario correspondiente
