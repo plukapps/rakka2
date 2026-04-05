@@ -82,7 +82,7 @@ export default function ActivitiesPage() {
               href={`/activities/${act.id}`}
               className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-5">
                 <StatusBadge variant="neutral" className="w-[100px] h-[18px] justify-center shrink-0 text-[10px]">
                   {activityTypeLabel(act.type)}
                 </StatusBadge>
