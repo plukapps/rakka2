@@ -83,21 +83,21 @@ export default function ActivitiesPage() {
               className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
             >
               <div>
-                <p className="text-sm font-medium text-foreground">
-                  {activityTitle(act)}
-                </p>
-                <div className="flex items-center gap-1.5 mt-0.5">
+                <div className="flex items-center gap-1.5">
                   <StatusBadge variant="neutral" className="w-[100px] h-[18px] justify-center shrink-0 text-[10px]">
                     {activityTypeLabel(act.type)}
                   </StatusBadge>
-                  <span className="text-xs text-muted-foreground">
-                    {act.responsible}
-                    {" · "}
-                    {act.type === "reading"
-                      ? `${act.animalIds.length + (act.unknownCaravanas?.length ?? 0)} caravana${(act.animalIds.length + (act.unknownCaravanas?.length ?? 0)) !== 1 ? "s" : ""}`
-                      : `${act.animalIds.length} animal${act.animalIds.length !== 1 ? "es" : ""}`}
-                  </span>
+                  <p className="text-sm font-medium text-foreground">
+                    {activityTitle(act)}
+                  </p>
                 </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {act.responsible}
+                  {" · "}
+                  {act.type === "reading"
+                    ? `${act.animalIds.length + (act.unknownCaravanas?.length ?? 0)} caravana${(act.animalIds.length + (act.unknownCaravanas?.length ?? 0)) !== 1 ? "s" : ""}`
+                    : `${act.animalIds.length} animal${act.animalIds.length !== 1 ? "es" : ""}`}
+                </p>
               </div>
               <span className="text-xs text-muted-foreground">{formatDate(act.activityDate)}</span>
             </Link>
