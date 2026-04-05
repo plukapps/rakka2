@@ -18,9 +18,9 @@
 │ [Estado ▾] [Con carencia ☐]      "142 animales"        │
 ├────────────────────────────────────────────────────────┤
 │                                                        │
-│  [Card] [Card] [Card]                                  │
-│  [Card] [Card] [Card]                                  │
-│  [Card] [Card] [Card]   (grilla 3 col, virtualizada)  │
+│  [Card] [Card] [Card] [Card]                           │
+│  [Card] [Card] [Card] [Card]                           │
+│  [Card] [Card] [Card] [Card]  (grilla 4 col, virtual) │
 │  ...                                                   │
 │                                                        │
 └────────────────────────────────────────────────────────┘
@@ -33,30 +33,27 @@
 - **Categoría**: select con las categorías (vaca, toro, ternero/a, vaquillona, novillo, otro).
 - **Estado**: select (Todos / Activos / Egresados).
 - **Con carencia activa**: checkbox.
-- **Contador**: texto "X animales" a la derecha de los filtros, actualiza en tiempo real.
-- **Limpiar filtros**: link/botón que aparece cuando hay al menos un filtro activo.
+- **Contador**: texto "X / Y" (filtrados / total) junto al título, actualiza en tiempo real.
+- **Limpiar filtros**: botón `secondary` (con fondo) que aparece cuando hay al menos un filtro activo.
 
 ### AnimalCard
 
 ```
 ┌──────────────────────────────┐
-│  [StatusBadge activo/egresado]
-│                              │
-│  858 · 000 · 00001 · 234     │  ← caravana formato visual
-│  Vaca · Angus                │  ← categoría · raza
-│                              │
-│  Lote: Lote Norte            │  ← o "Sin lote" en gris
-│                              │
-│  [CarenciaIndicator]         │  ← solo si carencia activa
+│  [TagView]  [Activo] [Carencia]  ← badges en fila
+│             Vaca · Angus         ← categoría · raza
+│             Lote Norte           ← lote (tono más suave), omitido si sin lote
 └──────────────────────────────┘
 ```
 
 - Click en la card → navega a `/animals/[id]`.
-- **CarenciaIndicator**: badge rojo "Carencia activa — vence en X días" o amber "Vence en X días" (si es próxima).
+- **StatusBadge** y **CarenciaIndicator**: `border-radius: 4px` (rectangular, no pill).
+- El lote aparece en línea propia debajo de categoría · raza, en color `muted-foreground/70`.
+- Si no tiene lote, la línea de lote no se renderiza.
 - Hover: sombra elevada + cursor pointer.
 
 ### Estados
-- **Cargando**: skeleton de 9 cards en grilla 3x3.
+- **Cargando**: skeleton de 12 cards en grilla 4x3.
 - **Vacío (sin animales)**: EmptyState "Todavía no hay animales registrados" + botón "Ingresar primer animal".
 - **Sin resultados de filtros**: EmptyState "No hay animales con esos filtros" + botón "Limpiar filtros".
 

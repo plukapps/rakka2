@@ -108,7 +108,7 @@ export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFilter
       </label>
 
       {hasActiveFilters && (
-        <Button variant="ghost" size="sm" onClick={onReset}>
+        <Button variant="secondary" size="sm" onClick={onReset}>
           Limpiar
         </Button>
       )}

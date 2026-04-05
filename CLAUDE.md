@@ -4,7 +4,7 @@
 
 App de gestión ganadera para productores rurales y veterinarios. Multi-plataforma (iOS, Android, Web), offline-first, con Firebase como backend.
 
-**Specs completas**: `specs/functional/` (qué hace) y `specs/technical/` (cómo se hace).
+**Specs completas**: `specs/functional/` (qué hace), `specs/technical/` (cómo se hace), `specs/design/` (cómo se ve) y `specs/plan/` (estado de implementación).
 **Antes de escribir código en cualquier módulo, leer el spec correspondiente.**
 
 ---
@@ -15,6 +15,12 @@ App de gestión ganadera para productores rurales y veterinarios. Multi-platafor
 specs/
   functional/        ← Reglas de negocio, flujos, entidades
   technical/         ← Stack, arquitectura, modelo de datos, convenciones
+  design/            ← Specs de diseño visual por módulo (desktop web)
+  plan/              ← Estado de implementación por plataforma y fase
+    web/             ← Fases de la web app
+    android/         ← Fases de la app Android
+    ios/             ← Fases de la app iOS
+    functions/       ← Fases de Cloud Functions
 code/
   web-app/           ← Next.js + TypeScript + Tailwind
   android-app/       ← Kotlin + Jetpack Compose
@@ -123,17 +129,26 @@ cd code/functions && npm run build
 
 Este orden es siempre: **spec → código**. No hay excepciones.
 
+#### Cambios que SIEMPRE requieren actualizar spec antes del código:
+- Cualquier cambio visual: layout, columnas, spacing, colores, radius, tipografía
+- Cualquier cambio de comportamiento en UI: orden de elementos, condiciones de visibilidad
+- Cualquier campo, flujo o regla nueva
+
+→ Si dudás si algo necesita spec update: sí lo necesita. No hay excepciones por "es pequeño".
+
 #### Qué hacer en cada caso:
 
 - **Nueva feature o cambio de comportamiento**: actualizar `specs/functional/` → luego implementar.
 - **Nueva decisión técnica, nuevo campo, nuevo patrón**: actualizar `specs/technical/` → luego implementar.
-- **Avance de fase**: actualizar `specs/plan/` para reflejar el estado real.
+- **Cambio de diseño visual**: actualizar `specs/design/` → luego implementar.
+- **Avance de fase**: actualizar `specs/plan/{plataforma}/` para reflejar el estado real.
 - **Conflicto spec vs. código**: la spec manda — salvo que el usuario indique explícitamente lo contrario.
 - **Algo en el código que no tiene spec**: crear o actualizar la spec correspondiente antes de continuar.
 
 Specs funcionales: `specs/functional/` — qué hace el sistema  
 Specs técnicas: `specs/technical/` — cómo está construido  
-Planes: `specs/plan/` — estado de implementación por fase
+Specs de diseño: `specs/design/` — cómo se ve (layout, componentes, estados visuales)  
+Planes: `specs/plan/{web,android,ios,functions}/` — estado de implementación por fase
 
 ---
 

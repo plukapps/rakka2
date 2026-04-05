@@ -25,7 +25,7 @@ export function StatusBadge({ variant = "neutral", className, children }: Status
   return (
     <Badge
       variant="outline"
-      className={cn(colorMap[variant], className)}
+      className={cn(colorMap[variant], "rounded-[4px]", className)}
     >
       {children}
     </Badge>

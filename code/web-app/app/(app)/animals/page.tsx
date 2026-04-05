@@ -19,8 +19,8 @@ const DEFAULT_FILTERS: AnimalFilterState = {
   statusFilter: "active",
 }
 
-const COLS = 3
-const ROW_HEIGHT = 102
+const COLS = 4
+const ROW_HEIGHT = 114
 const GAP = 12
 
 export default function AnimalsPage() {
@@ -66,7 +66,7 @@ export default function AnimalsPage() {
         <h1 className="text-lg font-semibold text-foreground">
           Animales{" "}
           <span className="text-sm font-normal text-muted-foreground">
-            ({filtered.length})
+            ({filtered.length} / {animals.length})
           </span>
         </h1>
         <Link href="/animals/new">

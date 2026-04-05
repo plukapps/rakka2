@@ -24,8 +24,10 @@ export function AnimalCard({ animal, lot }: AnimalCardProps) {
           </div>
           <span className="text-xs text-muted-foreground truncate">
             {categoryLabel(animal.category)} · {animal.breed}
-            {lot ? ` · ${lot.name}` : ""}
           </span>
+          {lot && (
+            <span className="text-xs text-muted-foreground/70 truncate">{lot.name}</span>
+          )}
         </div>
       </div>
     </Link>
