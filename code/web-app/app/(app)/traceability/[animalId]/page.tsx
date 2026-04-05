@@ -88,7 +88,7 @@ export default function AnimalTraceabilityPage({
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className=" space-y-4">
       {/* Back button */}
       <div className="flex items-center gap-2">
         <Link href={`/animals/${animalId}`}>

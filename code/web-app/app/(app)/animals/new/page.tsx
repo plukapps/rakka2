@@ -188,7 +188,7 @@ function IndividualForm({
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className=" space-y-6">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onBack}>← Volver</Button>
         <h1 className="text-lg font-semibold text-foreground">Ingreso individual</h1>
@@ -296,7 +296,7 @@ function RfidPickReading({
   }))
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
+    <div className=" space-y-6">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onBack}>← Volver</Button>
         <h1 className="text-lg font-semibold text-foreground">Seleccioná una lectura RFID</h1>
@@ -458,7 +458,7 @@ function RfidReview({
       : "Lectura Bluetooth"
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className=" space-y-6">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onBack}>← Cambiar lectura</Button>
         <div>
@@ -669,7 +669,7 @@ export default function NewAnimalPage() {
 
   if (step === "select-method") {
     return (
-      <div className="mx-auto max-w-xl space-y-6">
+      <div className=" space-y-6">
         <div className="flex items-center gap-2">
           <Link href="/animals">
             <Button variant="ghost" size="sm">← Volver</Button>

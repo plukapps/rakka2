@@ -45,7 +45,11 @@ export default function ActivitiesPage() {
       ) : (
         <div className="divide-y divide-border rounded-xl border border-border bg-card">
           {activities.map((act) => (
-            <div key={act.id} className="flex items-center justify-between px-4 py-3">
+            <Link
+              key={act.id}
+              href={`/activities/${act.id}`}
+              className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
+            >
               <div className="flex items-center gap-3">
                 <StatusBadge variant={urgencyMap[act.type] ?? "neutral"}>
                   {activityTypeLabel(act.type)}
@@ -58,7 +62,7 @@ export default function ActivitiesPage() {
                 </div>
               </div>
               <span className="text-xs text-muted-foreground">{formatDate(act.activityDate)}</span>
-            </div>
+            </Link>
           ))}
         </div>
       )}

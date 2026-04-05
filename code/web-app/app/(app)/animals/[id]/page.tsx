@@ -53,7 +53,7 @@ export default function AnimalDetailPage({
   const lot = animal.lotId ? lots.find((l) => l.id === animal.lotId) : undefined
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className=" space-y-4">
       <div className="flex items-center gap-2">
         <Link href="/animals">
           <Button variant="ghost" size="sm">← Animales</Button>

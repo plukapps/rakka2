@@ -1,6 +1,6 @@
 # Diseño Desktop — Módulo Actividades
 
-**Rutas**: `/activities` · `/activities/new` · `/activities/new/[tipo]`  
+**Rutas**: `/activities` · `/activities/[activityId]` · `/activities/new` · `/activities/new/[tipo]`  
 **Propósito**: Registrar y consultar todas las actividades sobre animales.
 
 ---
@@ -330,3 +330,66 @@ Pesaje / Conteo / Condición corporal / Revisión de preñez / Otro
 ### Nota
 - No modifica ningún estado del animal.
 - Compatible con cualquier método de selección de animales.
+
+---
+
+## 10. Detalle de actividad (`/activities/[activityId]`)
+
+### Layout general
+
+```
+┌────────────────────────────────────────────────────────┐
+│ [← Actividades]  [Badge Tipo]  Descripción corta       │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│  DATOS GENERALES                                       │
+│  ─────────────────────────────────────────────────     │
+│  Fecha           Método de selección                   │
+│  Responsable     Notas                                 │
+│                                                        │
+│  DETALLES [según tipo]                                 │
+│  ─────────────────────────────────────────────────     │
+│  (campos específicos del tipo)                         │
+│                                                        │
+│  ANIMALES  (N animales)                                │
+│  ─────────────────────────────────────────────────     │
+│  [AnimalRow] [AnimalRow] [AnimalRow] ...               │
+│                                                        │
+└────────────────────────────────────────────────────────┘
+```
+
+### Header
+- Botón "← Actividades" que navega a `/activities`.
+- Badge de tipo (mismo color que en el listado).
+- Descripción corta generada (ej: "Vacunación — Ivermectina 1%").
+- Fecha relativa (ej: "hace 2 días").
+
+### Sección: Datos generales
+Grid 2 columnas con los campos comunes:
+- Fecha completa (día/mes/año hora)
+- Responsable
+- Método de selección (label legible: "RFID Bluetooth", "Archivo RFID", "Por lote", "Individual")
+- Notas (si tiene, ancho completo)
+
+### Sección: Detalles por tipo
+
+**Sanitaria**: Tipo (Vacunación/Tratamiento), Producto, Dosis, Vía, Días de carencia, Fecha de vencimiento de carencia.
+
+**Comercial**: Tipo (Venta/Despacho), Comprador/Destinatario, Destino, Precio por cabeza, Precio total.
+
+**Control de campo**: Subtipo, campos específicos según subtipo (peso, resultado, etc.).
+
+**Movimiento**: Subtipo, Origen, Destino.
+
+**Reproducción**: Subtipo, campos específicos según subtipo (tipo de servicio, resultado, etc.).
+
+**General**: Título, Descripción.
+
+### Sección: Animales
+- Título "Animales" con contador "(N animales)".
+- Lista de filas: caravana + categoría del animal. Cada fila es clickeable → perfil del animal (`/animals/[id]`).
+- Si el animal fue egresado por esta actividad (comercial): badge "Egresado" en la fila.
+
+### Estados
+- **Cargando**: skeleton.
+- **No encontrado**: EmptyState "Actividad no encontrada" + botón volver.

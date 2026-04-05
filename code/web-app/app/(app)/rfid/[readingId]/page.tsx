@@ -52,7 +52,7 @@ export default function ReadingDetailPage({
   const filteredUnknown = filter === "stock" ? [] : reading.unknownCaravanas
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Link href="/rfid">
           <Button variant="ghost" size="sm">← Lecturas</Button>

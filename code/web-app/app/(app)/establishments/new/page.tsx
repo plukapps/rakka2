@@ -64,7 +64,7 @@ export default function NewEstablishmentPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className=" space-y-6">
       <div className="flex items-center gap-2">
         <Link href="/establishments">
           <Button variant="ghost" size="sm">← Volver</Button>

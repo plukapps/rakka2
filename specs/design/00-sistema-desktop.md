@@ -23,7 +23,7 @@ La app usa un layout de **tres bandas**: sidebar fijo a la izquierda, header fij
 
 - **Sidebar**: ancho fijo 240px, siempre visible, no colapsa en desktop.
 - **Header**: altura 60px, sticky. Contiene el selector de establecimiento y datos del usuario.
-- **Main content**: ocupa el espacio restante. Padding interno: 32px (horizontal y vertical). Ancho máximo del contenido interior: 1200px, centrado.
+- **Main content**: ocupa el espacio restante. Padding interno: 24px (p-6). El contenido interior tiene un ancho máximo del **80% del área disponible**, centrado (`mx-auto w-full max-w-[80%]`). Este wrapper vive en el layout raíz — las páginas individuales **no deben definir su propio `max-w-*` ni `mx-auto`**.
 
 ---
 
