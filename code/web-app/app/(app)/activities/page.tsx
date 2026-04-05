@@ -10,6 +10,46 @@ import { StatusBadge } from "@/components/ui/status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { formatDate, activityTypeLabel } from "@/lib/utils"
 
+function activityTitle(act: Activity): string {
+  switch (act.type) {
+    case "reading":
+      return act.fileName ?? `${(act.animalIds.length + (act.unknownCaravanas?.length ?? 0))} caravanas`
+    case "sanitary":
+      return act.product || "Actividad sanitaria"
+    case "commercial":
+      return act.subtype === "sale"
+        ? act.buyer ? `Venta — ${act.buyer}` : "Venta"
+        : act.buyer ? `Despacho — ${act.buyer}` : "Despacho"
+    case "field_control": {
+      const subtypeLabels: Record<string, string> = {
+        weighing: "Pesaje",
+        count: "Conteo",
+        body_condition: "Condición corporal",
+        pregnancy_check: "Revisión de preñez",
+        other: "Control de campo",
+      }
+      const label = subtypeLabels[act.subtype] ?? "Control de campo"
+      if (act.subtype === "weighing" && act.weightKg) return `${label} · ${act.weightKg} kg`
+      return label
+    }
+    case "movement":
+      return `${act.origin} → ${act.destination}`
+    case "reproduction": {
+      const subtypeLabels: Record<string, string> = {
+        service: "Servicio",
+        pregnancy_diagnosis: "Diagnóstico de preñez",
+        birth: "Parto",
+        weaning: "Destete",
+      }
+      return subtypeLabels[act.subtype] ?? "Reproducción"
+    }
+    case "general":
+      return act.title || "Actividad general"
+    default:
+      return "Actividad"
+  }
+}
+
 const urgencyMap: Record<string, "neutral" | "success" | "warning" | "danger" | "info"> = {
   reading: "info",
   sanitary: "warning",
@@ -57,11 +97,15 @@ export default function ActivitiesPage() {
                 </StatusBadge>
                 <div>
                   <p className="text-sm font-medium text-foreground">
+                    {activityTitle(act)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {act.responsible}
+                    {" · "}
                     {act.type === "reading"
                       ? `${act.animalIds.length + (act.unknownCaravanas?.length ?? 0)} caravana${(act.animalIds.length + (act.unknownCaravanas?.length ?? 0)) !== 1 ? "s" : ""}`
                       : `${act.animalIds.length} animal${act.animalIds.length !== 1 ? "es" : ""}`}
                   </p>
-                  <p className="text-xs text-muted-foreground">{act.responsible}</p>
                 </div>
               </div>
               <span className="text-xs text-muted-foreground">{formatDate(act.activityDate)}</span>
