@@ -1,14 +1,18 @@
 "use client"
 
-import { use } from "react"
+import { use, useState } from "react"
 import { useRouter } from "next/navigation"
+import { Menu } from "@base-ui/react/menu"
+import { MoreVertical } from "lucide-react"
 import { useAnimal } from "@/hooks/useAnimals"
 import { useLots } from "@/hooks/useLots"
 import { useTraceability } from "@/hooks/useTraceability"
 import { useAnimalActivities } from "@/hooks/useAnimalActivities"
+import { useAppStore } from "@/lib/stores/appStore"
+import { animalRepository } from "@/lib/repositories/animal"
 import { CarenciaIndicator } from "@/components/animals/CarenciaIndicator"
 import { WeightHistoryCard } from "@/components/animals/WeightHistoryCard"
-import { Badge } from "@/components/ui/badge"
+import { DarDeBajaModal } from "@/components/animals/DarDeBajaModal"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -45,6 +49,8 @@ export default function AnimalDetailPage({
   const lots = useLots()
   const events = useTraceability(id)
   const activities = useAnimalActivities(id)
+  const estId = useAppStore((s) => s.activeEstablishment?.id)
+  const [showBajaModal, setShowBajaModal] = useState(false)
 
   if (!animal) {
     return (
@@ -56,6 +62,13 @@ export default function AnimalDetailPage({
 
   const lot = animal.lotId ? lots.find((l) => l.id === animal.lotId) : undefined
 
+  const statusLabel =
+    animal.status === "active"
+      ? "Activo"
+      : animal.exitType === "death"
+      ? "Inactivo"
+      : "Egresado"
+
   return (
     <div className=" space-y-4">
       <div className="flex items-center gap-2">
@@ -63,13 +76,37 @@ export default function AnimalDetailPage({
       </div>
 
       <Card className="overflow-hidden">
-        {/* Tag hero background */}
-        <div className="flex items-center gap-5 px-6 pt-6 pb-2">
+        <div className="relative flex items-center gap-5 px-6 pt-6 pb-2">
+          {animal.status === "active" && (
+            <div className="absolute top-3 right-3">
+              <Menu.Root>
+                <Menu.Trigger
+                  render={
+                    <Button variant="ghost" size="icon-sm" aria-label="Acciones">
+                      <MoreVertical className="size-4" />
+                    </Button>
+                  }
+                />
+                <Menu.Portal>
+                  <Menu.Positioner side="bottom" align="end" sideOffset={4}>
+                    <Menu.Popup className="z-50 min-w-36 rounded-lg border border-border bg-popover py-1 shadow-md text-sm text-foreground origin-(--transform-origin) data-[open]:animate-in data-[open]:fade-in-0 data-[open]:zoom-in-95 data-[closed]:animate-out data-[closed]:fade-out-0 data-[closed]:zoom-out-95">
+                      <Menu.Item
+                        className="flex w-full cursor-default items-center px-3 py-1.5 text-destructive outline-none data-[highlighted]:bg-accent"
+                        onClick={() => setShowBajaModal(true)}
+                      >
+                        Dar de baja
+                      </Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </div>
+          )}
           <TagView caravana={animal.caravana} size="xl" />
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 flex-1">
             <div className="flex items-center gap-2">
               <StatusBadge variant={animal.status === "active" ? "success" : "neutral"}>
-                {animal.status === "active" ? "Activo" : "Egresado"}
+                {statusLabel}
               </StatusBadge>
               <CarenciaIndicator animal={animal} />
             </div>
@@ -124,7 +161,21 @@ export default function AnimalDetailPage({
               <dt className="text-xs text-muted-foreground">Fecha de ingreso</dt>
               <dd className="font-medium text-foreground">{formatDate(animal.entryDate)}</dd>
             </div>
-            {animal.status === "exited" && (
+            {animal.status === "exited" && animal.exitType === "death" && (
+              <>
+                <div>
+                  <dt className="text-xs text-muted-foreground">Fecha de baja</dt>
+                  <dd className="font-medium text-foreground">
+                    {animal.exitDate ? formatDate(animal.exitDate) : "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-muted-foreground">Causa</dt>
+                  <dd className="font-medium text-foreground">{animal.exitNotes ?? "—"}</dd>
+                </div>
+              </>
+            )}
+            {animal.status === "exited" && animal.exitType !== "death" && (
               <>
                 <div>
                   <dt className="text-xs text-muted-foreground">Fecha de egreso</dt>
@@ -134,7 +185,12 @@ export default function AnimalDetailPage({
                 </div>
                 <div>
                   <dt className="text-xs text-muted-foreground">Tipo de egreso</dt>
-                  <dd className="font-medium text-foreground">{animal.exitType ?? "—"}</dd>
+                  <dd className="font-medium text-foreground">
+                    {animal.exitType === "sale" ? "Venta"
+                      : animal.exitType === "dispatch" ? "Despacho"
+                      : animal.exitType === "transfer" ? "Transferencia"
+                      : "—"}
+                  </dd>
                 </div>
               </>
             )}
@@ -195,6 +251,17 @@ export default function AnimalDetailPage({
           </div>
         )}
       </Card>
+
+      {estId && (
+        <DarDeBajaModal
+          open={showBajaModal}
+          onOpenChange={setShowBajaModal}
+          onConfirm={(exitDate, exitNotes) => {
+            animalRepository.darDeBaja({ estId, animalId: id, exitDate, exitNotes })
+            setShowBajaModal(false)
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -18,7 +18,11 @@ export function AnimalCard({ animal, lot }: AnimalCardProps) {
         <div className="flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <StatusBadge variant={animal.status === "active" ? "success" : "neutral"}>
-              {animal.status === "active" ? "Activo" : "Egresado"}
+              {animal.status === "active"
+                ? "Activo"
+                : animal.exitType === "death"
+                ? "Inactivo"
+                : "Egresado"}
             </StatusBadge>
             <CarenciaIndicator animal={animal} size="sm" />
           </div>

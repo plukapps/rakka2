@@ -60,8 +60,26 @@ Permite registrar como stock un grupo de animales a partir de una actividad de l
 |---|---|
 | `venta` | Egreso comercial. Requiere confirmar actividad comercial previa (ver `05-actividades-comerciales.md`). |
 | `despacho` | Envío sin precio definido. También requiere actividad comercial. |
-| `muerte` | Baja por muerte. No requiere validación de carencia. |
+| `muerte` | Baja por fallecimiento. Acción dedicada "Dar de baja". No requiere validación de carencia. |
 | `transferencia` | Salida hacia otro establecimiento del mismo usuario. |
+
+### Dar de baja (muerte)
+
+El flujo "Dar de baja" es la acción específica para registrar la muerte de un animal. Se accede desde el menú "..." en el encabezado del detalle del animal (solo disponible para animales activos).
+
+**Campos:**
+- Fecha de fallecimiento * (obligatorio, default: hoy)
+- Causa del fallecimiento (texto libre, opcional)
+
+**Al confirmar:**
+- El animal pasa a `egresado` con `exitType: "death"`, `exitDate` y `exitNotes` (causa).
+- Si el animal estaba en un lote, se elimina de él (`lotId: null`, `animalCount` decrementado).
+- Se genera un evento de trazabilidad de tipo `exit`.
+- No hay validación de carencia.
+
+**Restricciones:**
+- Acción irreversible.
+- Solo disponible para animales en estado `activo`.
 
 ### Validaciones previas al egreso
 
@@ -73,8 +91,9 @@ Permite registrar como stock un grupo de animales a partir de una actividad de l
 
 - El animal pasa a estado `egresado`.
 - No puede ser operado: no recibe actividades, no puede agregarse a lotes, no puede venderse.
-- Su perfil es consultable con historial completo, marcado visualmente como inactivo.
+- Su perfil es consultable con historial completo.
 - Su caravana queda bloqueada: no puede reutilizarse en ningún animal nuevo del mismo establecimiento.
+- **Distinción visual**: animales con `exitType: "death"` se muestran con badge "Inactivo". Animales egresados por venta, despacho o transferencia se muestran con badge "Egresado".
 
 ---
 
@@ -113,7 +132,7 @@ El listado de animales muestra por defecto los animales `activos` del establecim
 La vista de detalle de un animal concentra toda su información:
 
 - **Datos base**: caravana, categoría, raza, sexo, fecha de nacimiento, peso de ingreso, procedencia, fecha de ingreso.
-- **Estado actual**: activo / egresado (con fecha y tipo de egreso si aplica).
+- **Estado actual**: activo / egresado (con fecha y tipo de egreso si aplica). Si `exitType: "death"`, muestra "Fecha de baja" y "Causa" (si fue registrada).
 - **Lote actual**: nombre del lote al que pertenece (o "sin lote"). Acceso directo al detalle del lote.
 - **Carencia activa**: si aplica, muestra el producto, la fecha de vencimiento y los días restantes. Indicador visual destacado.
 - **Historial de actividades**: resumen de últimas actividades con acceso al historial completo (ver `06-trazabilidad.md`).

@@ -47,6 +47,7 @@
 ```
 
 - Click en la card → navega a `/animals/[id]`.
+- **StatusBadge** lógica tres casos: `status=active` → "Activo" (success); `exited+death` → "Inactivo" (neutral); `exited+otros` → "Egresado" (neutral).
 - **StatusBadge** y **CarenciaIndicator**: `border-radius: 4px` (rectangular, no pill).
 - El lote aparece en línea propia debajo de categoría · raza, en color `muted-foreground/70`.
 - Si no tiene lote, la línea de lote no se renderiza.
@@ -223,7 +224,11 @@ Al entrar a `/animals/new`, el usuario primero elige cómo ingresar:
 **Identificación**
 - TagView grande de la caravana (visual estilo etiqueta).
 - Caravana en texto: formato `858 · 000 · 00001 · 234`.
-- StatusBadge: activo / egresado.
+- StatusBadge con tres casos:
+  - `status === "active"` → variant "success", texto "Activo".
+  - `status === "exited" && exitType === "death"` → variant "neutral", texto "Inactivo".
+  - `status === "exited" && exitType !== "death"` → variant "neutral", texto "Egresado".
+- Botón "⋮" (MoreVertical icon) en la esquina superior derecha del card (`absolute top-3 right-3`), solo visible para animales activos.
 
 **Datos del animal**
 - Categoría, Sexo, Raza (si tiene), Fecha de nacimiento (si tiene).
@@ -241,8 +246,9 @@ Al entrar a `/animals/new`, el usuario primero elige cómo ingresar:
 - Si hay carencia activa: badge rojo + "Carencia activa — vence el [fecha]". Advertencia: "Este animal no puede ser incluido en una venta".
 
 **Egreso (si aplica)**
-- Fecha y tipo de egreso.
-- Nota: el animal está en modo solo lectura.
+- Si `exitType === "death"`: muestra "Fecha de baja" (exitDate) y "Causa" (exitNotes o "—").
+- Otros tipos: muestra "Fecha de egreso" y "Tipo de egreso" (Venta / Despacho / Transferencia).
+- El animal está en modo solo lectura.
 
 **Historial de peso**
 - Card "Historial de peso" entre los datos del animal y la carencia.
@@ -258,24 +264,34 @@ Al entrar a `/animals/new`, el usuario primero elige cómo ingresar:
 - Link al final: "Ver trazabilidad completa" → `/traceability/[id]`.
 - Si no hay actividades: "Sin actividades registradas".
 
-### Acciones (footer del panel izq o barra superior)
+### Acciones — menú "..."
 
-Para animal **activo**:
-- "Registrar actividad" → `/activities/new` (con el animal preseleccionado).
-- "Ver trazabilidad" → `/traceability/[id]`.
-- "Registrar egreso" → abre modal de egreso.
+Botón "..." (MoreHorizontal) en la fila de badges del encabezado, alineado a la derecha. Solo se renderiza para animales activos.
 
-Para animal **egresado**:
-- Solo "Ver trazabilidad" disponible.
-- Las demás acciones están deshabilitadas con tooltip explicativo.
+**Menú items (animal activo):**
+- "Dar de baja" → abre modal de baja por fallecimiento.
 
-### Modal: Registrar egreso
+Para animal **egresado**: el botón "..." no se renderiza.
 
-- Trigger: botón "Registrar egreso" en el detalle.
-- Campos:
-  - Tipo de egreso * (select: Venta / Despacho / Muerte / Transferencia)
-  - Fecha de egreso * (date picker, default hoy)
-  - Observaciones (textarea, opcional)
-  - Si hay carencia activa: advertencia destacada antes de confirmar.
-- Acciones: "Confirmar egreso" (danger) + "Cancelar".
-- Al confirmar: el animal pasa a estado `egresado`, se deshabilitan acciones.
+### Modal: Dar de baja
+
+Trigger: ítem "Dar de baja" del menú "...".
+
+```
+┌─ Dar de baja ─────────────────────────┐
+│                                        │
+│  Fecha de fallecimiento *              │
+│  [date picker — default hoy, max hoy] │
+│                                        │
+│  Causa del fallecimiento               │
+│  [textarea, "Causa opcional..."]       │
+│                                        │
+│  ⚠ Esta acción no se puede deshacer.  │
+│                                        │
+│  [Cancelar]       [Confirmar baja]     │
+└────────────────────────────────────────┘
+```
+
+- "Confirmar baja": variant destructive, loading state durante procesamiento.
+- "Cancelar": cierra sin cambios.
+- Al confirmar: animal pasa a `egresado` con `exitType: "death"`, badge cambia a "Inactivo", menú "..." desaparece.

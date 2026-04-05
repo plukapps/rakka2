@@ -121,6 +121,7 @@ function makeAnimal(
     lotId,
     exitDate: null,
     exitType: null,
+    exitNotes: null,
     hasActiveCarencia: false,
     carenciaExpiresAt: null,
     lastWeight: null,

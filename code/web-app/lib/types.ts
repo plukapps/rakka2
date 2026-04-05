@@ -47,6 +47,7 @@ export interface Animal {
   lotId: string | null;
   exitDate: number | null;
   exitType: AnimalExitType;
+  exitNotes: string | null;
   hasActiveCarencia: boolean;
   carenciaExpiresAt: number | null;
   lastWeight: number | null;
