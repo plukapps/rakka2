@@ -50,15 +50,6 @@ function activityTitle(act: Activity): string {
   }
 }
 
-const urgencyMap: Record<string, "neutral" | "success" | "warning" | "danger" | "info"> = {
-  reading: "info",
-  sanitary: "warning",
-  commercial: "danger",
-  field_control: "info",
-  movement: "neutral",
-  reproduction: "success",
-  general: "neutral",
-}
 
 export default function ActivitiesPage() {
   const estId = useAppStore((s) => s.activeEstablishment?.id)
@@ -91,21 +82,21 @@ export default function ActivitiesPage() {
               href={`/activities/${act.id}`}
               className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
             >
-              <div className="flex items-center gap-3">
-                <StatusBadge variant={urgencyMap[act.type] ?? "neutral"}>
-                  {activityTypeLabel(act.type)}
-                </StatusBadge>
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {activityTitle(act)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
+              <div>
+                <p className="text-sm font-medium text-foreground">
+                  {activityTitle(act)}
+                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <StatusBadge variant="neutral" className="w-[100px] justify-center shrink-0">
+                    {activityTypeLabel(act.type)}
+                  </StatusBadge>
+                  <span className="text-xs text-muted-foreground">
                     {act.responsible}
                     {" · "}
                     {act.type === "reading"
                       ? `${act.animalIds.length + (act.unknownCaravanas?.length ?? 0)} caravana${(act.animalIds.length + (act.unknownCaravanas?.length ?? 0)) !== 1 ? "s" : ""}`
                       : `${act.animalIds.length} animal${act.animalIds.length !== 1 ? "es" : ""}`}
-                  </p>
+                  </span>
                 </div>
               </div>
               <span className="text-xs text-muted-foreground">{formatDate(act.activityDate)}</span>
