@@ -27,6 +27,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script src="https://tweakcn.com/live-preview.min.js"></script>
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

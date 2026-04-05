@@ -9,7 +9,27 @@
       "Bash(mv Button.tsx button.tsx)",
       "Bash(mv Card.tsx card.tsx)",
       "Bash(mv Input.tsx input.tsx)",
-      "Bash(mv Select.tsx select.tsx)"
+      "Bash(mv Select.tsx select.tsx)",
+      "Bash(git merge feature/tags --no-ff -m ':*)",
+      "Bash(git mv:*)",
+      "Bash(git merge ajustes --no-ff -m ':*)",
+      "Bash(wc -l /Users/santilod/dev/builder/rakka2/code/web-app/components/animals/*.tsx /Users/santilod/dev/builder/rakka2/code/web-app/components/ui/*.tsx)",
+      "Bash(wc:*)",
+      "Bash(sed -n '1,10p' \"/Users/santilod/dev/builder/rakka2/code/web-app/app/\\(app\\)/traceability/[animalId]/page.tsx\")",
+      "Bash(sed -n '1,10p' \"/Users/santilod/dev/builder/rakka2/code/web-app/app/\\(app\\)/animals/[id]/page.tsx\")",
+      "Bash(sed -n '1,10p' \"/Users/santilod/dev/builder/rakka2/code/web-app/app/\\(app\\)/activities/new/page.tsx\")",
+      "Bash(sed -n '55,65p' \"/Users/santilod/dev/builder/rakka2/code/web-app/app/\\(app\\)/animals/[id]/page.tsx\")",
+      "Bash(sed -n '89,100p' \"/Users/santilod/dev/builder/rakka2/code/web-app/app/\\(app\\)/traceability/[animalId]/page.tsx\")",
+      "Bash(python3 -c \"from PIL import Image; print\\('ok'\\)\")",
+      "Bash(pip3 install:*)",
+      "Bash(python3:*)",
+      "Bash(git merge:*)",
+      "WebSearch",
+      "WebFetch(domain:www.gub.uy)",
+      "WebFetch(domain:faolex.fao.org)",
+      "WebFetch(domain:www.correo.com.uy)",
+      "mcp__github__search_code",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
