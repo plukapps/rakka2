@@ -27,7 +27,7 @@ const navItems = [
   {
     href: "/lots",
     label: "Lotes",
-    icon: <Image src="/ic_menu_lotes.png" alt="" width={20} height={20} className="opacity-100" />,
+    icon: <Image src="/ic_menu_lotes1.png" alt="" width={20} height={20} className="opacity-100" />,
   },
   {
     href: "/animals",
