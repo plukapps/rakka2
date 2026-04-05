@@ -35,6 +35,7 @@ export default function LotDetailPage({
   const [showAddSection, setShowAddSection] = useState(false)
   const [addSearch, setAddSearch] = useState("")
   const [showDissolveConfirm, setShowDissolveConfirm] = useState(false)
+  const [pendingMoveId, setPendingMoveId] = useState<string | null>(null)
 
   // Animals in this lot
   const lotAnimals = useMemo(() => {
@@ -167,6 +168,16 @@ export default function LotDetailPage({
               </dd>
             </div>
           </dl>
+          {lot.status === "active" && (
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-border mt-2">
+              <Link href={`/activities/new/sanitary?lotId=${lotId}`}>
+                <Button size="sm" variant="outline">Registrar actividad sanitaria</Button>
+              </Link>
+              <Link href={`/activities/new?lotId=${lotId}`}>
+                <Button size="sm" variant="outline">Registrar actividad</Button>
+              </Link>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -253,34 +264,67 @@ export default function LotDetailPage({
                   return (
                     <div
                       key={animal.id}
-                      className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
+                      className="rounded-lg border border-border px-3 py-2 space-y-2"
                     >
-                      <div className="flex items-center gap-3">
-                        <TagView caravana={animal.caravana} size="sm" />
-                        <div>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>{categoryLabel(animal.category)}</span>
-                            {animal.breed && (
-                              <>
-                                <span>·</span>
-                                <span>{animal.breed}</span>
-                              </>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <TagView caravana={animal.caravana} size="sm" />
+                          <div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span>{categoryLabel(animal.category)}</span>
+                              {animal.breed && (
+                                <>
+                                  <span>·</span>
+                                  <span>{animal.breed}</span>
+                                </>
+                              )}
+                            </div>
+                            {fromOtherLot && currentLot && (
+                              <p className="text-xs text-amber-600">
+                                Actualmente en: {currentLot.name}
+                              </p>
                             )}
                           </div>
-                          {fromOtherLot && currentLot && (
-                            <p className="text-xs text-amber-600">
-                              Actualmente en: {currentLot.name}
-                            </p>
-                          )}
                         </div>
+                        {pendingMoveId !== animal.id && (
+                          <Button
+                            size="sm"
+                            variant={fromOtherLot ? "outline" : "default"}
+                            onClick={() =>
+                              fromOtherLot
+                                ? setPendingMoveId(animal.id)
+                                : handleAddAnimal(animal.id)
+                            }
+                          >
+                            {fromOtherLot ? "Mover aquí" : "Agregar"}
+                          </Button>
+                        )}
                       </div>
-                      <Button
-                        size="sm"
-                        variant={fromOtherLot ? "outline" : "default"}
-                        onClick={() => handleAddAnimal(animal.id)}
-                      >
-                        {fromOtherLot ? "Mover aquí" : "Agregar"}
-                      </Button>
+                      {pendingMoveId === animal.id && currentLot && (
+                        <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 space-y-2">
+                          <p className="text-xs text-amber-800">
+                            Este animal está en {currentLot.name}. ¿Moverlo a este lote?
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                handleAddAnimal(animal.id)
+                                setPendingMoveId(null)
+                              }}
+                            >
+                              Sí, mover
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setPendingMoveId(null)}
+                            >
+                              Cancelar
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )
                 })}

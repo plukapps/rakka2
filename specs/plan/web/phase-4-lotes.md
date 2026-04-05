@@ -1,6 +1,6 @@
 # Web — Fase 4: Módulo Lotes
 
-**Estado:** ⏳ pendiente  
+**Estado:** ✅ completo  
 **Depende de:** Fase 3 ✅
 
 ## Objetivo
@@ -14,30 +14,30 @@ Spec funcional: `specs/functional/03-lotes.md`
 ## Tareas
 
 ### Listado de lotes (`/lotes`)
-- [ ] Cards de lotes activos con: nombre, descripción, contador de animales, fecha creación
-- [ ] Badge de estado (activo/disuelto)
-- [ ] Botón "Crear lote" → `/lotes/nuevo`
-- [ ] Click en lote → `/lotes/[lotId]`
-- [ ] Estado vacío si no hay lotes
-- [ ] Mostrar lotes disueltos con toggle (off por defecto)
+- [x] Cards de lotes activos con: nombre, descripción, contador de animales, fecha creación
+- [x] Badge de estado (activo/disuelto)
+- [x] Botón "Crear lote" → `/lotes/nuevo`
+- [x] Click en lote → `/lotes/[lotId]`
+- [x] Estado vacío si no hay lotes
+- [x] Mostrar lotes disueltos con toggle (off por defecto)
 
 ### Componentes nuevos
-- [ ] `components/lots/LotCard.tsx` — card de lote con contador y acciones rápidas
+- [x] `components/lots/LotCard.tsx` — card de lote con contador y acciones rápidas
 
 ### Formulario de creación (`/lotes/nuevo`)
-- [ ] Campos: nombre (obligatorio), descripción
-- [ ] Selector multi-animal para asignar animales al crear (opcional)
-- [ ] Al confirmar: crear lote en mock store, asignar animales seleccionados
+- [x] Campos: nombre (obligatorio), descripción
+- [x] Selector multi-animal para asignar animales al crear (opcional)
+- [x] Al confirmar: crear lote en mock store, asignar animales seleccionados
 
 ### Detalle del lote (`/lotes/[lotId]`)
-- [ ] Header: nombre, descripción, estado, fecha creación, contador de animales
-- [ ] Lista de animales del lote (reusa `AnimalCard`)
-- [ ] Búsqueda dentro del lote por caravana
-- [ ] Botón "Agregar animales" → modal de búsqueda/selección de animales activos sin lote o de otro lote
-- [ ] Al mover animal de otro lote: confirmación ("Este animal está en Lote Sur, ¿moverlo aquí?")
-- [ ] Botón "Registrar actividad sanitaria" → `/actividades/sanitarias/nueva?lotId=xxx`
-- [ ] Botón "Disolver lote" → modal de confirmación
-- [ ] Al disolver: todos los animales quedan sin lote, lote pasa a `disuelto`
+- [x] Header: nombre, descripción, estado, fecha creación, contador de animales
+- [x] Lista de animales del lote (reusa `AnimalCard`)
+- [x] Búsqueda dentro del lote por caravana
+- [x] Botón "Agregar animales" → modal de búsqueda/selección de animales activos sin lote o de otro lote
+- [x] Al mover animal de otro lote: confirmación ("Este animal está en Lote Sur, ¿moverlo aquí?")
+- [x] Botón "Registrar actividad sanitaria" → `/activities/new/sanitary?lotId=xxx`
+- [x] Botón "Disolver lote" → modal de confirmación
+- [x] Al disolver: todos los animales quedan sin lote, lote pasa a `disuelto`
 
 ---
 
@@ -45,9 +45,9 @@ Spec funcional: `specs/functional/03-lotes.md`
 
 ```
 code/web-app/
-├── app/(app)/lotes/
+├── app/(app)/lots/
 │   ├── page.tsx
-│   ├── nuevo/page.tsx
+│   ├── new/page.tsx
 │   └── [lotId]/page.tsx
 └── components/lots/
     └── LotCard.tsx
@@ -57,8 +57,8 @@ code/web-app/
 
 ## Criterios de done
 
-- [ ] Los 4 lotes mock aparecen en el listado con contadores correctos
-- [ ] Crear lote nuevo aparece inmediatamente en el listado
-- [ ] Mover animal entre lotes actualiza el `lotId` del animal y ambos contadores de lote
-- [ ] Disolver lote cambia su estado y quita el `lotId` de todos sus animales
-- [ ] El detalle del lote muestra exactamente los animales asignados a ese lote
+- [x] Los 4 lotes mock aparecen en el listado con contadores correctos
+- [x] Crear lote nuevo aparece inmediatamente en el listado
+- [x] Mover animal entre lotes actualiza el `lotId` del animal y ambos contadores de lote
+- [x] Disolver lote cambia su estado y quita el `lotId` de todos sus animales
+- [x] El detalle del lote muestra exactamente los animales asignados a ese lote

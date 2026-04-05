@@ -53,16 +53,19 @@ export default function MovementActivityPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const estId = useAppStore((s) => s.activeEstablishment?.id)
+  const establishments = useAppStore((s) => s.establishments)
   const user = useAuthStore((s) => s.user)
 
   const [step, setStep] = useState(1)
   const [selected, setSelected] = useState<Animal[]>([])
+  const [selectionMethod, setSelectionMethod] = useState<SelectionMethod>("individual")
   const [submitting, setSubmitting] = useState(false)
 
   // Form state
   const [subtype, setSubtype] = useState<MovementSubtype>("paddock_move")
   const [origin, setOrigin] = useState("")
   const [destination, setDestination] = useState("")
+  const [destinationEstId, setDestinationEstId] = useState("")
   const [notes, setNotes] = useState("")
 
   // Pre-fill from query params
@@ -86,13 +89,17 @@ export default function MovementActivityPage() {
     setSubmitting(true)
     try {
       const ts = now()
-      const selectionMethod: SelectionMethod = "individual"
 
       const subtypeLabels: Record<MovementSubtype, string> = {
         paddock_move: "Cambio de potrero",
         field_transfer: "Traslado entre campos",
         external_transfer: "Traslado externo",
       }
+
+      const destEstName =
+        subtype === "field_transfer" && destinationEstId
+          ? establishments.find((e) => e.id === destinationEstId)?.name ?? destinationEstId
+          : null
 
       const activity = activityRepository.create({
         estId,
@@ -106,8 +113,8 @@ export default function MovementActivityPage() {
         createdBy: user.uid,
         subtype,
         origin,
-        destination,
-        destinationEstablishmentId: null,
+        destination: subtype === "field_transfer" ? (destEstName ?? destination) : destination,
+        destinationEstablishmentId: subtype === "field_transfer" ? destinationEstId || null : null,
       } as CreateActivityInput)
 
       for (const animal of selected) {
@@ -115,7 +122,7 @@ export default function MovementActivityPage() {
           animalId: animal.id,
           estId,
           type: "movement",
-          description: `${subtypeLabels[subtype]}: ${origin} → ${destination}`,
+          description: `${subtypeLabels[subtype]}: ${origin} → ${subtype === "field_transfer" ? (destEstName ?? destination) : destination}`,
           activityId: activity.id,
           lotId: animal.lotId,
           lotName: null,
@@ -129,6 +136,9 @@ export default function MovementActivityPage() {
       setSubmitting(false)
     }
   }
+
+  // Other establishments (excluding active)
+  const otherEstablishments = establishments.filter((e) => e.id !== estId)
 
   if (!estId) return null
 
@@ -146,7 +156,12 @@ export default function MovementActivityPage() {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Paso 1: Seleccionar animales
           </p>
-          <AnimalSelector estId={estId} selected={selected} onChange={setSelected} />
+          <AnimalSelector
+            estId={estId}
+            selected={selected}
+            onChange={setSelected}
+            onMethodChange={setSelectionMethod}
+          />
           <div className="flex justify-end pt-2">
             <Button onClick={() => setStep(2)} disabled={selected.length === 0}>
               Continuar ({selected.length})
@@ -172,7 +187,7 @@ export default function MovementActivityPage() {
           <FormField label="Tipo de movimiento">
             <NativeSelect value={subtype} onChange={(e) => setSubtype(e.target.value as MovementSubtype)}>
               <option value="paddock_move">Cambio de potrero</option>
-              <option value="field_transfer">Traslado entre campos</option>
+              <option value="field_transfer">Traslado entre campos propios</option>
               <option value="external_transfer">Traslado externo</option>
             </NativeSelect>
           </FormField>
@@ -181,9 +196,33 @@ export default function MovementActivityPage() {
             <Input value={origin} onChange={(e) => setOrigin(e.target.value)} placeholder="Potrero / campo de origen" />
           </FormField>
 
-          <FormField label="Destino">
-            <Input value={destination} onChange={(e) => setDestination(e.target.value)} placeholder="Potrero / campo de destino" />
-          </FormField>
+          {subtype === "field_transfer" ? (
+            <FormField label="Establecimiento destino">
+              {otherEstablishments.length > 0 ? (
+                <NativeSelect
+                  value={destinationEstId}
+                  onChange={(e) => setDestinationEstId(e.target.value)}
+                >
+                  <option value="">Seleccionar establecimiento...</option>
+                  {otherEstablishments.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.name}
+                    </option>
+                  ))}
+                </NativeSelect>
+              ) : (
+                <Input
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                  placeholder="Nombre del campo destino"
+                />
+              )}
+            </FormField>
+          ) : (
+            <FormField label="Destino">
+              <Input value={destination} onChange={(e) => setDestination(e.target.value)} placeholder="Potrero / campo de destino" />
+            </FormField>
+          )}
 
           <FormField label="Notas">
             <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Observaciones..." />
