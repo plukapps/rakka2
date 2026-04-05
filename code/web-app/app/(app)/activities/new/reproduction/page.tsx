@@ -64,6 +64,7 @@ export default function ReproductionActivityPage() {
 
   const [step, setStep] = useState(1)
   const [selected, setSelected] = useState<Animal[]>([])
+  const [selectionMethod, setSelectionMethod] = useState<SelectionMethod>("individual")
   const [submitting, setSubmitting] = useState(false)
 
   // Form state
@@ -95,8 +96,6 @@ export default function ReproductionActivityPage() {
     setSubmitting(true)
     try {
       const ts = now()
-      const selectionMethod: SelectionMethod = "individual"
-
       const subtypeLabels: Record<ReproductionSubtype, string> = {
         service: "Servicio",
         pregnancy_diagnosis: "Diagnostico de gestacion",
@@ -207,7 +206,7 @@ export default function ReproductionActivityPage() {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Paso 1: Seleccionar animales
           </p>
-          <AnimalSelector estId={estId} selected={selected} onChange={setSelected} />
+          <AnimalSelector estId={estId} selected={selected} onChange={setSelected} onMethodChange={setSelectionMethod} />
           <div className="flex justify-end pt-2">
             <Button onClick={() => setStep(2)} disabled={selected.length === 0}>
               Continuar ({selected.length})

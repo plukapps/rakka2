@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { cn, formatCaravana, categoryLabel, carenciaLabel, parseRfidLine } from "@/lib/utils"
+import { cn, formatCaravana, categoryLabel, carenciaLabel, parseRfidLineWithWeight } from "@/lib/utils"
 import { useLots } from "@/hooks/useLots"
 
 type Tab = "individual" | "lot" | "rfid_file" | "rfid_bluetooth"
@@ -18,6 +18,8 @@ interface AnimalSelectorProps {
   selected: Animal[]
   onChange: (animals: Animal[]) => void
   onUnrecognized?: (caravanas: string[]) => void
+  onMethodChange?: (method: "rfid_bluetooth" | "rfid_file" | "lot" | "individual") => void
+  onWeightMap?: (map: Record<string, number>) => void
   filterFn?: (animal: Animal) => boolean
   rfidOnly?: boolean
 }
@@ -58,12 +60,19 @@ export function AnimalSelector({
   selected,
   onChange,
   onUnrecognized,
+  onMethodChange,
+  onWeightMap,
   filterFn,
   rfidOnly,
 }: AnimalSelectorProps) {
   const [tab, setTab] = useState<Tab>(rfidOnly ? "rfid_file" : "individual")
   const [allAnimals, setAllAnimals] = useState<Animal[]>([])
   const lots = useLots()
+
+  function handleTabChange(newTab: Tab) {
+    setTab(newTab)
+    onMethodChange?.(newTab)
+  }
 
   useEffect(() => {
     if (!estId) return
@@ -106,7 +115,7 @@ export function AnimalSelector({
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             )}
-            onClick={() => setTab(t.key)}
+            onClick={() => handleTabChange(t.key)}
           >
             {t.label}
           </button>
@@ -121,7 +130,7 @@ export function AnimalSelector({
         <LotTab lots={lots} animals={available} selected={selected} onChange={onChange} />
       )}
       {tab === "rfid_file" && (
-        <RfidFileTab animals={available} selected={selected} onChange={onChange} onAdd={addAnimal} onUnrecognized={onUnrecognized} />
+        <RfidFileTab animals={available} selected={selected} onChange={onChange} onAdd={addAnimal} onUnrecognized={onUnrecognized} onWeightMap={onWeightMap} />
       )}
       {tab === "rfid_bluetooth" && (
         <BluetoothTab animals={available} selected={selected} onAdd={addAnimal} />
@@ -271,12 +280,14 @@ function RfidFileTab({
   onChange,
   onAdd,
   onUnrecognized,
+  onWeightMap,
 }: {
   animals: Animal[]
   selected: Animal[]
   onChange: (animals: Animal[]) => void
   onAdd: (a: Animal) => void
   onUnrecognized?: (caravanas: string[]) => void
+  onWeightMap?: (map: Record<string, number>) => void
 }) {
   const [inStock, setInStock] = useState<Animal[]>([])
   const [notInStock, setNotInStock] = useState<string[]>([])
@@ -298,16 +309,18 @@ function RfidFileTab({
       const found: Animal[] = []
       const unknown: string[] = []
       const seen = new Set<string>()
+      const weightMap: Record<string, number> = {}
 
       for (const line of lines) {
-        const caravana = parseRfidLine(line)
-        if (!caravana || seen.has(caravana)) continue
-        seen.add(caravana)
-        const animal = animals.find((a) => a.caravana === caravana)
+        const parsed = parseRfidLineWithWeight(line)
+        if (!parsed || seen.has(parsed.caravana)) continue
+        seen.add(parsed.caravana)
+        const animal = animals.find((a) => a.caravana === parsed.caravana)
         if (animal) {
           found.push(animal)
+          if (parsed.weight != null) weightMap[animal.id] = parsed.weight
         } else {
-          unknown.push(caravana)
+          unknown.push(parsed.caravana)
         }
       }
 
@@ -315,6 +328,7 @@ function RfidFileTab({
       setInStock(found)
       setNotInStock(unknown)
       onUnrecognized?.(unknown)
+      if (Object.keys(weightMap).length > 0) onWeightMap?.(weightMap)
 
       // Add found animals to selection (without duplicates)
       const existingIds = new Set(selected.map((a) => a.id))

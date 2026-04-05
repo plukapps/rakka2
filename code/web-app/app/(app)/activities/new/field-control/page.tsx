@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import type { Animal, FieldControlSubtype, SelectionMethod } from "@/lib/types"
@@ -13,7 +13,7 @@ import { AnimalSelector } from "@/components/activities/AnimalSelector"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { cn, now } from "@/lib/utils"
+import { cn, now, formatCaravana } from "@/lib/utils"
 
 function NativeSelect({
   className,
@@ -65,12 +65,20 @@ export default function FieldControlActivityPage() {
 
   const [step, setStep] = useState(1)
   const [selected, setSelected] = useState<Animal[]>([])
+  const [selectionMethod, setSelectionMethod] = useState<SelectionMethod>("individual")
+  const [weightMap, setWeightMap] = useState<Record<string, number>>({})
   const [submitting, setSubmitting] = useState(false)
 
   // Form state
   const [subtype, setSubtype] = useState<FieldControlSubtype>("weighing")
-  const [weightKg, setWeightKg] = useState("")
+  const [weightsPerAnimal, setWeightsPerAnimal] = useState<Record<string, string>>({})
   const [notes, setNotes] = useState("")
+
+  // Total active animals in establishment (for count comparison)
+  const totalActive = useMemo(() => {
+    if (!estId) return 0
+    return animalRepository.getAll(estId).filter((a) => a.status === "active").length
+  }, [estId])
 
   // Pre-fill from query params
   useEffect(() => {
@@ -88,12 +96,53 @@ export default function FieldControlActivityPage() {
     }
   }, [estId, searchParams])
 
+  // When RFID file provides weights, pre-populate per-animal weights
+  useEffect(() => {
+    if (Object.keys(weightMap).length === 0) return
+    setWeightsPerAnimal((prev) => {
+      const next = { ...prev }
+      for (const [id, weight] of Object.entries(weightMap)) {
+        if (!next[id]) next[id] = String(weight)
+      }
+      return next
+    })
+  }, [weightMap])
+
+  // Initialize per-animal weights when selected animals change (for weighing)
+  useEffect(() => {
+    if (subtype !== "weighing") return
+    setWeightsPerAnimal((prev) => {
+      const next: Record<string, string> = {}
+      for (const animal of selected) {
+        next[animal.id] = prev[animal.id] ?? weightMap[animal.id]?.toString() ?? ""
+      }
+      return next
+    })
+  }, [selected, subtype]) // eslint-disable-line react-hooks/exhaustive-deps
+
   function handleSubmit() {
     if (!estId || !user || selected.length === 0) return
     setSubmitting(true)
     try {
       const ts = now()
-      const selectionMethod: SelectionMethod = "individual"
+
+      // Build per-animal weights map (only for weighing)
+      const weightsByAnimal: Record<string, number> | null =
+        subtype === "weighing" && Object.keys(weightsPerAnimal).length > 0
+          ? Object.fromEntries(
+              Object.entries(weightsPerAnimal)
+                .filter(([, v]) => v !== "")
+                .map(([k, v]) => [k, parseFloat(v)])
+                .filter(([, v]) => !isNaN(v as number))
+            )
+          : null
+
+      // Single average weight for backward compat
+      const weights = weightsByAnimal ? Object.values(weightsByAnimal) : []
+      const avgWeight =
+        weights.length > 0
+          ? Math.round((weights.reduce((a, b) => a + b, 0) / weights.length) * 10) / 10
+          : null
 
       const activity = activityRepository.create({
         estId,
@@ -106,17 +155,19 @@ export default function FieldControlActivityPage() {
         notes,
         createdBy: user.uid,
         subtype,
-        weightKg: weightKg ? parseFloat(weightKg) : null,
+        weightKg: avgWeight,
+        weightsByAnimal,
         scale: null,
         result: null,
       } as CreateActivityInput)
 
       for (const animal of selected) {
+        const animalWeight = weightsByAnimal?.[animal.id]
         traceabilityRepository.create({
           animalId: animal.id,
           estId,
           type: "field_control",
-          description: `Control de campo: ${SUBTYPE_LABELS[subtype]}${weightKg ? ` - ${weightKg}kg` : ""}`,
+          description: `Control de campo: ${SUBTYPE_LABELS[subtype]}${animalWeight ? ` - ${animalWeight}kg` : avgWeight ? ` - ${avgWeight}kg` : ""}`,
           activityId: activity.id,
           lotId: animal.lotId,
           lotName: null,
@@ -147,7 +198,13 @@ export default function FieldControlActivityPage() {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Paso 1: Seleccionar animales
           </p>
-          <AnimalSelector estId={estId} selected={selected} onChange={setSelected} />
+          <AnimalSelector
+            estId={estId}
+            selected={selected}
+            onChange={setSelected}
+            onMethodChange={setSelectionMethod}
+            onWeightMap={setWeightMap}
+          />
           <div className="flex justify-end pt-2">
             <Button onClick={() => setStep(2)} disabled={selected.length === 0}>
               Continuar ({selected.length})
@@ -179,15 +236,53 @@ export default function FieldControlActivityPage() {
           </FormField>
 
           {subtype === "weighing" && (
-            <FormField label="Peso (kg)">
-              <Input
-                type="number"
-                step="0.1"
-                value={weightKg}
-                onChange={(e) => setWeightKg(e.target.value)}
-                placeholder="280"
-              />
-            </FormField>
+            <div className="space-y-2">
+              <Label>Peso por animal (kg)</Label>
+              {Object.keys(weightMap).length > 0 && (
+                <p className="text-xs text-emerald-700">
+                  Pesos pre-cargados desde archivo RFID
+                </p>
+              )}
+              <div className="max-h-64 overflow-y-auto space-y-1 rounded-lg border border-border p-2">
+                {selected.map((animal) => (
+                  <div key={animal.id} className="flex items-center gap-3 px-1 py-1">
+                    <span className="text-xs font-mono text-muted-foreground w-28 shrink-0">
+                      {formatCaravana(animal.caravana, "serie")}
+                    </span>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      className="h-7 text-sm"
+                      placeholder="kg"
+                      value={weightsPerAnimal[animal.id] ?? ""}
+                      onChange={(e) =>
+                        setWeightsPerAnimal((prev) => ({
+                          ...prev,
+                          [animal.id]: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {subtype === "count" && (
+            <div className="rounded-md border border-border p-3 space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                {selected.length} animales seleccionados
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Total activos en el establecimiento: {totalActive}
+              </p>
+              {totalActive - selected.length > 0 && (
+                <p className="text-xs text-amber-600">
+                  Diferencia: {totalActive - selected.length} animales no contabilizados
+                </p>
+              )}
+            </div>
           )}
 
           <FormField label="Notas">

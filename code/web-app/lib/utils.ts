@@ -110,6 +110,35 @@ export function parseRfidLine(line: string): string | null {
   return raw.slice(-15)
 }
 
+// Extended RFID parsing that also extracts weight from CSV format.
+// Handles bracket-pipe format (no weight) and CSV: "caravana,weight" or "caravana;weight"
+export function parseRfidLineWithWeight(
+  line: string
+): { caravana: string; weight: number | null } | null {
+  // Try bracket pipe format first
+  const fromBracket = parseRfidLine(line)
+  if (fromBracket) return { caravana: fromBracket, weight: null }
+
+  // Try CSV format (comma or semicolon separated)
+  const trimmed = line.trim()
+  const sep = trimmed.includes(",") ? "," : trimmed.includes(";") ? ";" : null
+
+  if (sep) {
+    const parts = trimmed.split(sep)
+    const raw = parts[0].trim().replace(/\D/g, "")
+    if (raw.length < 15) return null
+    const caravana = raw.slice(-15)
+    const weightStr = parts[1]?.trim()
+    const weight = weightStr ? parseFloat(weightStr) : null
+    return { caravana, weight: weight != null && !isNaN(weight) ? weight : null }
+  }
+
+  // Plain digits only
+  const raw = trimmed.replace(/\D/g, "")
+  if (raw.length === 15) return { caravana: raw, weight: null }
+  return null
+}
+
 // Label helpers
 export function categoryLabel(cat: string): string {
   const labels: Record<string, string> = {

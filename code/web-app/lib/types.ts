@@ -125,6 +125,7 @@ export type FieldControlSubtype =
 export interface FieldControlFields {
   subtype: FieldControlSubtype;
   weightKg: number | null;
+  weightsByAnimal?: Record<string, number> | null;
   scale: string | null;
   result: string | null;
 }

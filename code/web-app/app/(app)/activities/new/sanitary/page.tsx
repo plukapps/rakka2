@@ -57,6 +57,7 @@ export default function SanitaryActivityPage() {
 
   const [step, setStep] = useState(1)
   const [selected, setSelected] = useState<Animal[]>([])
+  const [selectionMethod, setSelectionMethod] = useState<SelectionMethod>("individual")
   const [submitting, setSubmitting] = useState(false)
 
   // Form state
@@ -96,8 +97,6 @@ export default function SanitaryActivityPage() {
       const ts = now()
       const carDays = parseInt(carenciaDays) || 0
       const expiresAt = carDays > 0 ? ts + carDays * 86400000 : null
-
-      const selectionMethod: SelectionMethod = "individual"
 
       const activity = activityRepository.create({
         estId,
@@ -161,7 +160,7 @@ export default function SanitaryActivityPage() {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             Paso 1: Seleccionar animales
           </p>
-          <AnimalSelector estId={estId} selected={selected} onChange={setSelected} />
+          <AnimalSelector estId={estId} selected={selected} onChange={setSelected} onMethodChange={setSelectionMethod} />
           <div className="flex justify-end pt-2">
             <Button onClick={() => setStep(2)} disabled={selected.length === 0}>
               Continuar ({selected.length})

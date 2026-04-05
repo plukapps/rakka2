@@ -110,13 +110,26 @@ cd code/functions && npm run build
 
 ## Reglas para Claude
 
-### Specs como fuente de verdad
+### Specs como fuente de verdad — REGLA PRINCIPAL
 
-Las specs son la fuente de verdad del proyecto. El código debe reflejar las specs, nunca al revés.
+**Las specs son la única fuente de verdad. El código existe para implementar las specs, nunca al revés.**
 
-- Si el código introduce algo que no está en las specs (nueva regla de negocio, nuevo campo, nuevo flujo, decisión técnica), **actualizar la spec correspondiente antes o en el mismo paso**.
-- Si hay conflicto entre el código y la spec, la spec manda — salvo que el usuario explícitamente indique lo contrario.
-- Al finalizar cualquier tarea de implementación, verificar que las specs relevantes estén al día.
+#### Orden obligatorio para cualquier tarea de implementación:
+
+1. **Leer** el spec del módulo afectado antes de escribir una sola línea de código.
+2. **Actualizar la spec primero** si la tarea introduce algo nuevo (campo, flujo, regla, decisión técnica) — la spec se actualiza *antes* de implementar, no después.
+3. **Implementar** el código alineado con la spec ya actualizada.
+4. **Verificar** al terminar que specs y código están sincronizados.
+
+Este orden es siempre: **spec → código**. No hay excepciones.
+
+#### Qué hacer en cada caso:
+
+- **Nueva feature o cambio de comportamiento**: actualizar `specs/functional/` → luego implementar.
+- **Nueva decisión técnica, nuevo campo, nuevo patrón**: actualizar `specs/technical/` → luego implementar.
+- **Avance de fase**: actualizar `specs/plan/` para reflejar el estado real.
+- **Conflicto spec vs. código**: la spec manda — salvo que el usuario indique explícitamente lo contrario.
+- **Algo en el código que no tiene spec**: crear o actualizar la spec correspondiente antes de continuar.
 
 Specs funcionales: `specs/functional/` — qué hace el sistema  
 Specs técnicas: `specs/technical/` — cómo está construido  
@@ -125,7 +138,7 @@ Planes: `specs/plan/` — estado de implementación por fase
 ---
 
 ### Hacer siempre
-- Leer el spec del módulo antes de implementar cualquier feature
+- **Leer el spec del módulo antes de implementar cualquier feature** — sin excepción
 - Usar `keepSynced(true)` al cambiar de establecimiento activo
 - Manejar el estado `isOffline` visible en UI
 - En Android: limpiar listeners en `awaitClose {}` del `callbackFlow`
