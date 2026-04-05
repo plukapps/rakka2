@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,10 @@ export default function LoginPage() {
   return (
     <div className="rounded-xl bg-card p-8 shadow-sm border border-border">
       <div className="mb-6 text-center">
-        <span className="text-2xl font-bold text-primary">Rakka</span>
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <Image src="/logo_rakka.png" alt="Rakka" width={32} height={32} />
+          <span className="text-2xl font-bold text-primary">Rakka</span>
+        </div>
         <p className="mt-1 text-sm text-muted-foreground">Gestión ganadera</p>
       </div>
 

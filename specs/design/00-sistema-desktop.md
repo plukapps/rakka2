@@ -35,10 +35,10 @@ La app usa un layout de **tres bandas**: sidebar fijo a la izquierda, header fij
 │  RAKKA  (logo)     │
 ├────────────────────┤
 │  • Inicio          │
-│  • Animales        │
-│  • Lotes           │
 │  • Actividades     │
 │  • Lecturas RFID   │
+│  • Lotes           │
+│  • Animales        │
 │  • Alertas     [N] │
 ├────────────────────┤
 │  (espacio flex)    │
