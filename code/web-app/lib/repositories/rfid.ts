@@ -11,6 +11,10 @@ export const rfidRepository = {
       .sort((a, b) => b.timestamp - a.timestamp);
   },
 
+  getById(estId: string, readingId: string): RfidReading | undefined {
+    return getMockStore().getRfidReading(estId, readingId);
+  },
+
   create(input: CreateRfidReadingInput): RfidReading {
     const store = getMockStore();
     const id = generateId("rfid");

@@ -145,3 +145,9 @@ Planes: `specs/plan/` — estado de implementación por fase
 - Si ya leíste un archivo en esta sesión, no lo releas a menos que haya cambiado
 - Para buscar convenciones, leer primero este CLAUDE.md antes de explorar el código
 - Al crear un archivo nuevo, seguir el patrón existente más cercano en el mismo módulo
+
+## Git workflow
+
+- Branches: `feature/nombre-corto` o `hotfix/descripcion`
+- PRs contra `main`
+- Usar `gh` CLI para crear PRs (instalar con `brew install gh`)

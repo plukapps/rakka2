@@ -160,6 +160,10 @@ class MockStore {
     );
   }
 
+  getRfidReading(estId: string, readingId: string): RfidReading | undefined {
+    return this.rfidReadings.get(`${estId}/${readingId}`);
+  }
+
   setRfidReading(reading: RfidReading) {
     this.rfidReadings.set(`${reading.estId}/${reading.id}`, clone(reading));
     this.emit(`rfid/${reading.estId}`);

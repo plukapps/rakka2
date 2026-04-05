@@ -61,9 +61,23 @@ Cada nodo de datos que pertenece a un establecimiento está particionado por `{e
 
 ### `/animals/{estId}/{animalId}`
 
+**Caravana** — 15 dígitos numéricos, siempre almacenados completos: `CCCFFFSSSSSNNNN`
+- `CCC` (3): código de país (858 = Uruguay)
+- `FFF` (3): dígitos fijos en 0 por ahora
+- `SSSSS` (5): serie
+- `NNNN` (4): número de caravana
+
+Modos de visualización (solo display, el valor almacenado es siempre el número completo):
+| Modo | Ejemplo | Uso |
+|---|---|---|
+| `full` | `858000123456789` | Cuando se necesita el número completo |
+| `short` | `123456789` | Solo serie + número (9 dígitos) |
+| `serie` | `12345 6789` | Serie y número separados por espacio |
+| `tag` | Visual — componente SVG tipo caravana (oreja) con serie arriba y número grande abajo | Listados y perfil del animal |
+
 ```json
 {
-  "caravana": "AR-1234-5678",
+  "caravana": "858000000011234",
   "status": "active",
   "category": "vaca",
   "breed": "Angus",
@@ -213,7 +227,7 @@ Todas las actividades comparten este nodo, diferenciadas por `type`. Ver tipos e
   "serviceType": "natural | artificial_insemination | embryo_transfer",
   "pregnancyResult": "positive | negative | uncertain",
   "birthResult": "live | stillborn | abortion",
-  "offspringCaravana": "AR-9999"
+  "offspringCaravana": "858000054321098"
 }
 ```
 
@@ -233,15 +247,20 @@ Registra cada lectura RFID como evento independiente. Existe aunque no esté aso
 ```json
 {
   "method": "bluetooth | file_upload",
-  "fileName": "lectura_2024-04-03.txt",
-  "animalIds": ["animal_111", "animal_222", "animal_333"],
-  "unknownCaravanas": ["AR-XXXX"],
+  "fileName": "terneros sopas.txt",
+  "animalIds": ["animal_111", "animal_222"],
+  "unknownCaravanas": ["858000054596559", "858000054365782", "858000054596550"],
   "activityId": "activity_zzz",
   "responsible": "Juan Pérez",
   "notes": "",
   "timestamp": 1712000000000,
   "createdBy": "uid_usuario"
 }
+```
+
+- `animalIds`: IDs de animales que coincidieron con caravanas del establecimiento (en stock).
+- `unknownCaravanas`: caravanas completas (15 dígitos) que no existen en el establecimiento. Se almacenan siempre para trazabilidad.
+- Una lectura puede tener solo `unknownCaravanas` (sin animales en stock) y sigue siendo válida.
 ```
 
 - `method`: `"bluetooth"` (tiempo real) | `"file_upload"` (archivo previo)

@@ -1,47 +1,81 @@
-"use client";
+"use client"
 
-import { useLots } from "@/hooks/useLots";
-import { useAppStore } from "@/lib/stores/appStore";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { Badge } from "@/components/ui/Badge";
-import Link from "next/link";
+import { useState, useMemo } from "react"
+import Link from "next/link"
+import { useAllLots } from "@/hooks/useLots"
+import { LotCard } from "@/components/lots/LotCard"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { EmptyState } from "@/components/ui/empty-state"
 
 export default function LotsPage() {
-  const lots = useLots();
-  const est = useAppStore((s) => s.activeEstablishment);
+  const allLots = useAllLots()
+  const [search, setSearch] = useState("")
+  const [showDissolved, setShowDissolved] = useState(false)
+
+  const filtered = useMemo(() => {
+    return allLots.filter((l) => {
+      if (!showDissolved && l.status !== "active") return false
+      if (search && !l.name.toLowerCase().includes(search.toLowerCase())) return false
+      return true
+    })
+  }, [allLots, search, showDissolved])
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-gray-900">Lotes</h1>
-        <Badge variant="outline">{est?.name}</Badge>
+        <h1 className="text-lg font-semibold text-foreground">
+          Lotes{" "}
+          <span className="text-sm font-normal text-muted-foreground">
+            ({filtered.length})
+          </span>
+        </h1>
+        <Link href="/lots/new">
+          <Button size="sm">+ Crear lote</Button>
+        </Link>
       </div>
 
-      {lots.length === 0 ? (
+      <div className="flex items-center gap-3">
+        <Input
+          placeholder="Buscar por nombre..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-xs"
+        />
+        <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={showDissolved}
+            onChange={(e) => setShowDissolved(e.target.checked)}
+            className="rounded border-input"
+          />
+          Mostrar disueltos
+        </label>
+      </div>
+
+      {filtered.length === 0 ? (
         <EmptyState
-          title="Sin lotes"
-          description="No hay lotes activos en este establecimiento."
+          title="Sin resultados"
+          description={
+            allLots.length === 0
+              ? "No hay lotes en este establecimiento."
+              : "No hay lotes que coincidan con los filtros."
+          }
+          action={
+            allLots.length === 0 ? (
+              <Link href="/lots/new">
+                <Button size="sm">Crear primer lote</Button>
+              </Link>
+            ) : undefined
+          }
         />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {lots.map((lot) => (
-            <Link key={lot.id} href={`/animals?lotId=${lot.id}`}>
-              <Card className="hover:border-emerald-300 transition-colors cursor-pointer">
-                <CardHeader>
-                  <CardTitle>{lot.name}</CardTitle>
-                  <Badge variant="success">{lot.animalCount} animales</Badge>
-                </CardHeader>
-                {lot.description && (
-                  <CardContent>
-                    <p className="text-xs text-gray-500">{lot.description}</p>
-                  </CardContent>
-                )}
-              </Card>
-            </Link>
+        <div className="space-y-2">
+          {filtered.map((lot) => (
+            <LotCard key={lot.id} lot={lot} />
           ))}
         </div>
       )}
     </div>
-  );
+  )
 }
