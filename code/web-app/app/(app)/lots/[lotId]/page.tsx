@@ -9,7 +9,6 @@ import { useAllLots } from "@/hooks/useLots"
 import { lotRepository } from "@/lib/repositories/lot"
 import { animalRepository } from "@/lib/repositories/animal"
 import { useAppStore } from "@/lib/stores/appStore"
-import { AnimalCard } from "@/components/animals/AnimalCard"
 import { TagView } from "@/components/animals/TagView"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Badge } from "@/components/ui/badge"
@@ -18,7 +17,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/ui/empty-state"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import { formatDate, formatCaravana, categoryLabel, cn } from "@/lib/utils"
+import { formatDate, formatCaravana } from "@/lib/utils"
 
 export default function LotDetailPage({
   params,
@@ -52,12 +51,6 @@ export default function LotDetailPage({
         formatCaravana(a.caravana, "serie").toLowerCase().includes(q)
     )
   }, [lotAnimals, search])
-
-  // Lot map for AnimalCard
-  const lotMap = useMemo(
-    () => Object.fromEntries(allLots.map((l) => [l.id, l])),
-    [allLots]
-  )
 
   // Animals available to add (no lot or from other lots)
   const addableAnimals = useMemo(() => {
@@ -217,13 +210,11 @@ export default function LotDetailPage({
               className="py-6"
             />
           ) : (
-            <div className="space-y-2">
+            <div className="grid grid-cols-6 gap-3">
               {filteredLotAnimals.map((animal) => (
-                <AnimalCard
-                  key={animal.id}
-                  animal={animal}
-                  lot={lot}
-                />
+                <Link key={animal.id} href={`/animals/${animal.id}`} className="flex justify-center">
+                  <TagView caravana={animal.caravana} size="sm" />
+                </Link>
               ))}
             </div>
           )}

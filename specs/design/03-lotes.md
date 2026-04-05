@@ -40,7 +40,7 @@
 └───────────────────────────────────────────────────────┘
 ```
 
-- Layout: card de ancho completo (no grilla), lista vertical.
+- Layout: card de ancho completo (no grilla), lista vertical con separación `space-y-3`.
 - Click en la card o en "Ver detalle" → `/lots/[lotId]`.
 - Lotes disueltos: card con opacity reducida + badge "Disuelto".
 
@@ -116,10 +116,12 @@ Formulario en columna central, ancho máximo 480px.
 
 ### Lista de animales del lote
 
-- Grilla de 3 columnas con **AnimalCard** (misma que en `/animals`).
+- Grilla compacta de caravanas: muestra solo el TagView de cada animal (sin detalle de categoría, raza ni lote).
+- Columnas: 6 cols en desktop (wrap automático).
+- Cada caravana es clickeable → `/animals/[animalId]`.
 - Búsqueda por caravana dentro del lote.
 - Contador "X animales".
-- **Botón "Agregar animales"**: abre modal de selección.
+- **Botón "Agregar animales"**: abre panel inline de selección.
 
 ### Modal: Agregar animales al lote
 

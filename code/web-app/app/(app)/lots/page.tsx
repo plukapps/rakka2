@@ -70,7 +70,7 @@ export default function LotsPage() {
           }
         />
       ) : (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-3">
           {filtered.map((lot) => (
             <LotCard key={lot.id} lot={lot} />
           ))}
