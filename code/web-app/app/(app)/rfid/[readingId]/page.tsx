@@ -54,9 +54,7 @@ export default function ReadingDetailPage({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Link href="/rfid">
-          <Button variant="ghost" size="sm">← Lecturas</Button>
-        </Link>
+        <Button variant="ghost" size="sm" onClick={() => router.back()}>← Lecturas</Button>
       </div>
 
       {/* Header */}
@@ -128,7 +126,7 @@ export default function ReadingDetailPage({
         {filteredStock.map((animal) => (
           <Link key={animal.id} href={`/animals/${animal.id}`}>
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 hover:border-foreground/20 hover:shadow-sm transition-all cursor-pointer">
-              <TagView caravana={animal.caravana} size="sm" />
+              <TagView caravana={animal.caravana} size="md" />
               <div className="min-w-0">
                 <p className="text-xs font-mono text-foreground truncate">
                   {formatCaravana(animal.caravana, "serie")}
@@ -144,7 +142,7 @@ export default function ReadingDetailPage({
             key={caravana}
             className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2"
           >
-            <TagView caravana={caravana} size="sm" />
+            <TagView caravana={caravana} size="md" />
             <div className="min-w-0">
               <p className="text-xs font-mono text-foreground truncate">
                 {formatCaravana(caravana, "serie")}

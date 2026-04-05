@@ -1,7 +1,7 @@
 "use client"
 
 import { use, useState, useMemo } from "react"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useAnimal } from "@/hooks/useAnimals"
 import { useLots } from "@/hooks/useLots"
 import { useTraceability } from "@/hooks/useTraceability"
@@ -42,6 +42,7 @@ export default function AnimalTraceabilityPage({
 }: {
   params: Promise<{ animalId: string }>
 }) {
+  const router = useRouter()
   const { animalId } = use(params)
   const animal = useAnimal(animalId)
   const lots = useLots()
@@ -91,9 +92,7 @@ export default function AnimalTraceabilityPage({
     <div className=" space-y-4">
       {/* Back button */}
       <div className="flex items-center gap-2">
-        <Link href={`/animals/${animalId}`}>
-          <Button variant="ghost" size="sm">← Animal</Button>
-        </Link>
+        <Button variant="ghost" size="sm" onClick={() => router.back()}>← Animal</Button>
       </div>
 
       {/* Animal header */}

@@ -84,9 +84,7 @@ export default function EstablishmentDetailPage() {
   if (!establishment) {
     return (
       <div className="space-y-4">
-        <Link href="/establishments">
-          <Button variant="ghost" size="sm">← Volver</Button>
-        </Link>
+        <Button variant="ghost" size="sm" onClick={() => router.back()}>← Volver</Button>
         <p className="text-sm text-muted-foreground">Establecimiento no encontrado.</p>
       </div>
     )
@@ -132,9 +130,7 @@ export default function EstablishmentDetailPage() {
   return (
     <div className=" space-y-6">
       <div className="flex items-center gap-2">
-        <Link href="/establishments">
-          <Button variant="ghost" size="sm">← Volver</Button>
-        </Link>
+        <Button variant="ghost" size="sm" onClick={() => router.back()}>← Volver</Button>
         <h1 className="text-lg font-semibold text-foreground">{establishment.name}</h1>
         <StatusBadge variant={establishment.status === "active" ? "success" : "neutral"}>
           {establishment.status === "active" ? "Activo" : "Archivado"}

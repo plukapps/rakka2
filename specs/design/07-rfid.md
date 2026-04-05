@@ -153,12 +153,8 @@ Panel colapsable en la parte superior. Expandido por defecto.
 - Notas (si tiene).
 - Actividad asociada (si la lectura derivó en una actividad): link a la actividad.
 
-### Panel izquierdo: Caravanas reconocidas
-- Lista de animales del sistema identificados.
-- Por cada animal: caravana, categoría, lote actual.
-- Click en animal → `/animals/[id]`.
-
-### Panel derecho: No encontradas
-- Lista de caravanas que no se encontraron en el establecimiento.
-- Texto sin link, solo el número de caravana.
-- Botón opcional: "Registrar animal con esta caravana" → `/animals/new` con la caravana pre-completada.
+### Grilla de caravanas
+- Grilla unificada con tabs: Todas / En stock / Sin registro.
+- Cada caravana se muestra como `TagView` tamaño `md`.
+- Caravanas en stock: clickeables → `/animals/[id]`.
+- Caravanas sin registro: indicador visual diferenciado (amber).

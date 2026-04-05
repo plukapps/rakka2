@@ -66,9 +66,7 @@ export default function NewEstablishmentPage() {
   return (
     <div className=" space-y-6">
       <div className="flex items-center gap-2">
-        <Link href="/establishments">
-          <Button variant="ghost" size="sm">← Volver</Button>
-        </Link>
+        <Button variant="ghost" size="sm" onClick={() => router.back()}>← Volver</Button>
         <h1 className="text-lg font-semibold text-foreground">Crear establecimiento</h1>
       </div>
 

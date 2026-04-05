@@ -183,9 +183,10 @@ Toda pantalla de listado debe manejar:
 - Desde **Trazabilidad** → Búsqueda → Timeline del animal.
 - Desde **Header** → EstablishmentSelector → Cambio de contexto global.
 
-### Breadcrumb
-- En páginas de detalle y subpáginas mostrar breadcrumb mínimo: `Módulo / Elemento`.
-- Ejemplo: `Animales / 858000000011234` o `Lotes / Lote Norte`.
+### Navegación hacia atrás
+- Los botones "← Volver" / "← [Módulo]" usan **`router.back()`** — respetan el historial real del browser.
+- Nunca usar `<Link href="/ruta-fija">` para botones de retroceso, ya que rompe flujos cruzados (ej: llegar a un animal desde un lote y que el botón mande a `/animals` en vez de volver al lote).
+- Si no hay historial (el usuario abrió la página directamente), `router.back()` no hace nada — en ese caso el usuario puede navegar desde el sidebar.
 
 ### URL como fuente de verdad
 - Las páginas de detalle usan el ID en la URL (`/animals/[id]`, `/lots/[lotId]`).

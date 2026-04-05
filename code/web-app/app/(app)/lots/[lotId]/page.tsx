@@ -122,9 +122,7 @@ export default function LotDetailPage({
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Link href="/lots">
-          <Button variant="ghost" size="sm">← Lotes</Button>
-        </Link>
+        <Button variant="ghost" size="sm" onClick={() => router.back()}>← Lotes</Button>
       </div>
 
       {/* Lot header */}
@@ -213,7 +211,7 @@ export default function LotDetailPage({
             <div className="grid grid-cols-6 gap-3">
               {filteredLotAnimals.map((animal) => (
                 <Link key={animal.id} href={`/animals/${animal.id}`} className="flex justify-center">
-                  <TagView caravana={animal.caravana} size="sm" />
+                  <TagView caravana={animal.caravana} size="md" />
                 </Link>
               ))}
             </div>
@@ -259,7 +257,7 @@ export default function LotDetailPage({
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <TagView caravana={animal.caravana} size="sm" />
+                          <TagView caravana={animal.caravana} size="md" />
                           <div>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <span>{categoryLabel(animal.category)}</span>

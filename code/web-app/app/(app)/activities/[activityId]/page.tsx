@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { activityRepository } from "@/lib/repositories/activity"
 import { animalRepository } from "@/lib/repositories/animal"
@@ -224,6 +224,7 @@ function ActivityTypeDetails({ act }: { act: Activity }) {
 }
 
 export default function ActivityDetailPage() {
+  const router = useRouter()
   const { activityId } = useParams<{ activityId: string }>()
   const estId = useAppStore((s) => s.activeEstablishment?.id)
   const [activity, setActivity] = useState<Activity | null | undefined>(undefined)
@@ -246,7 +247,7 @@ export default function ActivityDetailPage() {
       <EmptyState
         title="Actividad no encontrada"
         description="La actividad no existe o fue eliminada."
-        action={<Link href="/activities" className="text-sm text-primary underline">← Volver a Actividades</Link>}
+        action={<button onClick={() => router.back()} className="text-sm text-primary underline">← Volver a Actividades</button>}
       />
     )
   }
@@ -255,9 +256,9 @@ export default function ActivityDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="space-y-2">
-        <Link href="/activities" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <button onClick={() => router.back()} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
           ← Actividades
-        </Link>
+        </button>
         <div className="flex items-center gap-3">
           <StatusBadge variant={typeVariant[activity.type] ?? "neutral"}>
             {activityTypeLabel(activity.type)}

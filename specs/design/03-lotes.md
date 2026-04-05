@@ -116,8 +116,8 @@ Formulario en columna central, ancho máximo 480px.
 
 ### Lista de animales del lote
 
-- Grilla compacta de caravanas: muestra solo el TagView de cada animal (sin detalle de categoría, raza ni lote).
-- Columnas: 6 cols en desktop (wrap automático).
+- Grilla compacta de caravanas: muestra solo el TagView de cada animal en tamaño `md` (sin detalle de categoría, raza ni lote).
+- Columnas: wrap automático (`flex-wrap`).
 - Cada caravana es clickeable → `/animals/[animalId]`.
 - Búsqueda por caravana dentro del lote.
 - Contador "X animales".

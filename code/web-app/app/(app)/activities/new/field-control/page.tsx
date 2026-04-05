@@ -187,9 +187,7 @@ export default function FieldControlActivityPage() {
   return (
     <div className=" space-y-6">
       <div className="flex items-center gap-2">
-        <Link href="/activities/new">
-          <Button variant="ghost" size="sm">← Volver</Button>
-        </Link>
+        <Button variant="ghost" size="sm" onClick={() => router.back()}>← Volver</Button>
         <h1 className="text-lg font-semibold text-foreground">Control de campo</h1>
       </div>
 

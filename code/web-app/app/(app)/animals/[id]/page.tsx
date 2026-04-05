@@ -1,7 +1,7 @@
 "use client"
 
 import { use } from "react"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useAnimal } from "@/hooks/useAnimals"
 import { useLots } from "@/hooks/useLots"
 import { useTraceability } from "@/hooks/useTraceability"
@@ -37,6 +37,7 @@ export default function AnimalDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  const router = useRouter()
   const { id } = use(params)
   const animal = useAnimal(id)
   const lots = useLots()
@@ -55,9 +56,7 @@ export default function AnimalDetailPage({
   return (
     <div className=" space-y-4">
       <div className="flex items-center gap-2">
-        <Link href="/animals">
-          <Button variant="ghost" size="sm">← Animales</Button>
-        </Link>
+        <Button variant="ghost" size="sm" onClick={() => router.back()}>← Animales</Button>
       </div>
 
       <Card className="overflow-hidden">
