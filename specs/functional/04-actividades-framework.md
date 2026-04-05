@@ -42,10 +42,14 @@ El operador conecta un lector RFID por Bluetooth al dispositivo. Las caravanas e
 
 El operador usó el lector portátil en el campo previamente y generó un archivo de lectura. Lo sube a la app.
 
-- **Formatos soportados**: `.txt` y `.csv` (una caravana por línea, sin encabezado o con encabezado ignorado).
-- El sistema parsea el archivo, cruza las caravanas con el establecimiento activo y presenta el resultado.
-- Las caravanas no reconocidas se marcan como "desconocidas" con advertencia.
-- El usuario puede revisar y editar la selección antes de continuar.
+- **Formato del archivo**: cada línea tiene el formato `[|A0000000858000054596559|15082023|113716|T33333|.|...|]`. Los campos están separados por `|`. Del primer campo se extraen los **últimos 15 dígitos**, que corresponden a la caravana completa (ej: `858000054596559`).
+- **Formatos soportados**: `.txt` y `.csv`.
+- La lectura siempre es exitosa: **todas las caravanas leídas se registran**, independientemente de si existen en el establecimiento.
+- El sistema clasifica las caravanas en dos grupos:
+  - **En stock**: caravanas que coinciden con animales activos del establecimiento.
+  - **Sin registro**: caravanas que no existen en el establecimiento (pueden ser de otro campo, animales no ingresados, muertos, etc.).
+- Las caravanas sin registro no bloquean la lectura — se almacenan como `unknownCaravanas` en la lectura.
+- El usuario puede revisar ambos grupos antes de confirmar.
 
 ### 3. Selección por lote
 
@@ -111,6 +115,19 @@ Una lectura RFID puede estar:
 | Responsable | Texto | No | Quién ejecutó la actividad |
 | Observaciones | Texto | No | Notas libres |
 | RFID Reading ID | Referencia | No | Si la selección fue por RFID |
+
+---
+
+## Visualización de lecturas
+
+El módulo de **Lecturas** (menú principal) permite:
+
+- Ver el listado de todas las lecturas registradas, con total de caravanas, cuántas en stock y cuántas sin registro.
+- Acceder al **detalle de una lectura** para ver todas las caravanas en grilla:
+  - Filtros por tabs: Todas / En stock / Sin registro.
+  - Cada caravana muestra el `TagView` visual con serie y número.
+  - Las caravanas en stock son clickeables → navegan al perfil del animal.
+  - Las caravanas sin registro se muestran con indicador visual diferenciado (amber).
 
 ---
 

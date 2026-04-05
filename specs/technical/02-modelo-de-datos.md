@@ -227,7 +227,7 @@ Todas las actividades comparten este nodo, diferenciadas por `type`. Ver tipos e
   "serviceType": "natural | artificial_insemination | embryo_transfer",
   "pregnancyResult": "positive | negative | uncertain",
   "birthResult": "live | stillborn | abortion",
-  "offspringCaravana": "AR-9999"
+  "offspringCaravana": "858000054321098"
 }
 ```
 
@@ -247,15 +247,20 @@ Registra cada lectura RFID como evento independiente. Existe aunque no esté aso
 ```json
 {
   "method": "bluetooth | file_upload",
-  "fileName": "lectura_2024-04-03.txt",
-  "animalIds": ["animal_111", "animal_222", "animal_333"],
-  "unknownCaravanas": ["AR-XXXX"],
+  "fileName": "terneros sopas.txt",
+  "animalIds": ["animal_111", "animal_222"],
+  "unknownCaravanas": ["858000054596559", "858000054365782", "858000054596550"],
   "activityId": "activity_zzz",
   "responsible": "Juan Pérez",
   "notes": "",
   "timestamp": 1712000000000,
   "createdBy": "uid_usuario"
 }
+```
+
+- `animalIds`: IDs de animales que coincidieron con caravanas del establecimiento (en stock).
+- `unknownCaravanas`: caravanas completas (15 dígitos) que no existen en el establecimiento. Se almacenan siempre para trazabilidad.
+- Una lectura puede tener solo `unknownCaravanas` (sin animales en stock) y sigue siendo válida.
 ```
 
 - `method`: `"bluetooth"` (tiempo real) | `"file_upload"` (archivo previo)

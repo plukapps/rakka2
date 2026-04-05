@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { cn, formatCaravana, categoryLabel, carenciaLabel } from "@/lib/utils"
+import { cn, formatCaravana, categoryLabel, carenciaLabel, parseRfidLine } from "@/lib/utils"
 import { useLots } from "@/hooks/useLots"
 
 type Tab = "individual" | "lot" | "rfid_file" | "rfid_bluetooth"
@@ -17,6 +17,7 @@ interface AnimalSelectorProps {
   estId: string
   selected: Animal[]
   onChange: (animals: Animal[]) => void
+  onUnrecognized?: (caravanas: string[]) => void
   filterFn?: (animal: Animal) => boolean
   rfidOnly?: boolean
 }
@@ -56,6 +57,7 @@ export function AnimalSelector({
   estId,
   selected,
   onChange,
+  onUnrecognized,
   filterFn,
   rfidOnly,
 }: AnimalSelectorProps) {
@@ -119,7 +121,7 @@ export function AnimalSelector({
         <LotTab lots={lots} animals={available} selected={selected} onChange={onChange} />
       )}
       {tab === "rfid_file" && (
-        <RfidFileTab animals={available} selected={selected} onChange={onChange} onAdd={addAnimal} />
+        <RfidFileTab animals={available} selected={selected} onChange={onChange} onAdd={addAnimal} onUnrecognized={onUnrecognized} />
       )}
       {tab === "rfid_bluetooth" && (
         <BluetoothTab animals={available} selected={selected} onAdd={addAnimal} />
@@ -268,18 +270,23 @@ function RfidFileTab({
   selected,
   onChange,
   onAdd,
+  onUnrecognized,
 }: {
   animals: Animal[]
   selected: Animal[]
   onChange: (animals: Animal[]) => void
   onAdd: (a: Animal) => void
+  onUnrecognized?: (caravanas: string[]) => void
 }) {
-  const [unrecognized, setUnrecognized] = useState<string[]>([])
-  const [recognized, setRecognized] = useState(0)
+  const [inStock, setInStock] = useState<Animal[]>([])
+  const [notInStock, setNotInStock] = useState<string[]>([])
+  const [totalRead, setTotalRead] = useState(0)
+  const [fileName, setFileName] = useState("")
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    setFileName(file.name)
     const reader = new FileReader()
     reader.onload = (ev) => {
       const text = ev.target?.result as string
@@ -290,37 +297,66 @@ function RfidFileTab({
 
       const found: Animal[] = []
       const unknown: string[] = []
-      const existingIds = new Set(selected.map((a) => a.id))
+      const seen = new Set<string>()
 
       for (const line of lines) {
-        const animal = animals.find((a) => a.caravana === line)
-        if (animal && !existingIds.has(animal.id)) {
+        const caravana = parseRfidLine(line)
+        if (!caravana || seen.has(caravana)) continue
+        seen.add(caravana)
+        const animal = animals.find((a) => a.caravana === caravana)
+        if (animal) {
           found.push(animal)
-          existingIds.add(animal.id)
-        } else if (!animal) {
-          unknown.push(line)
+        } else {
+          unknown.push(caravana)
         }
       }
 
-      setRecognized(found.length)
-      setUnrecognized(unknown)
-      onChange([...selected, ...found])
+      setTotalRead(seen.size)
+      setInStock(found)
+      setNotInStock(unknown)
+      onUnrecognized?.(unknown)
+
+      // Add found animals to selection (without duplicates)
+      const existingIds = new Set(selected.map((a) => a.id))
+      const newAnimals = found.filter((a) => !existingIds.has(a.id))
+      onChange([...selected, ...newAnimals])
     }
     reader.readAsText(file)
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <Input type="file" accept=".txt,.csv" onChange={handleFile} />
-      {recognized > 0 && (
-        <p className="text-xs text-emerald-600">{recognized} caravanas reconocidas y agregadas</p>
-      )}
-      {unrecognized.length > 0 && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 p-2">
-          <p className="text-xs font-medium text-amber-800">
-            {unrecognized.length} caravana{unrecognized.length !== 1 ? "s" : ""} no reconocida{unrecognized.length !== 1 ? "s" : ""}:
-          </p>
-          <p className="mt-1 text-xs text-amber-700">{unrecognized.join(", ")}</p>
+
+      {totalRead > 0 && (
+        <div className="space-y-2">
+          <div className="rounded-lg border border-border p-3 space-y-1">
+            <p className="text-sm font-medium text-foreground">
+              Lectura exitosa — {totalRead} caravana{totalRead !== 1 ? "s" : ""} leída{totalRead !== 1 ? "s" : ""}
+            </p>
+            <p className="text-xs text-muted-foreground">{fileName}</p>
+          </div>
+
+          {inStock.length > 0 && (
+            <div className="rounded-md border border-emerald-200 bg-emerald-50 p-2">
+              <p className="text-xs font-medium text-emerald-800">
+                {inStock.length} en stock del establecimiento
+              </p>
+            </div>
+          )}
+
+          {notInStock.length > 0 && (
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-2 space-y-1">
+              <p className="text-xs font-medium text-amber-800">
+                {notInStock.length} sin registro en este establecimiento
+              </p>
+              <div className="max-h-32 overflow-y-auto">
+                <p className="text-xs text-amber-700 font-mono">
+                  {notInStock.map((c) => formatCaravana(c, "serie")).join(", ")}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

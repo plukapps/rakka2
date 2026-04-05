@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import type { Animal, RfidReading } from "@/lib/types"
 import { rfidRepository } from "@/lib/repositories/rfid"
 import { traceabilityRepository } from "@/lib/repositories/traceability"
@@ -17,6 +18,7 @@ export default function RfidPage() {
   const user = useAuthStore((s) => s.user)
   const [readings, setReadings] = useState<RfidReading[]>([])
   const [selected, setSelected] = useState<Animal[]>([])
+  const [unknownCaravanas, setUnknownCaravanas] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [showForm, setShowForm] = useState(false)
 
@@ -28,25 +30,26 @@ export default function RfidPage() {
     )
   }, [estId])
 
+  const totalCaravanas = selected.length + unknownCaravanas.length
+
   function handleSubmit() {
-    if (!estId || !user || selected.length === 0) return
+    if (!estId || !user || totalCaravanas === 0) return
     setSubmitting(true)
     try {
       const ts = now()
 
-      const reading = rfidRepository.create({
+      rfidRepository.create({
         estId,
-        method: "bluetooth",
+        method: "file_upload",
         fileName: null,
         animalIds: selected.map((a) => a.id),
-        unknownCaravanas: [],
+        unknownCaravanas,
         activityId: null,
         responsible: user.name,
         notes: "",
         createdBy: user.uid,
       })
 
-      // Create traceability event for each animal
       for (const animal of selected) {
         traceabilityRepository.create({
           animalId: animal.id,
@@ -62,10 +65,17 @@ export default function RfidPage() {
       }
 
       setSelected([])
+      setUnknownCaravanas([])
       setShowForm(false)
     } finally {
       setSubmitting(false)
     }
+  }
+
+  function handleCancel() {
+    setShowForm(false)
+    setSelected([])
+    setUnknownCaravanas([])
   }
 
   if (!estId) return null
@@ -73,7 +83,7 @@ export default function RfidPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-foreground">Lecturas RFID</h1>
+        <h1 className="text-lg font-semibold text-foreground">Lecturas</h1>
         {!showForm && (
           <Button size="sm" onClick={() => setShowForm(true)}>
             + Nueva lectura
@@ -89,7 +99,7 @@ export default function RfidPage() {
             </p>
             <button
               type="button"
-              onClick={() => { setShowForm(false); setSelected([]) }}
+              onClick={handleCancel}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
               Cancelar
@@ -100,6 +110,7 @@ export default function RfidPage() {
             estId={estId}
             selected={selected}
             onChange={setSelected}
+            onUnrecognized={setUnknownCaravanas}
             rfidOnly
           />
 
@@ -107,43 +118,52 @@ export default function RfidPage() {
             <Button
               onClick={handleSubmit}
               loading={submitting}
-              disabled={selected.length === 0}
+              disabled={totalCaravanas === 0}
             >
-              Registrar lectura ({selected.length})
+              Registrar lectura ({totalCaravanas} caravana{totalCaravanas !== 1 ? "s" : ""})
             </Button>
           </div>
         </div>
       )}
 
       {readings.length === 0 && !showForm ? (
-        <EmptyState title="Sin lecturas RFID" description="No hay lecturas registradas." />
+        <EmptyState title="Sin lecturas" description="No hay lecturas registradas." />
       ) : (
         readings.length > 0 && (
           <div className="divide-y divide-border rounded-xl border border-border bg-card">
-            {readings.map((r) => (
-              <div key={r.id} className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <StatusBadge variant={r.method === "bluetooth" ? "info" : "neutral"}>
-                    {r.method === "bluetooth" ? "Bluetooth" : "Archivo"}
-                  </StatusBadge>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      {r.animalIds.length} animales
-                      {r.unknownCaravanas.length > 0 && (
-                        <span className="ml-2 text-amber-600 text-xs">
-                          +{r.unknownCaravanas.length} desconocida{r.unknownCaravanas.length !== 1 ? "s" : ""}
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {r.fileName ?? r.responsible}
-                      {r.activityId && " · Vinculada a actividad"}
-                    </p>
+            {readings.map((r) => {
+              const total = r.animalIds.length + r.unknownCaravanas.length
+              return (
+                <Link key={r.id} href={`/rfid/${r.id}`}>
+                  <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <StatusBadge variant={r.method === "bluetooth" ? "info" : "neutral"}>
+                        {r.method === "bluetooth" ? "Bluetooth" : "Archivo"}
+                      </StatusBadge>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {total} caravana{total !== 1 ? "s" : ""}
+                          {r.animalIds.length > 0 && (
+                            <span className="ml-1 text-xs text-emerald-600">
+                              ({r.animalIds.length} en stock)
+                            </span>
+                          )}
+                          {r.unknownCaravanas.length > 0 && (
+                            <span className="ml-1 text-xs text-amber-600">
+                              ({r.unknownCaravanas.length} sin registro)
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {r.responsible} · {formatDateTime(r.timestamp)}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground">→</span>
                   </div>
-                </div>
-                <span className="text-xs text-muted-foreground">{formatDateTime(r.timestamp)}</span>
-              </div>
-            ))}
+                </Link>
+              )
+            })}
           </div>
         )
       )}

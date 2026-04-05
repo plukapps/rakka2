@@ -99,6 +99,17 @@ export function caravanaParts(caravana: string) {
   }
 }
 
+// RFID file parsing
+// Format: [|A0000000858000054596559|15082023|113716|T33333|.|...|]
+// Extracts last 15 digits from the first pipe-separated field
+export function parseRfidLine(line: string): string | null {
+  const fields = line.replace(/^\[/, "").replace(/\]$/, "").split("|").filter(Boolean)
+  if (fields.length === 0) return null
+  const raw = fields[0].replace(/\D/g, "")
+  if (raw.length < 15) return null
+  return raw.slice(-15)
+}
+
 // Label helpers
 export function categoryLabel(cat: string): string {
   const labels: Record<string, string> = {
