@@ -3,11 +3,11 @@
 import { use, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useLot } from "@/hooks/useLots"
+import { useLot, useLots, useAllLots } from "@/hooks/useLots"
 import { useAnimals } from "@/hooks/useAnimals"
-import { useAllLots } from "@/hooks/useLots"
 import { lotRepository } from "@/lib/repositories/lot"
 import { animalRepository } from "@/lib/repositories/animal"
+import { traceabilityRepository } from "@/lib/repositories/traceability"
 import { useAppStore } from "@/lib/stores/appStore"
 import { TagView } from "@/components/animals/TagView"
 import { StatusBadge } from "@/components/ui/status-badge"
@@ -15,11 +15,19 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { EmptyState } from "@/components/ui/empty-state"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { activityRepository } from "@/lib/repositories/activity"
-import { formatDate, formatCaravana } from "@/lib/utils"
+import { formatDate, formatCaravana, categoryLabel } from "@/lib/utils"
 import { LotWeightStatsCard } from "@/components/lots/LotWeightStatsCard"
+import { cn } from "@/lib/utils"
 
 export default function LotDetailPage({
   params,
@@ -32,24 +40,28 @@ export default function LotDetailPage({
   const lot = useLot(lotId)
   const allAnimals = useAnimals()
   const allLots = useAllLots()
+  const activeLots = useLots()
+
   const [search, setSearch] = useState("")
   const [showAddSection, setShowAddSection] = useState(false)
   const [addSearch, setAddSearch] = useState("")
+  const [showFromLotSection, setShowFromLotSection] = useState(false)
+  const [fromLotId, setFromLotId] = useState<string>("")
+  const [fromLotSearch, setFromLotSearch] = useState("")
+  const [selectedFromLotIds, setSelectedFromLotIds] = useState<Set<string>>(new Set())
+  const [showMoveConfirm, setShowMoveConfirm] = useState(false)
   const [showDissolveConfirm, setShowDissolveConfirm] = useState(false)
-  const [pendingMoveId, setPendingMoveId] = useState<string | null>(null)
 
-  // Animals in this lot
-  const lotAnimals = useMemo(() => {
-    return allAnimals.filter((a) => a.lotId === lotId)
-  }, [allAnimals, lotId])
+  const lotAnimals = useMemo(
+    () => allAnimals.filter((a) => a.lotId === lotId),
+    [allAnimals, lotId]
+  )
 
-  // Activities for weight stats
   const lotActivities = useMemo(() => {
     if (!estId) return []
     return activityRepository.getAll(estId)
   }, [estId])
 
-  // Filtered animals in lot by caravana search
   const filteredLotAnimals = useMemo(() => {
     if (!search) return lotAnimals
     const q = search.toLowerCase()
@@ -60,62 +72,100 @@ export default function LotDetailPage({
     )
   }, [lotAnimals, search])
 
-  // Animals available to add (no lot or from other lots)
-  const addableAnimals = useMemo(() => {
-    return allAnimals.filter(
-      (a) => a.status === "active" && a.lotId !== lotId
-    )
-  }, [allAnimals, lotId])
+  // Animals without any lot (for the "sin lote" add section)
+  const sinLoteAnimals = useMemo(
+    () => allAnimals.filter((a) => a.status === "active" && a.lotId === null),
+    [allAnimals]
+  )
 
-  const filteredAddable = useMemo(() => {
-    if (!addSearch) return addableAnimals
+  const filteredSinLote = useMemo(() => {
+    if (!addSearch) return sinLoteAnimals
     const q = addSearch.toLowerCase()
-    return addableAnimals.filter(
+    return sinLoteAnimals.filter(
       (a) =>
         a.caravana.toLowerCase().includes(q) ||
         formatCaravana(a.caravana, "serie").toLowerCase().includes(q)
     )
-  }, [addableAnimals, addSearch])
+  }, [sinLoteAnimals, addSearch])
 
-  function handleAddAnimal(animalId: string) {
+  // Available source lots (not this lot)
+  const sourceLots = useMemo(
+    () => activeLots.filter((l) => l.id !== lotId),
+    [activeLots, lotId]
+  )
+
+  // Animals in selected source lot
+  const fromLotAnimals = useMemo(
+    () => (fromLotId ? allAnimals.filter((a) => a.status === "active" && a.lotId === fromLotId) : []),
+    [allAnimals, fromLotId]
+  )
+
+  const filteredFromLot = useMemo(() => {
+    if (!fromLotSearch) return fromLotAnimals
+    const q = fromLotSearch.toLowerCase()
+    return fromLotAnimals.filter(
+      (a) =>
+        a.caravana.toLowerCase().includes(q) ||
+        formatCaravana(a.caravana, "serie").toLowerCase().includes(q)
+    )
+  }, [fromLotAnimals, fromLotSearch])
+
+  function handleAddSinLote(animalId: string) {
     if (!estId || !lot) return
-
-    const animal = allAnimals.find((a) => a.id === animalId)
-    if (!animal) return
-
-    const previousLotId = animal.lotId
-
-    // Update animal's lotId
     animalRepository.update(estId, animalId, { lotId: lotId })
-
-    // Increment this lot's animalCount
     lotRepository.update(estId, lotId, { animalCount: lot.animalCount + 1 })
+  }
 
-    // Decrement previous lot's animalCount if applicable
-    if (previousLotId) {
-      const prevLot = allLots.find((l) => l.id === previousLotId)
-      if (prevLot) {
-        lotRepository.update(estId, previousLotId, {
-          animalCount: Math.max(0, prevLot.animalCount - 1),
-        })
-      }
+  function toggleFromLotAnimal(animalId: string) {
+    setSelectedFromLotIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(animalId)) next.delete(animalId)
+      else next.add(animalId)
+      return next
+    })
+  }
+
+  function handleConfirmMove() {
+    if (!estId || !lot || !fromLotId) return
+    const sourceLot = allLots.find((l) => l.id === fromLotId)
+    const ts = Date.now()
+
+    for (const animalId of selectedFromLotIds) {
+      animalRepository.update(estId, animalId, { lotId: lotId })
+      traceabilityRepository.create({
+        animalId,
+        estId,
+        type: "lot_change",
+        description: `Movido desde ${sourceLot?.name ?? "otro lote"} al lote ${lot.name}`,
+        activityId: null,
+        lotId: lotId,
+        lotName: lot.name,
+        responsibleName: null,
+        timestamp: ts,
+      })
     }
+
+    if (sourceLot) {
+      lotRepository.update(estId, fromLotId, {
+        animalCount: Math.max(0, sourceLot.animalCount - selectedFromLotIds.size),
+      })
+    }
+    lotRepository.update(estId, lotId, {
+      animalCount: lot.animalCount + selectedFromLotIds.size,
+    })
+
+    setSelectedFromLotIds(new Set())
+    setShowMoveConfirm(false)
+    setFromLotId("")
+    setShowFromLotSection(false)
   }
 
   function handleDissolveLot() {
     if (!estId || !lot) return
-
-    // Remove all animals from lot
     for (const animal of lotAnimals) {
       animalRepository.update(estId, animal.id, { lotId: null })
     }
-
-    // Set lot status to dissolved
-    lotRepository.update(estId, lotId, {
-      status: "dissolved",
-      animalCount: 0,
-    })
-
+    lotRepository.update(estId, lotId, { status: "dissolved", animalCount: 0 })
     router.push("/lots")
   }
 
@@ -126,6 +176,8 @@ export default function LotDetailPage({
       </div>
     )
   }
+
+  const selectedSourceLot = allLots.find((l) => l.id === fromLotId)
 
   return (
     <div className="space-y-4">
@@ -188,13 +240,22 @@ export default function LotDetailPage({
           <div className="flex items-center justify-between">
             <CardTitle>Animales en el lote</CardTitle>
             {lot.status === "active" && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setShowAddSection(!showAddSection)}
-              >
-                {showAddSection ? "Cerrar" : "+ Agregar animales"}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => { setShowFromLotSection(!showFromLotSection); setShowAddSection(false) }}
+                >
+                  {showFromLotSection ? "Cerrar" : "Mover desde otro lote"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => { setShowAddSection(!showAddSection); setShowFromLotSection(false) }}
+                >
+                  {showAddSection ? "Cerrar" : "+ Agregar sin lote"}
+                </Button>
+              </div>
             )}
           </div>
         </CardHeader>
@@ -229,11 +290,11 @@ export default function LotDetailPage({
         </CardContent>
       </Card>
 
-      {/* Add animals section */}
+      {/* Agregar sin lote */}
       {showAddSection && lot.status === "active" && (
         <Card>
           <CardHeader>
-            <CardTitle>Agregar animales al lote</CardTitle>
+            <CardTitle>Agregar animales sin lote</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Input
@@ -241,93 +302,125 @@ export default function LotDetailPage({
               value={addSearch}
               onChange={(e) => setAddSearch(e.target.value)}
             />
-
-            {filteredAddable.length === 0 ? (
+            {filteredSinLote.length === 0 ? (
               <EmptyState
                 title="Sin animales disponibles"
                 description={
-                  addableAnimals.length === 0
-                    ? "Todos los animales activos ya están en este lote."
+                  sinLoteAnimals.length === 0
+                    ? "Todos los animales activos ya están en un lote."
                     : "No hay animales que coincidan con la búsqueda."
                 }
                 className="py-6"
               />
             ) : (
-              <div className="max-h-80 overflow-y-auto space-y-1">
-                {filteredAddable.map((animal) => {
-                  const fromOtherLot = animal.lotId !== null
-                  const currentLot = fromOtherLot
-                    ? allLots.find((l) => l.id === animal.lotId)
-                    : undefined
-
-                  return (
-                    <div
-                      key={animal.id}
-                      className="rounded-lg border border-border px-3 py-2 space-y-2"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <TagView caravana={animal.caravana} size="md" />
-                          <div>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <span>{categoryLabel(animal.category)}</span>
-                              {animal.breed && (
-                                <>
-                                  <span>·</span>
-                                  <span>{animal.breed}</span>
-                                </>
-                              )}
-                            </div>
-                            {fromOtherLot && currentLot && (
-                              <p className="text-xs text-amber-600">
-                                Actualmente en: {currentLot.name}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        {pendingMoveId !== animal.id && (
-                          <Button
-                            size="sm"
-                            variant={fromOtherLot ? "outline" : "default"}
-                            onClick={() =>
-                              fromOtherLot
-                                ? setPendingMoveId(animal.id)
-                                : handleAddAnimal(animal.id)
-                            }
-                          >
-                            {fromOtherLot ? "Mover aquí" : "Agregar"}
-                          </Button>
-                        )}
-                      </div>
-                      {pendingMoveId === animal.id && currentLot && (
-                        <div className="rounded-md bg-amber-50 border border-amber-200 px-3 py-2 space-y-2">
-                          <p className="text-xs text-amber-800">
-                            Este animal está en {currentLot.name}. ¿Moverlo a este lote?
-                          </p>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                handleAddAnimal(animal.id)
-                                setPendingMoveId(null)
-                              }}
-                            >
-                              Sí, mover
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setPendingMoveId(null)}
-                            >
-                              Cancelar
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+              <div className="flex flex-wrap gap-2">
+                {filteredSinLote.map((animal) => (
+                  <button
+                    key={animal.id}
+                    type="button"
+                    onClick={() => handleAddSinLote(animal.id)}
+                    className="rounded-xl opacity-60 hover:opacity-100 transition-all"
+                    title={`${categoryLabel(animal.category)}${animal.breed ? ` · ${animal.breed}` : ""}`}
+                  >
+                    <TagView caravana={animal.caravana} size="md" />
+                  </button>
+                ))}
               </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Desde otro lote */}
+      {showFromLotSection && lot.status === "active" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Mover desde otro lote</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {sourceLots.length === 0 ? (
+              <EmptyState
+                title="Sin lotes disponibles"
+                description="No hay otros lotes activos en este establecimiento."
+                className="py-6"
+              />
+            ) : (
+              <>
+                <Select
+                  value={fromLotId}
+                  onValueChange={(v) => {
+                    setFromLotId(v as string)
+                    setFromLotSearch("")
+                    setSelectedFromLotIds(new Set())
+                    setShowMoveConfirm(false)
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Seleccionar lote origen..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sourceLots.map((l) => (
+                      <SelectItem key={l.id} value={l.id}>
+                        {l.name} · {l.animalCount} {l.animalCount === 1 ? "animal" : "animales"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {fromLotId && (
+                  <>
+                    <Input
+                      placeholder="Buscar por caravana..."
+                      value={fromLotSearch}
+                      onChange={(e) => setFromLotSearch(e.target.value)}
+                    />
+                    {filteredFromLot.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">
+                        {fromLotAnimals.length === 0
+                          ? "Este lote no tiene animales."
+                          : "Sin resultados para esa búsqueda."}
+                      </p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {filteredFromLot.map((animal) => (
+                          <button
+                            key={animal.id}
+                            type="button"
+                            onClick={() => { toggleFromLotAnimal(animal.id); setShowMoveConfirm(false) }}
+                            className={cn(
+                              "rounded-xl transition-all",
+                              selectedFromLotIds.has(animal.id)
+                                ? "ring-2 ring-primary ring-offset-2"
+                                : "opacity-60 hover:opacity-100"
+                            )}
+                          >
+                            <TagView caravana={animal.caravana} size="md" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {selectedFromLotIds.size > 0 && !showMoveConfirm && (
+                      <Button size="sm" onClick={() => setShowMoveConfirm(true)}>
+                        Mover {selectedFromLotIds.size} {selectedFromLotIds.size === 1 ? "animal" : "animales"}
+                      </Button>
+                    )}
+
+                    {showMoveConfirm && (
+                      <div className="rounded-md bg-muted border border-border px-3 py-2 space-y-2">
+                        <p className="text-sm text-foreground">
+                          ¿Mover {selectedFromLotIds.size} {selectedFromLotIds.size === 1 ? "animal" : "animales"} desde{" "}
+                          <span className="font-medium">{selectedSourceLot?.name}</span> a este lote?
+                        </p>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={handleConfirmMove}>Confirmar</Button>
+                          <Button size="sm" variant="outline" onClick={() => setShowMoveConfirm(false)}>Cancelar</Button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
@@ -338,32 +431,19 @@ export default function LotDetailPage({
         <Card>
           <CardContent className="pt-0">
             {!showDissolveConfirm ? (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setShowDissolveConfirm(true)}
-              >
+              <Button variant="destructive" size="sm" onClick={() => setShowDissolveConfirm(true)}>
                 Disolver lote
               </Button>
             ) : (
               <div className="space-y-3">
                 <p className="text-sm text-foreground">
-                  ¿Estás seguro de que querés disolver este lote? Se
-                  desasignarán {lotAnimals.length} animales.
+                  ¿Estás seguro de que querés disolver este lote? Se desasignarán {lotAnimals.length} animales.
                 </p>
                 <div className="flex gap-2">
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleDissolveLot}
-                  >
+                  <Button variant="destructive" size="sm" onClick={handleDissolveLot}>
                     Sí, disolver
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowDissolveConfirm(false)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setShowDissolveConfirm(false)}>
                     Cancelar
                   </Button>
                 </div>

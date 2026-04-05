@@ -40,7 +40,9 @@ Un animal puede pertenecer a un solo lote a la vez, o a ninguno.
 ### Crear lote
 
 - El usuario ingresa nombre (obligatorio) y descripción (opcional).
-- Opcionalmente puede agregar animales en el mismo paso.
+- Opcionalmente puede agregar animales en el mismo paso, desde dos fuentes:
+  - **Sin lote**: animales activos sin lote asignado. Se muestran como grilla de tags clickeables.
+  - **Desde otro lote**: el usuario selecciona un lote origen y elige animales de ese lote. Al confirmar el formulario, se genera un evento de trazabilidad `cambio de lote` por cada animal movido, agrupados por lote de origen.
 - El lote se crea en estado `activo`.
 
 ### Ver animales del lote
@@ -51,14 +53,16 @@ Un animal puede pertenecer a un solo lote a la vez, o a ninguno.
 
 ### Agregar animales al lote
 
-- El usuario busca y selecciona animales del establecimiento (solo activos).
-- Si un animal ya estaba en otro lote, el sistema informa el lote actual y pide confirmación antes de moverlo.
-- Al confirmar, el animal queda asignado al nuevo lote.
+Dos fuentes de origen disponibles desde la vista de detalle del lote:
+
+- **Sin lote**: grilla de tags de animales activos sin lote. Click en un tag lo agrega al lote inmediatamente (sin confirmación).
+- **Desde otro lote**: el usuario selecciona un lote origen, ve sus animales como grilla de tags clickeables, selecciona uno o varios, y confirma el movimiento en lote. Al confirmar, se genera un evento de trazabilidad `cambio de lote` por cada animal movido.
 
 ### Mover animal entre lotes
 
 - Equivale a agregar el animal al nuevo lote: sale del anterior automáticamente.
-- Se puede hacer desde el perfil del animal (cambiar lote) o desde la vista del lote (agregar animal ya asignado a otro).
+- Se puede hacer desde la vista del lote (sección "Desde otro lote").
+- Al mover desde otro lote se genera trazabilidad: evento `cambio de lote` por animal, con lote anterior y lote nuevo.
 
 ### Quitar animal del lote
 
@@ -96,6 +100,15 @@ Un animal puede pertenecer a un solo lote a la vez, o a ninguno.
 |---|---|---|
 | `activo` | Lote en uso | Agregar/quitar animales, registrar actividades, disolver |
 | `disuelto` | Lote desactivado | Solo consulta (historial de animales y actividades) |
+
+---
+
+## Lote virtual "Sin lote"
+
+- En el listado de lotes aparece una entrada especial "Sin lote" que representa todos los animales activos sin lote asignado.
+- No es un lote real: no tiene ID persistente, no se puede disolver ni operar sobre él.
+- Muestra el conteo de animales sin lote y navega a `/lots/sin-lote`.
+- La vista `/lots/sin-lote` muestra: estadísticas de peso (si aplica) y la grilla de tags de todos los animales sin lote.
 
 ---
 

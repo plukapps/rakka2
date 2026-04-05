@@ -72,10 +72,25 @@ Formulario en columna central, ancho máximo 480px.
 - **Nombre** * (input texto, ej. "Lote Norte")
 - **Descripción** (textarea, opcional, ej. "Animales en potrero norte")
 
+### Sección: Animales sin lote
+
+- Input de búsqueda por caravana.
+- Grilla de TagView `md` (flex-wrap, gap-2). Cada tag es un botón clickeable.
+- Tags seleccionados: `ring-2 ring-primary ring-offset-2`. Tags no seleccionados: `opacity-60 hover:opacity-100`.
+- Contador "X seleccionados" cuando hay selección activa.
+
+### Sección: Desde otro lote
+
+- Select de lotes activos (`Seleccionar lote...`). Muestra nombre + cantidad de animales.
+- Al seleccionar un lote: aparece la grilla de TagView `md` con los animales de ese lote.
+- Click en tag alterna la selección (misma lógica visual que sección anterior).
+- El usuario puede cambiar el lote en el select para seleccionar de múltiples lotes (los previamente seleccionados se mantienen).
+
 ### Acciones
-- "Crear lote" (primario)
-- "Cancelar" → vuelve a `/lots`
+- Contador total "X animales seleccionados" (suma de ambas secciones).
+- "Crear lote" (primario) + "Cancelar" → vuelve a `/lots`.
 - Al guardar: redirige al detalle del lote recién creado.
+- Para animales movidos desde otro lote: se crea evento `lot_change` por animal al confirmar.
 
 ---
 
@@ -140,13 +155,40 @@ Card "Estadísticas de peso" entre el header del lote y la lista de animales. So
 - Contador "X animales".
 - **Botón "Agregar animales"**: abre panel inline de selección.
 
-### Modal: Agregar animales al lote
+### Sección inline: Agregar animales sin lote
 
+- Trigger: botón "+ Agregar animales" en el header de la lista de animales del lote.
 - Input de búsqueda por caravana.
-- Lista de animales activos sin lote (o en otro lote) que coinciden.
-- Checkbox por animal para seleccionar múltiples.
-- Info: si el animal ya está en otro lote, se muestra esa info y se puede reasignar.
-- Acciones: "Agregar seleccionados (N)" + "Cancelar".
+- Grilla de TagView `md` (flex-wrap, gap-2) con animales activos sin lote.
+- Click en tag → agrega inmediatamente al lote (sin confirmación). El tag desaparece de la grilla.
+
+### Sección inline: Desde otro lote
+
+- Trigger: botón "Mover desde otro lote".
+- Select de lotes activos (excluye el lote actual).
+- Al seleccionar lote origen: grilla de TagView `md` con los animales de ese lote.
+- Click en tag alterna selección (ring-2 ring-primary cuando seleccionado).
+- Botón "Mover X animales" visible cuando hay selección. Al hacer click:
+  - Confirmación inline: "¿Mover X animales desde [Lote Y] a este lote?"
+  - Botones: "Confirmar" (default) + "Cancelar".
+  - Al confirmar: animales se mueven y se crean eventos `lot_change` por animal.
+
+### Sección virtual: Sin lote (card especial en `/lots`)
+
+```
+┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
+  Sin lote asignado          [sin lote — N animales]
+└ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘
+```
+- Card con borde punteado (`border-dashed`) para indicar que es virtual.
+- Siempre visible en el listado (no responde al filtro de búsqueda ni al toggle de disueltos).
+- Navega a `/lots/sin-lote`.
+
+### Página: Sin lote (`/lots/sin-lote`)
+
+- Header: "Sin lote asignado" + badge con conteo.
+- Card de estadísticas de peso (mismo `LotWeightStatsCard`), si hay pesos registrados.
+- Grilla de TagView `md` de todos los animales activos sin lote. Cada tag linkea al detalle del animal.
 
 ### Acciones del lote (footer)
 
