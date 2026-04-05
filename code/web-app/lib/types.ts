@@ -49,6 +49,10 @@ export interface Animal {
   exitType: AnimalExitType;
   hasActiveCarencia: boolean;
   carenciaExpiresAt: number | null;
+  lastWeight: number | null;
+  lastWeightDate: number | null;
+  gdpRecent: number | null;
+  gdpAccumulated: number | null;
   createdAt: number;
   updatedAt: number;
 }

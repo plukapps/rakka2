@@ -7,6 +7,7 @@ import type { Animal, FieldControlSubtype, SelectionMethod } from "@/lib/types"
 import { animalRepository } from "@/lib/repositories/animal"
 import { activityRepository, type CreateActivityInput } from "@/lib/repositories/activity"
 import { traceabilityRepository } from "@/lib/repositories/traceability"
+import { calculateGdp } from "@/lib/gdp"
 import { useAppStore } from "@/lib/stores/appStore"
 import { useAuthStore } from "@/lib/stores/authStore"
 import { AnimalSelector } from "@/components/activities/AnimalSelector"
@@ -174,6 +175,25 @@ export default function FieldControlActivityPage() {
           responsibleName: user.name,
           timestamp: ts,
         })
+      }
+
+      // Mock denormalization: update weight/GDP fields on each animal (simulates Cloud Function)
+      if (subtype === "weighing" && weightsByAnimal) {
+        for (const [animalId, weight] of Object.entries(weightsByAnimal)) {
+          const animal = animalRepository.getById(estId, animalId)
+          if (!animal) continue
+          const prevWeight = animal.lastWeight ?? animal.entryWeight
+          const prevDate = animal.lastWeightDate ?? animal.entryDate
+          const gdpRecent = prevWeight != null ? calculateGdp(prevWeight, weight, prevDate, ts) : null
+          const gdpAccumulated =
+            animal.entryWeight != null ? calculateGdp(animal.entryWeight, weight, animal.entryDate, ts) : null
+          animalRepository.update(estId, animalId, {
+            lastWeight: weight,
+            lastWeightDate: ts,
+            gdpRecent: gdpRecent != null ? Math.round(gdpRecent * 100) / 100 : null,
+            gdpAccumulated: gdpAccumulated != null ? Math.round(gdpAccumulated * 100) / 100 : null,
+          })
+        }
       }
 
       router.push("/activities")

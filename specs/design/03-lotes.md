@@ -114,6 +114,23 @@ Formulario en columna central, ancho máximo 480px.
 - Total de animales.
 - **Botón primario**: "Registrar actividad sobre este lote" → `/activities/new` (con lote preseleccionado).
 
+### Estadísticas de peso
+
+Card "Estadísticas de peso" entre el header del lote y la lista de animales. Solo se muestra si al menos un animal del lote tiene `lastWeight`.
+
+**Stats grid** (2x3):
+| Peso promedio | Rango de peso | Animales con peso |
+| GDP Reciente promedio | GDP Acumulada promedio | Último pesaje (fecha) |
+
+**Gráfico de evolución**: peso promedio del lote a lo largo del tiempo (recharts LineChart, 250px alto). Cada punto es el peso promedio de los animales pesados en una actividad de pesaje que incluyó animales del lote.
+
+**Calculadora de proyección**:
+- Input: "Peso objetivo (kg)" — campo numérico libre.
+- Output dinámico: "Estimado: X días (DD/MM/YYYY)" usando la GDP reciente promedio del lote.
+- Si GDP ≤ 0 o peso actual ≥ objetivo: "No se puede proyectar con la GDP actual."
+- Nota: "La proyección usa la GDP reciente promedio del lote."
+- El peso objetivo NO se persiste — es un input temporal.
+
 ### Lista de animales del lote
 
 - Grilla compacta de caravanas: muestra solo el TagView de cada animal en tamaño `md` (sin detalle de categoría, raza ni lote).

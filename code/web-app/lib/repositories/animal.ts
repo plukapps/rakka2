@@ -57,6 +57,10 @@ export const animalRepository = {
       exitType: null,
       hasActiveCarencia: false,
       carenciaExpiresAt: null,
+      lastWeight: null,
+      lastWeightDate: null,
+      gdpRecent: null,
+      gdpAccumulated: null,
       createdAt: ts,
       updatedAt: ts,
     };

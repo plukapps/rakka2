@@ -17,7 +17,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { EmptyState } from "@/components/ui/empty-state"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { activityRepository } from "@/lib/repositories/activity"
 import { formatDate, formatCaravana } from "@/lib/utils"
+import { LotWeightStatsCard } from "@/components/lots/LotWeightStatsCard"
 
 export default function LotDetailPage({
   params,
@@ -40,6 +42,12 @@ export default function LotDetailPage({
   const lotAnimals = useMemo(() => {
     return allAnimals.filter((a) => a.lotId === lotId)
   }, [allAnimals, lotId])
+
+  // Activities for weight stats
+  const lotActivities = useMemo(() => {
+    if (!estId) return []
+    return activityRepository.getAll(estId)
+  }, [estId])
 
   // Filtered animals in lot by caravana search
   const filteredLotAnimals = useMemo(() => {
@@ -171,6 +179,8 @@ export default function LotDetailPage({
           )}
         </CardContent>
       </Card>
+
+      <LotWeightStatsCard animals={lotAnimals} activities={lotActivities} />
 
       {/* Animals in lot */}
       <Card>

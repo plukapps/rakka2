@@ -92,6 +92,10 @@ Modos de visualización (solo display, el valor almacenado es siempre el número
   "exitType": null,
   "hasActiveCarencia": false,
   "carenciaExpiresAt": null,
+  "lastWeight": 340,
+  "lastWeightDate": 1712000000000,
+  "gdpRecent": 0.85,
+  "gdpAccumulated": 0.72,
   "createdAt": 1712000000000,
   "updatedAt": 1712000000000
 }
@@ -105,7 +109,12 @@ Modos de visualización (solo display, el valor almacenado es siempre el número
 - `carenciaExpiresAt`: timestamp de vencimiento de la carencia más lejana activa. `null` si no tiene carencia activa.
 - `exitType`: `"sale"` | `"dispatch"` | `"death"` | `"transfer"` | `null`
 
-> **Nota**: `hasActiveCarencia` y `carenciaExpiresAt` son escritos por la Cloud Function `onSanitaryActivityCreated` al registrar una actividad con carencia. El cliente no los calcula: los lee directamente.
+- `lastWeight`: último peso registrado (kg). `null` si nunca se pesó individualmente.
+- `lastWeightDate`: timestamp del último pesaje individual.
+- `gdpRecent`: ganancia diaria de peso entre los últimos 2 pesajes (kg/día). Si solo hay 1 pesaje, se calcula contra `entryWeight`.
+- `gdpAccumulated`: ganancia diaria de peso desde el ingreso hasta el último pesaje (kg/día).
+
+> **Nota**: `hasActiveCarencia`, `carenciaExpiresAt`, `lastWeight`, `lastWeightDate`, `gdpRecent` y `gdpAccumulated` son campos denormalizados escritos por Cloud Functions. El cliente no los calcula: los lee directamente.
 
 ---
 
@@ -367,6 +376,10 @@ Firebase RTDB requiere declarar índices en `database.rules.json` para queries c
 | `lot_animals` índice | `/lot_animals/{estId}/{lotId}/` | Obtener animales de un lote eficientemente |
 | Nombre/caravana en trazabilidad | `/traceability/{estId}/{animalId}/{eventId}` | Historial autocontenido, sin reads cruzados |
 | Datos del animal en alertas | `/alerts/{estId}/{alertId}` | Mostrar alertas sin reads adicionales |
+| `lastWeight` en animal | `/animals/{estId}/{animalId}` | Mostrar último peso sin consultar actividades |
+| `lastWeightDate` en animal | `/animals/{estId}/{animalId}` | Mostrar fecha de último pesaje sin consultar actividades |
+| `gdpRecent` en animal | `/animals/{estId}/{animalId}` | GDP entre últimos 2 pesajes, precalculada |
+| `gdpAccumulated` en animal | `/animals/{estId}/{animalId}` | GDP desde ingreso, precalculada |
 
 ---
 
