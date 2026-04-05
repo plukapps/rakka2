@@ -81,7 +81,24 @@ Lista de las últimas **5 actividades** registradas en el establecimiento.
 
 ---
 
-## 6. Sección: Próximas acciones (columna derecha, arriba)
+## 6. Sección: Resumen de lotes
+
+Después de "Actividad reciente". Muestra un card compacto por cada lote activo que tenga al menos un animal con `lastWeight`.
+
+### Por cada lote
+- **Nombre del lote** (link → `/lots/[lotId]`).
+- **Animales**: "X animales".
+- **Peso promedio**: "XXX kg" (promedio de `lastWeight` de animales del lote que tienen peso).
+- **GDP reciente promedio**: "X.XX kg/día" (promedio de `gdpRecent` de animales del lote).
+- **Último pesaje**: fecha del pesaje más reciente del lote.
+
+### Layout
+- Lista vertical de cards compactos (similar a actividad reciente).
+- Si ningún lote tiene datos de peso: no se muestra la sección.
+
+---
+
+## 7. Sección: Próximas acciones (columna derecha, arriba)
 
 Top **3 alertas** ordenadas por urgencia (críticas primero).
 
@@ -97,7 +114,7 @@ Top **3 alertas** ordenadas por urgencia (críticas primero).
 
 ---
 
-## 7. Sección: Resumen del campo (columna derecha, abajo)
+## 8. Sección: Resumen del campo (columna derecha, abajo)
 
 Métricas rápidas del establecimiento. No son interactivas, solo informativas.
 
@@ -112,7 +129,7 @@ Cada métrica: label + número en grande. Layout de grilla 2x2.
 
 ---
 
-## 8. Estados especiales
+## 9. Estados especiales
 
 ### Sin establecimiento seleccionado
 - Ocultar todas las secciones de contenido.

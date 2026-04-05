@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation"
 import { useAnimal } from "@/hooks/useAnimals"
 import { useLots } from "@/hooks/useLots"
 import { useTraceability } from "@/hooks/useTraceability"
+import { useAnimalActivities } from "@/hooks/useAnimalActivities"
 import { CarenciaIndicator } from "@/components/animals/CarenciaIndicator"
+import { WeightHistoryCard } from "@/components/animals/WeightHistoryCard"
 import { Badge } from "@/components/ui/badge"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
@@ -42,6 +44,7 @@ export default function AnimalDetailPage({
   const animal = useAnimal(id)
   const lots = useLots()
   const events = useTraceability(id)
+  const activities = useAnimalActivities(id)
 
   if (!animal) {
     return (
@@ -138,6 +141,8 @@ export default function AnimalDetailPage({
           </dl>
         </CardContent>
       </Card>
+
+      <WeightHistoryCard animal={animal} activities={activities} />
 
       {animal.hasActiveCarencia && animal.carenciaExpiresAt && (
         <Card>

@@ -244,6 +244,13 @@ Al entrar a `/animals/new`, el usuario primero elige cómo ingresar:
 - Fecha y tipo de egreso.
 - Nota: el animal está en modo solo lectura.
 
+**Historial de peso**
+- Card "Historial de peso" entre los datos del animal y la carencia.
+- **Stats row** (3 columnas): Último peso (`lastWeight` + fecha) | GDP Reciente (`gdpRecent` kg/día) | GDP Acumulada (`gdpAccumulated` kg/día).
+- **Gráfico de evolución**: línea de peso vs tiempo (recharts LineChart, 200px alto). Incluye peso de ingreso como primer punto. Tooltip con fecha y peso.
+- **Lista de pesajes** (colapsable): fecha, peso, GDP respecto al pesaje anterior. Clickeable → detalle de la actividad.
+- **Sin datos**: si el animal no tiene pesajes individuales, mostrar mensaje "Sin pesajes individuales registrados. La GDP se calcula cuando hay pesos por animal."
+
 ### Panel derecho: Historial de actividades
 
 - Lista de las **últimas 10 actividades** del animal, ordenadas por fecha desc.

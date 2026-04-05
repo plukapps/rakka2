@@ -14,7 +14,9 @@ import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { TagView } from "@/components/animals/TagView"
-import { formatDate, formatCaravana, activityTypeLabel, categoryLabel, cn } from "@/lib/utils"
+import { useLots } from "@/hooks/useLots"
+import { formatDate, formatCaravana, activityTypeLabel, categoryLabel, formatWeight, formatGdp, cn } from "@/lib/utils"
+import { calculateLotWeightStats } from "@/lib/gdp"
 
 const quickActions = [
   {
@@ -75,6 +77,7 @@ export default function HomePage() {
   const activeEst = useAppStore((s) => s.activeEstablishment)
   const estId = activeEst?.id
   const animals = useAnimals()
+  const lots = useLots()
   const { alerts } = useAlerts()
 
   // Search state
@@ -226,6 +229,52 @@ export default function HomePage() {
           </div>
         )}
       </section>
+
+      {/* Lot weight summary */}
+      {lots.length > 0 && (() => {
+        const lotsWithStats = lots
+          .filter((l) => l.status === "active")
+          .map((l) => {
+            const lotAnimals = activeAnimals.filter((a) => a.lotId === l.id)
+            const stats = calculateLotWeightStats(lotAnimals)
+            return { lot: l, stats }
+          })
+          .filter(({ stats }) => stats.animalsWithWeight > 0)
+
+        if (lotsWithStats.length === 0) return null
+
+        return (
+          <section className="space-y-3">
+            <h2 className="text-sm font-semibold text-foreground">Resumen de lotes</h2>
+            <div className="space-y-2">
+              {lotsWithStats.map(({ lot: l, stats }) => (
+                <Link key={l.id} href={`/lots/${l.id}`}>
+                  <Card size="sm" className="cursor-pointer hover:bg-muted/50 transition-colors">
+                    <CardContent className="flex items-center justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{l.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {stats.animalsWithWeight} animales · {formatWeight(stats.avgWeight)} prom.
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-foreground">
+                          {formatGdp(stats.avgGdpRecent)}
+                        </p>
+                        {stats.lastWeightDate && (
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(stats.lastWeightDate)}
+                          </p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )
+      })()}
 
       {/* Next actions */}
       <section className="space-y-3">

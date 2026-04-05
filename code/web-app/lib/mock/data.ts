@@ -123,6 +123,10 @@ function makeAnimal(
     exitType: null,
     hasActiveCarencia: false,
     carenciaExpiresAt: null,
+    lastWeight: null,
+    lastWeightDate: null,
+    gdpRecent: null,
+    gdpAccumulated: null,
     createdAt: daysAgo(300),
     updatedAt: daysAgo(10),
     ...opts,
@@ -153,16 +157,34 @@ export const MOCK_ANIMALS: Animal[] = [
   makeAnimal("a011", "est_001", "858000000112345", "toro", "male", "lot_001"),
   makeAnimal("a012", "est_001", "858000000126789", "vaca", "female", "lot_001"),
 
-  // --- Lot 002: Recría (15) ---
-  makeAnimal("a013", "est_001", "858000000131111", "novillo", "male", "lot_002"),
-  makeAnimal("a014", "est_001", "858000000142222", "novillo", "male", "lot_002"),
-  makeAnimal("a015", "est_001", "858000000153333", "novillo", "male", "lot_002"),
-  makeAnimal("a016", "est_001", "858000000164444", "novillo", "male", "lot_002"),
-  makeAnimal("a017", "est_001", "858000000175555", "novillo", "male", "lot_002"),
-  makeAnimal("a018", "est_001", "858000000186666", "novillo", "male", "lot_002"),
-  makeAnimal("a019", "est_001", "858000000197777", "vaquillona", "female", "lot_002"),
-  makeAnimal("a020", "est_001", "858000000208888", "vaquillona", "female", "lot_002"),
-  makeAnimal("a021", "est_001", "858000000219999", "vaquillona", "female", "lot_002"),
+  // --- Lot 002: Recría (15) — con datos de peso/GDP ---
+  makeAnimal("a013", "est_001", "858000000131111", "novillo", "male", "lot_002", {
+    entryWeight: 260, lastWeight: 340, lastWeightDate: daysAgo(7), gdpRecent: 0.85, gdpAccumulated: 0.72,
+  }),
+  makeAnimal("a014", "est_001", "858000000142222", "novillo", "male", "lot_002", {
+    entryWeight: 270, lastWeight: 355, lastWeightDate: daysAgo(7), gdpRecent: 0.92, gdpAccumulated: 0.77,
+  }),
+  makeAnimal("a015", "est_001", "858000000153333", "novillo", "male", "lot_002", {
+    entryWeight: 255, lastWeight: 330, lastWeightDate: daysAgo(7), gdpRecent: 0.78, gdpAccumulated: 0.68,
+  }),
+  makeAnimal("a016", "est_001", "858000000164444", "novillo", "male", "lot_002", {
+    entryWeight: 275, lastWeight: 360, lastWeightDate: daysAgo(7), gdpRecent: 0.95, gdpAccumulated: 0.77,
+  }),
+  makeAnimal("a017", "est_001", "858000000175555", "novillo", "male", "lot_002", {
+    entryWeight: 265, lastWeight: 345, lastWeightDate: daysAgo(7), gdpRecent: 0.88, gdpAccumulated: 0.73,
+  }),
+  makeAnimal("a018", "est_001", "858000000186666", "novillo", "male", "lot_002", {
+    entryWeight: 250, lastWeight: 320, lastWeightDate: daysAgo(7), gdpRecent: 0.75, gdpAccumulated: 0.63,
+  }),
+  makeAnimal("a019", "est_001", "858000000197777", "vaquillona", "female", "lot_002", {
+    entryWeight: 240, lastWeight: 310, lastWeightDate: daysAgo(7), gdpRecent: 0.80, gdpAccumulated: 0.63,
+  }),
+  makeAnimal("a020", "est_001", "858000000208888", "vaquillona", "female", "lot_002", {
+    entryWeight: 245, lastWeight: 315, lastWeightDate: daysAgo(7), gdpRecent: 0.82, gdpAccumulated: 0.64,
+  }),
+  makeAnimal("a021", "est_001", "858000000219999", "vaquillona", "female", "lot_002", {
+    entryWeight: 235, lastWeight: 305, lastWeightDate: daysAgo(7), gdpRecent: 0.76, gdpAccumulated: 0.64,
+  }),
   makeAnimal("a022", "est_001", "858000000221010", "vaquillona", "female", "lot_002"),
   makeAnimal("a023", "est_001", "858000000231111", "vaquillona", "female", "lot_002"),
   makeAnimal("a024", "est_001", "858000000241212", "novillo", "male", "lot_002", {
@@ -273,15 +295,19 @@ export const MOCK_ACTIVITIES: Activity[] = [
     estId: "est_001",
     type: "field_control",
     subtype: "weighing",
-    animalIds: ["a013", "a014", "a015", "a016", "a017"],
+    animalIds: ["a013", "a014", "a015", "a016", "a017", "a018", "a019", "a020", "a021"],
     selectionMethod: "lot",
     unknownCaravanas: [],
     activityDate: daysAgo(7),
     responsible: "Juan Pérez",
     notes: "Pesada mensual",
-    weightKg: null,
+    weightKg: 335,
+    weightsByAnimal: {
+      a013: 340, a014: 355, a015: 330, a016: 360, a017: 345,
+      a018: 320, a019: 310, a020: 315, a021: 305,
+    },
     scale: "Báscula Potrero Sur",
-    result: "Promedio 340 kg",
+    result: null,
     createdAt: daysAgo(7),
     createdBy: "user_001",
   },
@@ -353,6 +379,49 @@ export const MOCK_ACTIVITIES: Activity[] = [
     createdAt: daysAgo(19),
     createdBy: "user_001",
   },
+  // --- Historical weighing activities for GDP demo ---
+  {
+    id: "act_w01",
+    estId: "est_001",
+    type: "field_control",
+    subtype: "weighing",
+    animalIds: ["a013", "a014", "a015", "a016", "a017", "a018", "a019", "a020", "a021"],
+    selectionMethod: "lot",
+    rfidReadingId: null,
+    activityDate: daysAgo(90),
+    responsible: "Juan Pérez",
+    notes: "Primer pesaje del lote",
+    weightKg: 278,
+    weightsByAnimal: {
+      a013: 275, a014: 285, a015: 268, a016: 290, a017: 280,
+      a018: 262, a019: 255, a020: 258, a021: 248,
+    },
+    scale: "Báscula Potrero Sur",
+    result: null,
+    createdAt: daysAgo(90),
+    createdBy: "user_001",
+  } as Activity,
+  {
+    id: "act_w02",
+    estId: "est_001",
+    type: "field_control",
+    subtype: "weighing",
+    animalIds: ["a013", "a014", "a015", "a016", "a017", "a018", "a019", "a020", "a021"],
+    selectionMethod: "lot",
+    rfidReadingId: null,
+    activityDate: daysAgo(45),
+    responsible: "Juan Pérez",
+    notes: "Segundo pesaje del lote",
+    weightKg: 308,
+    weightsByAnimal: {
+      a013: 308, a014: 320, a015: 300, a016: 325, a017: 312,
+      a018: 292, a019: 283, a020: 287, a021: 278,
+    },
+    scale: "Báscula Potrero Sur",
+    result: null,
+    createdAt: daysAgo(45),
+    createdBy: "user_001",
+  } as Activity,
 ];
 
 // --- Reading Activities (formerly standalone RFID readings) ---

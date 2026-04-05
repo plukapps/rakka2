@@ -65,8 +65,53 @@ El sistema detecta si hay una segunda columna numérica y la interpreta como pes
 
 ---
 
+## GDP — Ganancia Diaria de Peso
+
+El sistema calcula automáticamente la **ganancia diaria de peso (GDP)** para cada animal que tenga pesajes individuales registrados (`weightsByAnimal`). Los pesajes con peso promedio grupal (`weightKg` sin `weightsByAnimal`) no generan datos de GDP.
+
+### Métricas
+
+Se calculan dos métricas complementarias:
+
+| Métrica | Fórmula | Descripción |
+|---|---|---|
+| **GDP Reciente** | `(peso_actual - peso_anterior) / días_entre_pesajes` | Rendimiento del período más reciente. Si solo hay un pesaje, usa el peso de ingreso como referencia. |
+| **GDP Acumulada** | `(último_peso - peso_ingreso) / días_desde_ingreso` | Rendimiento promedio de toda la vida del animal en el establecimiento. Requiere `entryWeight`. |
+
+Ambas métricas se expresan en **kg/día**. Valores negativos son válidos (pérdida de peso).
+
+### Campos denormalizados en el animal
+
+Al registrar una actividad de pesaje con pesos individuales, la Cloud Function actualiza estos campos en cada animal pesado:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `lastWeight` | Número (kg) | Último peso registrado |
+| `lastWeightDate` | Timestamp | Fecha del último pesaje |
+| `gdpRecent` | Número (kg/día) | GDP entre los últimos 2 pesajes (o vs ingreso si es el primero) |
+| `gdpAccumulated` | Número (kg/día) | GDP desde el ingreso hasta el último pesaje |
+
+Estos campos son **solo lectura para el cliente** — los escribe exclusivamente la Cloud Function, igual que `hasActiveCarencia`.
+
+### Visualización
+
+- **Perfil del animal**: historial de pesos, GDP reciente y acumulada, gráfico de evolución de peso.
+- **Detalle del lote**: peso promedio del lote, rango, GDP promedio, gráfico de evolución, calculadora de proyección a peso objetivo.
+- **Dashboard (Home)**: resumen por lote con peso promedio y GDP.
+
+### Proyección a peso objetivo
+
+El usuario puede ingresar un peso objetivo (ej: 450 kg) de forma ad-hoc al consultar un lote. El sistema calcula los días estimados para alcanzar ese peso usando la GDP reciente promedio del lote:
+
+```
+días_estimados = (peso_objetivo - peso_promedio_actual) / gdp_reciente_promedio
+```
+
+El peso objetivo no se persiste — es un input temporal para la consulta.
+
+---
+
 ## Fuera de alcance (MVP)
 
 - Integración directa con básculas electrónicas por Bluetooth o puerto serial
-- Gráficos de evolución de peso por animal a lo largo del tiempo
-- Alertas de ganancia de peso por debajo de umbrales esperados
+- Alertas automáticas de GDP por debajo de umbrales configurados (ver `specs/plan/nextsteps/gdp-alerts.md`)

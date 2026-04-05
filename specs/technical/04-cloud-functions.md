@@ -74,10 +74,37 @@ Las Cloud Functions contienen la lógica de negocio que no puede quedar en el cl
 2. **Casos especiales**:
    - Si `type === "movement"` y `subtype === "field_transfer"`: para cada animal, crear egreso en el establecimiento origen e ingreso en `destinationEstablishmentId`.
    - Si `type === "reproduction"` y `subtype === "birth"` y `offspringCaravana` está presente: crear el nuevo animal en el establecimiento con `entryType: "birth"` y `entryDate: activityDate`.
+   - Si `type === "field_control"` y `subtype === "weighing"` y `weightsByAnimal` está presente: ejecutar la lógica de denormalización de peso (ver sección 4).
 
 ---
 
-### 4. `onReadingActivityCreated`
+
+### 4. `onWeighingDenormalization`
+
+**Trigger**: se ejecuta dentro de `onActivityCreated` cuando `type === "field_control"`, `subtype === "weighing"` y `weightsByAnimal` está presente.
+
+**Responsabilidades**:
+Para cada `animalId` que tiene una entrada en `weightsByAnimal`:
+1. Leer el animal actual: `entryWeight`, `entryDate`, `lastWeight`, `lastWeightDate`.
+2. Determinar el peso anterior de referencia:
+   - Si el animal tiene `lastWeight` (ya fue pesado antes): usar `lastWeight` y `lastWeightDate`.
+   - Si no: usar `entryWeight` y `entryDate`.
+3. Calcular `gdpRecent`:
+   - `(nuevo_peso - peso_anterior) / ((fecha_actividad - fecha_anterior) / 86400000)`
+   - Si no hay peso anterior o las fechas son iguales: `null`.
+4. Calcular `gdpAccumulated`:
+   - `(nuevo_peso - entryWeight) / ((fecha_actividad - entryDate) / 86400000)`
+   - Si no hay `entryWeight` o las fechas son iguales: `null`.
+5. Escribir en el nodo del animal:
+   - `lastWeight`: el nuevo peso
+   - `lastWeightDate`: `activityDate` de la actividad
+   - `gdpRecent`: calculado en paso 3
+   - `gdpAccumulated`: calculado en paso 4
+   - `updatedAt`: timestamp actual
+
+---
+
+### 5. `onReadingActivityCreated`
 
 **Trigger**: `database.onValueCreated("/activities/{estId}/{activityId}")` (filtrar por `type === "reading"`)
 
@@ -89,7 +116,7 @@ Las Cloud Functions contienen la lógica de negocio que no puede quedar en el cl
 
 ---
 
-### 5. `onLotDissolved`
+### 6. `onLotDissolved`
 
 **Trigger**: `database.onValueUpdated("/lots/{estId}/{lotId}")`
 

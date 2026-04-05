@@ -166,6 +166,16 @@ export function activityTypeLabel(type: string): string {
   return labels[type] ?? type
 }
 
+export function formatWeight(kg: number | null): string {
+  if (kg == null) return "—"
+  return `${kg % 1 === 0 ? kg : kg.toFixed(1)} kg`
+}
+
+export function formatGdp(gdp: number | null): string {
+  if (gdp == null) return "—"
+  return `${gdp.toFixed(2)} kg/día`
+}
+
 export function urgencyLabel(urgency: string): string {
   const labels: Record<string, string> = {
     info: "Info",
