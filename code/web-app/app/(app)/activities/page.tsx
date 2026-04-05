@@ -87,7 +87,7 @@ export default function ActivitiesPage() {
                   {activityTitle(act)}
                 </p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <StatusBadge variant="neutral" className="w-[100px] justify-center shrink-0">
+                  <StatusBadge variant="neutral" className="w-[115px] justify-center shrink-0">
                     {activityTypeLabel(act.type)}
                   </StatusBadge>
                   <span className="text-xs text-muted-foreground">
