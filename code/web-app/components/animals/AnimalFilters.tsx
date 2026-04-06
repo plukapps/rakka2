@@ -1,6 +1,7 @@
 "use client"
 
 import type { Lot, AnimalCategory } from "@/lib/types"
+import type { ViewMode } from "@/components/animals/AnimalCard"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -16,8 +17,10 @@ export interface AnimalFilterState {
 interface AnimalFiltersProps {
   filters: AnimalFilterState
   lots: Lot[]
+  viewMode: ViewMode
   onChange: (f: AnimalFilterState) => void
   onReset: () => void
+  onViewModeChange: (mode: ViewMode) => void
 }
 
 function NativeSelect({
@@ -47,7 +50,7 @@ function NativeSelect({
   )
 }
 
-export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFiltersProps) {
+export function AnimalFilters({ filters, lots, viewMode, onChange, onReset, onViewModeChange }: AnimalFiltersProps) {
   const hasActiveFilters =
     filters.search || filters.lotId || filters.category ||
     filters.carenciaOnly || filters.statusFilter !== "active"
@@ -58,7 +61,7 @@ export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFilter
         placeholder="Buscar caravana..."
         value={filters.search}
         onChange={(e) => onChange({ ...filters, search: e.target.value })}
-        className="w-48"
+        className="w-64"
       />
 
       <NativeSelect
@@ -112,6 +115,16 @@ export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFilter
           Limpiar
         </Button>
       )}
+
+      <NativeSelect
+        value={viewMode}
+        onChange={(v) => onViewModeChange(v as ViewMode)}
+        className="ml-auto w-32"
+      >
+        <option value="relaxed">Relajado</option>
+        <option value="compacted">Compacto</option>
+        <option value="list">Lista</option>
+      </NativeSelect>
     </div>
   )
 }

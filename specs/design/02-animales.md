@@ -28,15 +28,20 @@
 
 ### Toolbar de filtros
 
-- **Búsqueda**: input de texto, busca por caravana (cualquier parte del número).
+- **Búsqueda**: input de texto, busca por caravana (cualquier parte del número). Ancho más generoso (`w-64`).
 - **Lote**: select con los lotes activos del establecimiento + opción "Sin lote".
 - **Categoría**: select con las categorías (vaca, toro, ternero/a, vaquillona, novillo, otro).
 - **Estado**: select (Todos / Activos / Egresados).
 - **Con carencia activa**: checkbox.
+- **View mode**: dropdown select al final del toolbar con tres opciones: `Relajado` (default), `Compacto`, `Lista`. La selección se persiste en `localStorage` (`animals-view-mode`).
 - **Contador**: texto "X / Y" (filtrados / total) junto al título, actualiza en tiempo real.
 - **Limpiar filtros**: botón `secondary` (con fondo) que aparece cuando hay al menos un filtro activo.
 
-### AnimalCard
+### Modos de vista
+
+El listado soporta tres modos de vista, seleccionables desde el toolbar:
+
+#### Modo Relajado (por defecto) — grilla 4 columnas
 
 ```
 ┌──────────────────────────────┐
@@ -46,11 +51,50 @@
 └──────────────────────────────┘
 ```
 
-- Click en la card → navega a `/animals/[id]`.
 - **StatusBadge** lógica tres casos: `status=active` → "Activo" (success); `exited+death` → "Inactivo" (neutral); `exited+otros` → "Egresado" (neutral).
 - **StatusBadge** y **CarenciaIndicator**: `border-radius: 4px` (rectangular, no pill).
 - El lote aparece en línea propia debajo de categoría · raza, en color `muted-foreground/70`.
 - Si no tiene lote, la línea de lote no se renderiza.
+
+#### Modo Compacto — grilla 6 columnas
+
+```
+┌──────────────────────────────┐
+│  [TagView]                   │
+│            ● (dot de estado) │  ← circulito en bottom-right
+└──────────────────────────────┘
+```
+
+- Solo se muestra el `TagView` (caravana visual).
+- Un circulito de color (`w-3 h-3`, `absolute bottom-2 right-2`, con border blanco fino) indica el estado:
+  - Verde (`bg-emerald-500`): animal activo sin carencia.
+  - Amber (`bg-amber-400`): animal activo con carencia activa.
+  - Gris (`bg-muted-foreground/50`): animal egresado o inactivo.
+- Hover: sombra elevada + cursor pointer.
+- Tooltip opcional al hacer hover: muestra caravana, estado y lote.
+
+#### Modo Lista — 1 columna, ancho completo
+
+```
+┌───────┬────────────┬──────────┬──────────┬──────────────────┬────────────┐
+│ Tag   │ Caravana   │ Estado   │ Carencia │ Categoría · Raza │ Lote       │
+├───────┼────────────┼──────────┼──────────┼──────────────────┼────────────┤
+│ [Tag] │ 00001 2345 │ [Activo] │ [badge]  │ Vaca · Angus     │ Lote Norte │
+└───────┴────────────┴──────────┴──────────┴──────────────────┴────────────┘
+```
+
+- Una fila por animal, ancho completo, altura 68px.
+- Renderizado como tabla unificada: contenedor `rounded-lg border border-border overflow-hidden`.
+- **Header integrado** dentro del contenedor: `bg-muted/40`, texto `font-semibold` (negrita), `border-b`.
+- Columnas del header: (vacío) · Caravana · Estado · Carencia · Categoría · Raza · Lote (derecha).
+- Grid template: `48px 140px auto auto 1fr 160px`, gap 24px, padding horizontal 16px — idéntico en header y filas.
+- Filas: sin card individual. Solo `border-b border-border/60` como separador y `hover:bg-muted/40` como hover.
+- Caravana en `font-mono text-sm`. Lote alineado a la derecha.
+- La raza y el lote se omiten visualmente si están vacíos (celda vacía).
+
+#### Comportamiento común a todos los modos
+
+- Click en la card/fila → navega a `/animals/[id]`.
 - Hover: sombra elevada + cursor pointer.
 
 ### Estados

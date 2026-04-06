@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useMemo, useRef } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useAnimals } from "@/hooks/useAnimals"
 import { useLots } from "@/hooks/useLots"
-import { AnimalCard } from "@/components/animals/AnimalCard"
+import { AnimalCard, LIST_COL_TEMPLATE, LIST_COL_GAP, type ViewMode } from "@/components/animals/AnimalCard"
 import { AnimalFilters, type AnimalFilterState } from "@/components/animals/AnimalFilters"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -19,9 +19,18 @@ const DEFAULT_FILTERS: AnimalFilterState = {
   statusFilter: "active",
 }
 
-const COLS = 4
-const ROW_HEIGHT = 114
-const GAP = 12
+const MODE_CONFIG: Record<ViewMode, { cols: number; rowHeight: number; gap: number }> = {
+  relaxed:   { cols: 4, rowHeight: 114, gap: 12 },
+  compacted: { cols: 6, rowHeight: 110, gap: 10 },
+  list:      { cols: 1, rowHeight: 68,  gap: 6  },
+}
+
+const VIEW_MODE_KEY = "animals-view-mode"
+
+function getSavedViewMode(): ViewMode {
+  if (typeof window === "undefined") return "relaxed"
+  return (localStorage.getItem(VIEW_MODE_KEY) as ViewMode) ?? "relaxed"
+}
 
 export default function AnimalsPage() {
   const params = useSearchParams()
@@ -29,10 +38,18 @@ export default function AnimalsPage() {
     ...DEFAULT_FILTERS,
     lotId: params.get("lotId") ?? "",
   })
+  const [viewMode, setViewMode] = useState<ViewMode>(getSavedViewMode)
 
   const animals = useAnimals()
   const lots = useLots()
-  const parentRef = useRef<HTMLDivElement>(null)
+
+  // Use the layout's <main> as the single scroll container to avoid double scroll
+  const scrollRef = useRef<HTMLElement | null>(null)
+  useEffect(() => {
+    scrollRef.current = document.querySelector("main")
+  }, [])
+
+  const { cols, rowHeight, gap } = MODE_CONFIG[viewMode]
 
   const lotMap = useMemo(
     () => Object.fromEntries(lots.map((l) => [l.id, l])),
@@ -51,18 +68,23 @@ export default function AnimalsPage() {
     })
   }, [animals, filters])
 
-  const rowCount = Math.ceil(filtered.length / COLS)
+  const rowCount = Math.ceil(filtered.length / cols)
 
   const virtualizer = useVirtualizer({
     count: rowCount,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => ROW_HEIGHT + GAP,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => rowHeight + gap,
     overscan: 3,
   })
 
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode)
+    localStorage.setItem(VIEW_MODE_KEY, mode)
+  }
+
   return (
-    <div className="flex flex-col gap-4 h-full">
-      <div className="flex items-center justify-between shrink-0">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-foreground">
           Animales{" "}
           <span className="text-sm font-normal text-muted-foreground">
@@ -74,12 +96,14 @@ export default function AnimalsPage() {
         </Link>
       </div>
 
-      <div className="shrink-0">
+      <div className="mt-2">
         <AnimalFilters
           filters={filters}
           lots={lots}
+          viewMode={viewMode}
           onChange={setFilters}
           onReset={() => setFilters(DEFAULT_FILTERS)}
+          onViewModeChange={handleViewModeChange}
         />
       </div>
 
@@ -88,38 +112,75 @@ export default function AnimalsPage() {
           title="Sin resultados"
           description="No hay animales que coincidan con los filtros."
         />
-      ) : (
-        <div ref={parentRef} className="flex-1 overflow-auto">
+      ) : viewMode === "list" ? (
+        <div className="rounded-lg border border-border overflow-hidden">
+          {/* Table header */}
+          <div
+            className="grid items-center border-b border-border bg-muted/40 px-4 py-2.5 text-xs font-semibold text-foreground"
+            style={{ gridTemplateColumns: LIST_COL_TEMPLATE, gap: LIST_COL_GAP }}
+          >
+            <span />
+            <span>Caravana</span>
+            <span>Estado</span>
+            <span>Carencia</span>
+            <span>Categoría · Raza</span>
+            <span className="text-right">Lote</span>
+          </div>
+
+          {/* Table rows (virtualized) */}
           <div
             className="relative w-full"
             style={{ height: virtualizer.getTotalSize() }}
           >
             {virtualizer.getVirtualItems().map((virtualRow) => {
-              const startIdx = virtualRow.index * COLS
-              const rowAnimals = filtered.slice(startIdx, startIdx + COLS)
+              const animal = filtered[virtualRow.index]
               return (
                 <div
                   key={virtualRow.key}
                   className="absolute left-0 w-full"
-                  style={{
-                    top: virtualRow.start,
-                    height: ROW_HEIGHT,
-                    display: "grid",
-                    gridTemplateColumns: `repeat(${COLS}, 1fr)`,
-                    gap: GAP,
-                  }}
+                  style={{ top: virtualRow.start, height: rowHeight }}
                 >
-                  {rowAnimals.map((animal) => (
-                    <AnimalCard
-                      key={animal.id}
-                      animal={animal}
-                      lot={animal.lotId ? lotMap[animal.lotId] : undefined}
-                    />
-                  ))}
+                  <AnimalCard
+                    animal={animal}
+                    lot={animal.lotId ? lotMap[animal.lotId] : undefined}
+                    viewMode="list"
+                  />
                 </div>
               )
             })}
           </div>
+        </div>
+      ) : (
+        <div
+          className="relative w-full"
+          style={{ height: virtualizer.getTotalSize() }}
+        >
+          {virtualizer.getVirtualItems().map((virtualRow) => {
+            const startIdx = virtualRow.index * cols
+            const rowAnimals = filtered.slice(startIdx, startIdx + cols)
+            return (
+              <div
+                key={virtualRow.key}
+                className="absolute left-0 w-full"
+                style={{
+                  top: virtualRow.start,
+                  height: rowHeight,
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                  gap,
+                }}
+              >
+                {rowAnimals.map((animal) => (
+                  <AnimalCard
+                    key={animal.id}
+                    animal={animal}
+                    lot={animal.lotId ? lotMap[animal.lotId] : undefined}
+                    viewMode={viewMode}
+                  />
+                ))}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
