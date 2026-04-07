@@ -1,3 +1,4 @@
+import type React from "react"
 import Image from "next/image"
 import { caravanaParts } from "@/lib/utils"
 
@@ -12,11 +13,13 @@ const CONFIG: Record<TagSize, {
   serieFs: string
   numFs: string
   src: string
+  serieStyle?: React.CSSProperties
+  numStyle?: React.CSSProperties
 }> = {
-  sm:  { w: 48,  h: 56,  pt: 16, serieFs: "7pt",  numFs: "13pt", src: "/tag-bg_sm.png" },
-  md:  { w: 72,  h: 84,  pt: 24, serieFs: "10pt", numFs: "20pt", src: "/tag-bg_md.png" },
-  lg:  { w: 110, h: 128, pt: 36, serieFs: "14pt", numFs: "28pt", src: "/tag-bg_lg.png" },
-  xl:  { w: 160, h: 144, pt: 46, serieFs: "18pt", numFs: "38pt", src: "/tag-bg.png" },
+  sm:  { w: 48,  h: 56,  pt: 18, serieFs: "7pt",  numFs: "14pt", src: "/tag-bg_sm.png", serieStyle: { marginBottom: 2 }, numStyle: { paddingLeft: 1 } },
+  md:  { w: 72,  h: 84,  pt: 28, serieFs: "10pt", numFs: "20pt", src: "/tag-bg_md.png", serieStyle: { marginBottom: 3 }, numStyle: { paddingLeft: 2 } },
+  lg:  { w: 110, h: 128, pt: 46, serieFs: "15pt", numFs: "32pt", src: "/tag-bg_lg.png", serieStyle: { marginBottom: 4 }, numStyle: { paddingLeft: 3 } },
+  xl:  { w: 160, h: 144, pt: 60, serieFs: "20pt", numFs: "40pt", src: "/tag-bg.png", serieStyle: { marginBottom: 4 }, numStyle: { paddingLeft: 4 } },
 }
 
 export function TagView({
@@ -27,7 +30,7 @@ export function TagView({
   size?: TagSize
 }) {
   const { serie, num } = caravanaParts(caravana)
-  const { w, h, pt, serieFs, numFs, src } = CONFIG[size]
+  const { w, h, pt, serieFs, numFs, src, serieStyle, numStyle } = CONFIG[size]
 
   return (
     <div
@@ -47,13 +50,13 @@ export function TagView({
       >
         <span
           className="text-muted-foreground tracking-widest"
-          style={{ fontFamily: FONT, fontSize: serieFs, lineHeight: 0.8 }}
+          style={{ fontFamily: FONT, fontSize: serieFs, lineHeight: 0.8, ...serieStyle }}
         >
           {serie}
         </span>
         <span
           className="text-foreground tracking-wider"
-          style={{ fontFamily: FONT, fontSize: numFs, lineHeight: 0.8 }}
+          style={{ fontFamily: FONT, fontSize: numFs, lineHeight: 0.8, ...numStyle }}
         >
           {num}
         </span>

@@ -8,7 +8,7 @@ import { categoryLabel, formatCaravana } from "@/lib/utils"
 export type ViewMode = "relaxed" | "compacted" | "list"
 
 // Shared between list header (page.tsx) and list rows (here)
-export const LIST_COL_TEMPLATE = "48px 140px auto auto 1fr 160px"
+export const LIST_COL_TEMPLATE = "84px 1fr 1fr 1fr 1fr 1fr 1fr"
 export const LIST_COL_GAP = 24
 
 interface AnimalCardProps {
@@ -72,11 +72,13 @@ export function AnimalCard({ animal, lot, viewMode = "relaxed" }: AnimalCardProp
             {formatCaravana(animal.caravana, "serie")}
           </span>
           <StatusContent animal={animal} />
-          <CarenciaIndicator animal={animal} size="sm" />
           <span className="text-sm text-muted-foreground truncate">
             {categoryLabel(animal.category)}
-            {animal.breed ? ` · ${animal.breed}` : ""}
           </span>
+          <span className="text-sm text-muted-foreground truncate">
+            {animal.breed ?? ""}
+          </span>
+          <span><CarenciaIndicator animal={animal} size="sm" /></span>
           <span className="text-sm text-muted-foreground/70 text-right truncate">
             {lot?.name ?? ""}
           </span>

@@ -17,10 +17,8 @@ export interface AnimalFilterState {
 interface AnimalFiltersProps {
   filters: AnimalFilterState
   lots: Lot[]
-  viewMode: ViewMode
   onChange: (f: AnimalFilterState) => void
   onReset: () => void
-  onViewModeChange: (mode: ViewMode) => void
 }
 
 function NativeSelect({
@@ -50,7 +48,81 @@ function NativeSelect({
   )
 }
 
-export function AnimalFilters({ filters, lots, viewMode, onChange, onReset, onViewModeChange }: AnimalFiltersProps) {
+function ViewModeButton({
+  mode,
+  active,
+  onClick,
+  title,
+  border,
+  children,
+}: {
+  mode: ViewMode
+  active: boolean
+  onClick: (m: ViewMode) => void
+  title: string
+  border?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={() => onClick(mode)}
+      className={cn(
+        "flex h-full w-8 items-center justify-center transition-colors",
+        border && "border-l border-input",
+        active
+          ? "bg-primary text-primary-foreground"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+      )}
+    >
+      {children}
+    </button>
+  )
+}
+
+export function ViewModeToggle({
+  value,
+  onChange,
+}: {
+  value: ViewMode
+  onChange: (mode: ViewMode) => void
+}) {
+  return (
+    <div className="flex h-8 items-center rounded-lg border border-input overflow-hidden">
+      <ViewModeButton mode="relaxed" active={value === "relaxed"} onClick={onChange} title="Relajado">
+        <svg viewBox="0 0 16 16" className="w-4 h-4" fill="currentColor">
+          <rect x="1" y="1" width="6" height="6" rx="1" />
+          <rect x="9" y="1" width="6" height="6" rx="1" />
+          <rect x="1" y="9" width="6" height="6" rx="1" />
+          <rect x="9" y="9" width="6" height="6" rx="1" />
+        </svg>
+      </ViewModeButton>
+      <ViewModeButton mode="compacted" active={value === "compacted"} onClick={onChange} title="Compacto" border>
+        <svg viewBox="0 0 16 16" className="w-4 h-4" fill="currentColor">
+          <rect x="1"    y="1"    width="3.5" height="3.5" rx="0.5" />
+          <rect x="6.25" y="1"    width="3.5" height="3.5" rx="0.5" />
+          <rect x="11.5" y="1"    width="3.5" height="3.5" rx="0.5" />
+          <rect x="1"    y="6.25" width="3.5" height="3.5" rx="0.5" />
+          <rect x="6.25" y="6.25" width="3.5" height="3.5" rx="0.5" />
+          <rect x="11.5" y="6.25" width="3.5" height="3.5" rx="0.5" />
+          <rect x="1"    y="11.5" width="3.5" height="3.5" rx="0.5" />
+          <rect x="6.25" y="11.5" width="3.5" height="3.5" rx="0.5" />
+          <rect x="11.5" y="11.5" width="3.5" height="3.5" rx="0.5" />
+        </svg>
+      </ViewModeButton>
+      <ViewModeButton mode="list" active={value === "list"} onClick={onChange} title="Lista" border>
+        <svg viewBox="0 0 16 16" className="w-4 h-4" fill="currentColor">
+          <rect x="1" y="2"    width="14" height="2.5" rx="1" />
+          <rect x="1" y="6.75" width="14" height="2.5" rx="1" />
+          <rect x="1" y="11.5" width="14" height="2.5" rx="1" />
+        </svg>
+      </ViewModeButton>
+    </div>
+  )
+}
+
+export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFiltersProps) {
   const hasActiveFilters =
     filters.search || filters.lotId || filters.category ||
     filters.carenciaOnly || filters.statusFilter !== "active"
@@ -115,16 +187,6 @@ export function AnimalFilters({ filters, lots, viewMode, onChange, onReset, onVi
           Limpiar
         </Button>
       )}
-
-      <NativeSelect
-        value={viewMode}
-        onChange={(v) => onViewModeChange(v as ViewMode)}
-        className="ml-auto w-32"
-      >
-        <option value="relaxed">Relajado</option>
-        <option value="compacted">Compacto</option>
-        <option value="list">Lista</option>
-      </NativeSelect>
     </div>
   )
 }

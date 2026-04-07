@@ -7,7 +7,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import { useAnimals } from "@/hooks/useAnimals"
 import { useLots } from "@/hooks/useLots"
 import { AnimalCard, LIST_COL_TEMPLATE, LIST_COL_GAP, type ViewMode } from "@/components/animals/AnimalCard"
-import { AnimalFilters, type AnimalFilterState } from "@/components/animals/AnimalFilters"
+import { AnimalFilters, ViewModeToggle, type AnimalFilterState } from "@/components/animals/AnimalFilters"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 
@@ -22,7 +22,7 @@ const DEFAULT_FILTERS: AnimalFilterState = {
 const MODE_CONFIG: Record<ViewMode, { cols: number; rowHeight: number; gap: number }> = {
   relaxed:   { cols: 4, rowHeight: 114, gap: 12 },
   compacted: { cols: 6, rowHeight: 110, gap: 10 },
-  list:      { cols: 1, rowHeight: 68,  gap: 6  },
+  list:      { cols: 1, rowHeight: 56,  gap: 6  },
 }
 
 const VIEW_MODE_KEY = "animals-view-mode"
@@ -100,11 +100,13 @@ export default function AnimalsPage() {
         <AnimalFilters
           filters={filters}
           lots={lots}
-          viewMode={viewMode}
           onChange={setFilters}
           onReset={() => setFilters(DEFAULT_FILTERS)}
-          onViewModeChange={handleViewModeChange}
         />
+      </div>
+
+      <div className="flex justify-end mt-5">
+        <ViewModeToggle value={viewMode} onChange={handleViewModeChange} />
       </div>
 
       {filtered.length === 0 ? (
@@ -119,11 +121,12 @@ export default function AnimalsPage() {
             className="grid items-center border-b border-border bg-muted/40 px-4 py-2.5 text-xs font-semibold text-foreground"
             style={{ gridTemplateColumns: LIST_COL_TEMPLATE, gap: LIST_COL_GAP }}
           >
-            <span />
+            <span>Tag</span>
             <span>Caravana</span>
             <span>Estado</span>
+            <span>Categoría</span>
+            <span>Raza</span>
             <span>Carencia</span>
-            <span>Categoría · Raza</span>
             <span className="text-right">Lote</span>
           </div>
 
