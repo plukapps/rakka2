@@ -10,7 +10,7 @@ interface LotCardProps {
 export function LotCard({ lot }: LotCardProps) {
   return (
     <Link href={`/lots/${lot.id}`}>
-      <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-4 shadow-sm hover:shadow-md hover:border-foreground/20 transition-all cursor-pointer">
+      <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-4  hover:shadow-md hover:border-foreground/20 transition-all cursor-pointer">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-foreground truncate">
