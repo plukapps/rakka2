@@ -27,6 +27,11 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { activityRepository } from "@/lib/repositories/activity"
 import { formatDate, formatCaravana, categoryLabel } from "@/lib/utils"
 import { LotWeightStatsCard } from "@/components/lots/LotWeightStatsCard"
+import { LotPnLCard } from "@/components/financial/LotPnLCard"
+import { AddCostoLoteForm } from "@/components/financial/AddCostoLoteForm"
+import { CostosTable } from "@/components/financial/CostosTable"
+import { useCostosLote } from "@/hooks/useCostosLote"
+import { useLotPnL } from "@/hooks/useLotPnL"
 import { cn } from "@/lib/utils"
 
 export default function LotDetailPage({
@@ -51,6 +56,10 @@ export default function LotDetailPage({
   const [selectedFromLotIds, setSelectedFromLotIds] = useState<Set<string>>(new Set())
   const [showMoveConfirm, setShowMoveConfirm] = useState(false)
   const [showDissolveConfirm, setShowDissolveConfirm] = useState(false)
+  const [showCostoForm, setShowCostoForm] = useState(false)
+
+  const costos = useCostosLote(lotId)
+  const pnl = useLotPnL(lotId, allAnimals)
 
   const lotAnimals = useMemo(
     () => allAnimals.filter((a) => a.lotId === lotId),
@@ -233,6 +242,47 @@ export default function LotDetailPage({
       </Card>
 
       <LotWeightStatsCard animals={lotAnimals} activities={lotActivities} />
+
+      {/* Financiero */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Financiero</CardTitle>
+            {lot.status === "active" && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowCostoForm(!showCostoForm)}
+              >
+                {showCostoForm ? "Cancelar" : "+ Agregar costo"}
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {pnl ? (
+            <LotPnLCard pnl={pnl} />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Sin datos financieros. Registrá el precio de compra al ingresar animales y agregá costos al lote.
+            </p>
+          )}
+          {showCostoForm && lot.status === "active" && (
+            <AddCostoLoteForm
+              loteId={lotId}
+              onClose={() => setShowCostoForm(false)}
+            />
+          )}
+          {costos.length > 0 && (
+            <div className="pt-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                Historial de costos
+              </p>
+              <CostosTable costos={costos} showCabezas />
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Animals in lot */}
       <Card>

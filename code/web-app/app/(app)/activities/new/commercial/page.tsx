@@ -133,11 +133,12 @@ export default function CommercialActivityPage() {
           timestamp: ts,
         })
 
-        // Exit animal
+        // Exit animal — capture exitLotId before clearing lotId
         animalRepository.update(estId, animal.id, {
           status: "exited",
           exitDate: ts,
           exitType: subtype,
+          exitLotId: animal.lotId,
           lotId: null,
         })
 

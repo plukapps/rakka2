@@ -13,6 +13,7 @@ import type {
   TraceabilityEvent,
   Alert,
 } from "@/lib/types";
+import type { CostoLote, CostoEstablecimiento } from "@/lib/financial-types";
 import {
   MOCK_ESTABLISHMENTS,
   MOCK_ANIMALS,
@@ -21,6 +22,8 @@ import {
   MOCK_READING_ACTIVITIES,
   MOCK_TRACEABILITY,
   MOCK_ALERTS,
+  MOCK_COSTS_LOT,
+  MOCK_COSTS_EST,
 } from "@/lib/mock/data";
 
 // Deep clone to avoid mutation of seed data
@@ -39,6 +42,8 @@ class MockStore {
   private activities: Map<string, Activity> = new Map(); // key: `${estId}/${activityId}`
   private traceability: Map<string, TraceabilityEvent> = new Map(); // key: `${estId}/${animalId}/${eventId}`
   private alerts: Map<string, Alert> = new Map(); // key: `${estId}/${alertId}`
+  private costsLot: Map<string, CostoLote> = new Map(); // key: `${estId}/${costId}`
+  private costsEst: Map<string, CostoEstablecimiento> = new Map(); // key: `${estId}/${costId}`
 
   private listeners: Map<string, Set<Listener<unknown>>> = new Map();
 
@@ -64,6 +69,12 @@ class MockStore {
     }
     for (const al of MOCK_ALERTS) {
       this.alerts.set(`${al.estId}/${al.id}`, clone(al));
+    }
+    for (const c of MOCK_COSTS_LOT) {
+      this.costsLot.set(`${c.establecimientoId}/${c.id}`, clone(c));
+    }
+    for (const c of MOCK_COSTS_EST) {
+      this.costsEst.set(`${c.establecimientoId}/${c.id}`, clone(c));
     }
   }
 
@@ -176,6 +187,32 @@ class MockStore {
   setAlert(alert: Alert) {
     this.alerts.set(`${alert.estId}/${alert.id}`, clone(alert));
     this.emit(`alerts/${alert.estId}`);
+  }
+
+  // ---- Costs Lot ----
+
+  getCostsLot(estId: string): CostoLote[] {
+    return Array.from(this.costsLot.values()).filter(
+      (c) => c.establecimientoId === estId
+    );
+  }
+
+  setCostoLote(costo: CostoLote) {
+    this.costsLot.set(`${costo.establecimientoId}/${costo.id}`, clone(costo));
+    this.emit(`costs_lot/${costo.establecimientoId}`);
+  }
+
+  // ---- Costs Establishment ----
+
+  getCostsEst(estId: string): CostoEstablecimiento[] {
+    return Array.from(this.costsEst.values()).filter(
+      (c) => c.establecimientoId === estId
+    );
+  }
+
+  setCostoEst(costo: CostoEstablecimiento) {
+    this.costsEst.set(`${costo.establecimientoId}/${costo.id}`, clone(costo));
+    this.emit(`costs_est/${costo.establecimientoId}`);
   }
 }
 

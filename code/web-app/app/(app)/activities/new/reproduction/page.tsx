@@ -180,6 +180,7 @@ export default function ReproductionActivityPage() {
           origin: "Nacimiento en establecimiento",
           entryType: "birth",
           lotId: mother?.lotId ?? null,
+          purchasePriceUsd: null,
           createdBy: user.uid,
         })
       }

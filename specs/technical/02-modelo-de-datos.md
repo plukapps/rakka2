@@ -13,7 +13,9 @@ Firebase Realtime Database almacena todo como un árbol JSON. La raíz del árbo
 ├── lot_animals/          ← índice de denormalización
 ├── activities/           ← incluye lecturas RFID como type: "reading"
 ├── traceability/
-└── alerts/
+├── alerts/
+├── costs_lot/            ← costos directos por lote (módulo financiero)
+└── costs_establishment/  ← costos generales por establecimiento (módulo financiero)
 ```
 
 Cada nodo de datos que pertenece a un establecimiento está particionado por `{estId}` como segunda clave, para facilitar las Security Rules y el acceso por establecimiento activo.
@@ -96,6 +98,8 @@ Modos de visualización (solo display, el valor almacenado es siempre el número
   "lastWeightDate": 1712000000000,
   "gdpRecent": 0.85,
   "gdpAccumulated": 0.72,
+  "purchasePriceUsd": 1800.00,
+  "exitLotId": null,
   "createdAt": 1712000000000,
   "updatedAt": 1712000000000
 }
@@ -108,6 +112,8 @@ Modos de visualización (solo display, el valor almacenado es siempre el número
 - `hasActiveCarencia`: campo calculado y persistido para facilitar filtros y alertas sin recalcular en cliente.
 - `carenciaExpiresAt`: timestamp de vencimiento de la carencia más lejana activa. `null` si no tiene carencia activa.
 - `exitType`: `"sale"` | `"dispatch"` | `"death"` | `"transfer"` | `null`
+- `purchasePriceUsd`: precio de compra por cabeza en USD al momento del ingreso. `null` si no se registró o si `entryType !== "purchase"`. Campo inmutable una vez escrito.
+- `exitLotId`: ID del lote en el que estaba el animal justo antes de egresar. `null` si no estaba en ningún lote al momento del egreso. Requerido para calcular el P&L del lote con animales ya egresados.
 
 - `lastWeight`: último peso registrado (kg). `null` si nunca se pesó individualmente.
 - `lastWeightDate`: timestamp del último pesaje individual.
@@ -248,6 +254,49 @@ Todas las actividades comparten este nodo, diferenciadas por `type`. Ver tipos e
   "title": "Revisión veterinaria general"
 }
 ```
+
+---
+
+### `/costs_lot/{estId}/{costId}`
+
+```json
+{
+  "id": "cl_abc123",
+  "establecimientoId": "est_001",
+  "loteId": "lot_001",
+  "categoria": "alimentacion",
+  "montoUsd": 1200.00,
+  "cabezasAlMomento": 18,
+  "fecha": 1712000000000,
+  "descripcion": "Fardos de alfalfa — marzo",
+  "createdAt": 1712000000000,
+  "createdBy": "uid_usuario"
+}
+```
+
+- `categoria`: `"alimentacion"` | `"sanidad"` | `"otro"`
+- `cabezasAlMomento`: snapshot del `animalCount` del lote al momento de registrar el costo. Se congela al guardar.
+- Solo escritura de cliente (CREATE). No se edita ni elimina en MVP.
+
+---
+
+### `/costs_establishment/{estId}/{costId}`
+
+```json
+{
+  "id": "ce_xyz789",
+  "establecimientoId": "est_001",
+  "categoria": "mano_de_obra",
+  "montoUsd": 850.00,
+  "fecha": 1712000000000,
+  "descripcion": "Jornales marzo 2026",
+  "createdAt": 1712000000000,
+  "createdBy": "uid_usuario"
+}
+```
+
+- `categoria`: `"mano_de_obra"` | `"mantenimiento"` | `"otro"`
+- Solo escritura de cliente (CREATE). No se edita ni elimina en MVP.
 
 ---
 

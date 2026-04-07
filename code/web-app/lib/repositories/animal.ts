@@ -22,6 +22,7 @@ export interface CreateAnimalInput {
   origin: string;
   entryType: Animal["entryType"];
   lotId: string | null;
+  purchasePriceUsd: number | null;
   createdBy: string;
 }
 
@@ -71,6 +72,8 @@ export const animalRepository = {
       lastWeightDate: null,
       gdpRecent: null,
       gdpAccumulated: null,
+      purchasePriceUsd: input.entryType === "purchase" ? (input.purchasePriceUsd ?? null) : null,
+      exitLotId: null,
       createdAt: ts,
       updatedAt: ts,
     };
@@ -99,6 +102,7 @@ export const animalRepository = {
       exitType: "death",
       exitDate: input.exitDate,
       exitNotes: input.exitNotes,
+      exitLotId: previousLotId,
       lotId: null,
     });
 

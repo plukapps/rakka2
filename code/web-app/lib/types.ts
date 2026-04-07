@@ -54,6 +54,8 @@ export interface Animal {
   lastWeightDate: number | null;
   gdpRecent: number | null;
   gdpAccumulated: number | null;
+  purchasePriceUsd: number | null;
+  exitLotId: string | null;
   createdAt: number;
   updatedAt: number;
 }

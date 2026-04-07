@@ -78,6 +78,7 @@ interface IndividualFormValues {
   birthDate: string
   entryType: AnimalEntryType
   entryWeight: string
+  purchasePriceUsd: string
   origin: string
   lotId: string
 }
@@ -89,6 +90,7 @@ interface CommonData {
   breed: string
   origin: string
   lotId: string
+  purchasePriceUsd: string
 }
 
 interface AnimalRowOverride {
@@ -156,10 +158,13 @@ function IndividualForm({
     register,
     handleSubmit,
     setError,
+    watch,
     formState: { errors },
   } = useForm<IndividualFormValues>({
     defaultValues: { category: "vaca", sex: "female", entryType: "purchase" },
   })
+
+  const watchedEntryType = watch("entryType")
 
   async function onSubmit(data: IndividualFormValues) {
     if (!animalRepository.isCaravanaUnique(estId, data.caravana)) {
@@ -179,6 +184,9 @@ function IndividualForm({
         origin: data.origin,
         entryType: data.entryType,
         lotId: data.lotId || null,
+        purchasePriceUsd: data.entryType === "purchase" && data.purchasePriceUsd
+          ? parseFloat(data.purchasePriceUsd)
+          : null,
         createdBy: userId,
       })
       router.push(`/animals/${animal.id}`)
@@ -250,6 +258,21 @@ function IndividualForm({
             <Input type="number" step="0.1" placeholder="280" {...register("entryWeight")} />
           </FormField>
         </div>
+
+        {watchedEntryType === "purchase" && (
+          <FormField
+            label="Precio de compra (USD/cabeza)"
+            hint="Precio pagado por cabeza en USD"
+          >
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+              {...register("purchasePriceUsd")}
+            />
+          </FormField>
+        )}
 
         <FormField label="Origen / Procedencia">
           <Input placeholder="Establecimiento Los Pinos" {...register("origin")} />
@@ -382,6 +405,7 @@ function RfidReview({
     breed: "",
     origin: "",
     lotId: "",
+    purchasePriceUsd: "",
   })
 
   const unknownCaravanas = reading.unknownCaravanas ?? []
@@ -445,6 +469,9 @@ function RfidReview({
           birthDate: null,
           entryWeight: null,
           lotId: common.lotId || null,
+          purchasePriceUsd: common.entryType === "purchase" && common.purchasePriceUsd
+            ? parseFloat(common.purchasePriceUsd)
+            : null,
           createdBy: userId,
         })
       }
@@ -483,6 +510,23 @@ function RfidReview({
               <option value="transfer">Transferencia</option>
             </NativeSelect>
           </FormField>
+          {common.entryType === "purchase" ? (
+            <FormField label="Precio compra (USD/cab.)">
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={common.purchasePriceUsd}
+                onChange={(e) => setCommon((p) => ({ ...p, purchasePriceUsd: e.target.value }))}
+              />
+            </FormField>
+          ) : (
+            <div />
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
           <FormField label="Categoría">
             <NativeSelect
               value={common.category}
