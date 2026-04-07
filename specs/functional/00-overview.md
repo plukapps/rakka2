@@ -36,6 +36,10 @@ Un usuario puede crear y gestionar múltiples establecimientos. Dentro de cada e
 | **Trazabilidad** | Línea de vida completa de un animal: secuencia cronológica de todos los eventos registrados desde su ingreso hasta su egreso (o hasta el momento actual). |
 | **Alerta** | Notificación generada por el sistema ante una condición de negocio que requiere atención: carencia próxima a vencer, animal bloqueado para venta, etc. |
 | **Establecimiento activo** | El establecimiento seleccionado por el usuario como contexto de trabajo. Toda la pantalla opera sobre este establecimiento hasta que el usuario cambie. |
+| **Costo directo de lote** | Gasto económico asociado a un lote (alimentación, sanidad, otros). Se registra en USD en el módulo financiero. |
+| **Costo de establecimiento** | Gasto general no atribuible a un lote específico (mano de obra, mantenimiento). Se registra en USD a nivel de establecimiento. |
+| **P&L del lote** | Resultado económico de un lote: ingresos por ventas menos inversión en compra y costos directos. Incluye animales actuales y egresados del lote. |
+| **Margen** | Diferencia entre el precio de venta y el costo total (compra + costos asignados) de un animal o lote. Solo calculable para animales ya vendidos. |
 
 ---
 
@@ -51,7 +55,8 @@ Usuario
         │   ├── participan en → Actividades comerciales
         │   └── tienen → Línea de trazabilidad (todos los eventos)
         └── Lotes (agrupaciones dinámicas de animales)
-            └── sobre los que se ejecutan → Actividades (se aplican a cada animal del lote)
+            ├── sobre los que se ejecutan → Actividades (se aplican a cada animal del lote)
+            └── tienen → Costos directos (alimentación, sanidad, otros) → P&L del lote
 ```
 
 **Relaciones clave:**
@@ -88,6 +93,7 @@ Estas reglas aplican en toda la aplicación, sin excepción:
 - Dashboard y alertas del establecimiento activo
 - Home orientada a gestión
 - Operación offline-first con sincronización
+- Módulo financiero básico: costos por lote, costos de establecimiento, P&L por lote en USD
 
 **Explícitamente fuera del MVP:**
 - Diferenciación de roles y permisos

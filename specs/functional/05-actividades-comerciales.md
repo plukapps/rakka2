@@ -22,8 +22,8 @@
 | Tipo | Enum | Sí | `venta` o `despacho` |
 | Comprador / Destinatario | Texto libre | No para despacho, Sí para venta | Nombre de la persona o empresa |
 | Destino | Texto libre | No | Localidad, frigorífico, feria, etc. |
-| Precio por cabeza | Número | No | Precio individual en moneda local |
-| Precio total | Número | No | Calculado automáticamente si se ingresa precio por cabeza, o ingresado directamente |
+| Precio por cabeza | Número (USD) | No | Precio individual en USD. El módulo financiero (`15-modulo-financiero.md`) lo usa para calcular ingresos en el P&L del lote. |
+| Precio total | Número (USD) | No | Calculado automáticamente si se ingresa precio por cabeza, o ingresado directamente. |
 | Fecha de la operación | Fecha | Sí | Por defecto: fecha actual |
 | Observaciones | Texto libre | No | Notas adicionales sobre la operación |
 
@@ -105,4 +105,4 @@ El establecimiento mantiene un registro de todas las operaciones comerciales rea
 - Integración con sistemas contables
 - Registro de remitos o guías de traslado
 - Historial de precios de mercado o referencia de precios
-- Operaciones de compra (ingreso comercial con precio): en MVP el ingreso es por formulario de animal, sin flujo de compra estructurado
+- Flujo de compra estructurado como actividad: el precio de compra se registra en el formulario de ingreso del animal (ver `02-animales.md` y `15-modulo-financiero.md`), no como actividad comercial

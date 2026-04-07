@@ -18,6 +18,7 @@
 | Fecha de ingreso | Fecha | Sí (automático) | Generada al registrar el ingreso |
 | Estado | Enum | Sí (automático) | `activo` o `egresado` |
 | Lote actual | Referencia a Lote | No | Puede no tener lote asignado |
+| Precio de compra | Número (USD/cabeza) | No | Precio pagado por cabeza al ingresar. En USD. Inmutable una vez guardado. Ver módulo financiero (`15-modulo-financiero.md`). |
 
 ---
 
@@ -30,6 +31,7 @@ El sistema ofrece dos métodos de ingreso. El usuario elige el método al inicia
 - El usuario completa el formulario de ingreso con caravana (obligatoria) y datos opcionales.
 - **Validación**: la caravana no puede existir ya en el establecimiento activo (incluyendo animales egresados: una caravana nunca se reutiliza).
 - El usuario indica el motivo de ingreso: `compra`, `nacimiento`, `transferencia desde otro establecimiento`.
+- El usuario puede registrar opcionalmente el precio de compra en USD por cabeza. Solo aplica cuando el motivo es `compra`. Si el motivo es `nacimiento` o `transferencia`, el campo no aparece.
 - Al confirmar, se crea el animal en estado `activo` y se genera el primer evento de trazabilidad: `ingreso`.
 
 ### Ingreso desde lectura RFID
@@ -40,10 +42,11 @@ Permite registrar como stock un grupo de animales a partir de una actividad de l
 1. El usuario selecciona una actividad de tipo `reading` registrada previamente.
 2. El sistema muestra únicamente las caravanas **desconocidas** (`unknownCaravanas`) de esa actividad (las reconocidas ya están en el sistema).
 3. El usuario completa los **atributos comunes** del grupo: tipo de ingreso, fecha, procedencia, categoría, raza (todos opcionales excepto tipo y fecha). Estos valores se aplican a todos los animales.
-4. Si algún animal difiere del grupo, el usuario puede sobrescribir sus atributos individualmente.
-5. El usuario puede excluir caravanas de la lista antes de confirmar.
-6. Opcionalmente, puede asignar todos los animales ingresados a un lote (nuevo o existente).
-7. Al confirmar, se crean todos los animales en estado `activo` y se genera el evento de trazabilidad `ingreso` para cada uno.
+4. El usuario puede ingresar un precio de compra en USD común para todo el grupo (opcional). Si aplica, puede sobrescribir por animal.
+5. Si algún animal difiere del grupo, el usuario puede sobrescribir sus atributos individualmente.
+6. El usuario puede excluir caravanas de la lista antes de confirmar.
+7. Opcionalmente, puede asignar todos los animales ingresados a un lote (nuevo o existente).
+8. Al confirmar, se crean todos los animales en estado `activo` y se genera el evento de trazabilidad `ingreso` para cada uno.
 
 **Validaciones:**
 - Las caravanas no pueden existir ya en el establecimiento (misma regla que el ingreso individual).
