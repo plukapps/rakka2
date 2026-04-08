@@ -12,14 +12,19 @@ import { formatDate, activityTypeLabel } from "@/lib/utils"
 
 function activityTitle(act: Activity): string {
   switch (act.type) {
-    case "reading":
-      return act.fileName ?? `${(act.animalIds.length + (act.unknownCaravanas?.length ?? 0))} caravanas`
-    case "sanitary":
-      return act.product || "Actividad sanitaria"
+    case "reading": {
+      const count = act.animalIds.length + (act.unknownCaravanas?.length ?? 0)
+      const base = `Lectura ${count} caravana${count !== 1 ? "s" : ""}`
+      return act.fileName ? `${base} · ${act.fileName}` : base
+    }
+    case "sanitary": {
+      const subtypeLabel = act.subtype === "vaccination" ? "Vacunación" : "Tratamiento"
+      return act.product ? `${subtypeLabel} ${act.product}` : subtypeLabel
+    }
     case "commercial":
       return act.subtype === "sale"
-        ? act.buyer ? `Venta — ${act.buyer}` : "Venta"
-        : act.buyer ? `Despacho — ${act.buyer}` : "Despacho"
+        ? act.buyer ? `Venta ${act.buyer}` : "Venta"
+        : act.buyer ? `Despacho ${act.buyer}` : "Despacho"
     case "field_control": {
       const subtypeLabels: Record<string, string> = {
         weighing: "Pesaje",
@@ -30,6 +35,7 @@ function activityTitle(act: Activity): string {
       }
       const label = subtypeLabels[act.subtype] ?? "Control de campo"
       if (act.subtype === "weighing" && act.weightKg) return `${label} · ${act.weightKg} kg`
+      if (act.result && act.subtype !== "other") return `${label} · ${act.result}`
       return label
     }
     case "movement":

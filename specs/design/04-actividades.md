@@ -48,8 +48,14 @@
   - Movimiento: violeta
   - Reproducción: rosa
   - General: gris
-- **Descripción corta**: generada del tipo + subtipo + producto (si aplica).
-  - Ej: "Vacunación — Ivermectina 1%", "Pesaje", "Venta", "Servicio natural".
+- **Descripción corta**: generada según el tipo de actividad:
+  - Lectura: "Lectura N caravanas · archivo.csv" (archivo) / "Lectura N caravanas" (bluetooth).
+  - Sanitaria: "Vacunación Ivermectina 1%" / "Tratamiento Oxitetraciclina".
+  - Comercial: "Venta Frigorífico Norte" / "Despacho Juan Pérez".
+  - Control de campo: "Pesaje · 380 kg", "Conteo · 145", "Condición corporal · 6", "Revisión de preñez · Positivo".
+  - Movimiento: "Potrero 3 → Potrero 7".
+  - Reproducción: subtipo traducido ("Servicio", "Parto", "Destete", "Diagnóstico de preñez").
+  - General: título libre ingresado por el usuario.
 - **Metadatos**: cantidad de animales, nombre del responsable, fecha relativa.
 - Click en la fila → (si existe) detalle de actividad; si no, sin acción (MVP).
 
