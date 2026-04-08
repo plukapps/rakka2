@@ -42,7 +42,7 @@ function FormField({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex max-w-xs flex-col gap-1">
       <Label>{label}</Label>
       {children}
     </div>
@@ -66,6 +66,7 @@ export default function MovementActivityPage() {
   const [origin, setOrigin] = useState("")
   const [destination, setDestination] = useState("")
   const [destinationEstId, setDestinationEstId] = useState("")
+  const [activityDate, setActivityDate] = useState(new Date().toISOString().slice(0, 10))
   const [notes, setNotes] = useState("")
 
   // Pre-fill from query params
@@ -107,7 +108,7 @@ export default function MovementActivityPage() {
         animalIds: selected.map((a) => a.id),
         selectionMethod,
         unknownCaravanas: [],
-        activityDate: ts,
+        activityDate: new Date(activityDate).getTime(),
         responsible: user.name,
         notes,
         createdBy: user.uid,
@@ -144,23 +145,25 @@ export default function MovementActivityPage() {
 
   return (
     <div className=" space-y-6">
-      <div className="flex items-center gap-2">
+      <div className="flex h-8 items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => router.back()}>← Volver</Button>
         <h1 className="text-lg font-semibold text-foreground">Movimiento</h1>
       </div>
 
       {step === 1 && (
-        <div className="space-y-4 rounded-xl border border-border bg-card p-6">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        <div className="flex min-h-[calc(100dvh-10rem)] flex-col rounded-xl border border-border bg-card p-6">
+          <p className="pb-4 mb-[50px] border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
             Paso 1: Seleccionar animales
           </p>
+          <div className="flex-1 py-4">
           <AnimalSelector
             estId={estId}
             selected={selected}
             onChange={setSelected}
             onMethodChange={setSelectionMethod}
           />
-          <div className="flex justify-end pt-2">
+          </div>
+          <div className="flex justify-end border-t border-border pt-4 mt-auto">
             <Button onClick={() => setStep(2)} disabled={selected.length === 0}>
               Continuar ({selected.length})
             </Button>
@@ -169,68 +172,72 @@ export default function MovementActivityPage() {
       )}
 
       {step === 2 && (
-        <div className="space-y-4 rounded-xl border border-border bg-card p-6">
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className="text-xs text-primary hover:underline"
-          >
-            ← Cambiar seleccion ({selected.length} animales)
-          </button>
-
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        <div className="flex min-h-[500px] flex-col rounded-xl border border-border bg-card p-6">
+          <p className="pb-4 mb-[50px] border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
             Paso 2: Datos del movimiento
           </p>
-
-          <FormField label="Tipo de movimiento">
-            <NativeSelect value={subtype} onChange={(e) => setSubtype(e.target.value as MovementSubtype)}>
-              <option value="paddock_move">Cambio de potrero</option>
-              <option value="field_transfer">Traslado entre campos propios</option>
-              <option value="external_transfer">Traslado externo</option>
-            </NativeSelect>
-          </FormField>
-
-          <FormField label="Origen">
-            <Input value={origin} onChange={(e) => setOrigin(e.target.value)} placeholder="Potrero / campo de origen" />
-          </FormField>
-
-          {subtype === "field_transfer" ? (
-            <FormField label="Establecimiento destino">
-              {otherEstablishments.length > 0 ? (
-                <NativeSelect
-                  value={destinationEstId}
-                  onChange={(e) => setDestinationEstId(e.target.value)}
-                >
-                  <option value="">Seleccionar establecimiento...</option>
-                  {otherEstablishments.map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.name}
-                    </option>
-                  ))}
+          <div className="flex-1 grid grid-cols-2 gap-8 py-4">
+            <div className="space-y-4">
+              <p className="h-5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Detalle del movimiento
+              </p>
+              <FormField label="Tipo de movimiento">
+                <NativeSelect value={subtype} onChange={(e) => setSubtype(e.target.value as MovementSubtype)}>
+                  <option value="paddock_move">Cambio de potrero</option>
+                  <option value="field_transfer">Traslado entre campos propios</option>
+                  <option value="external_transfer">Traslado externo</option>
                 </NativeSelect>
+              </FormField>
+              <FormField label="Origen *">
+                <Input value={origin} onChange={(e) => setOrigin(e.target.value)} placeholder="Potrero / campo de origen" />
+              </FormField>
+              {subtype === "field_transfer" ? (
+                <FormField label="Establecimiento destino *">
+                  {otherEstablishments.length > 0 ? (
+                    <NativeSelect
+                      value={destinationEstId}
+                      onChange={(e) => setDestinationEstId(e.target.value)}
+                    >
+                      <option value="">Seleccionar establecimiento...</option>
+                      {otherEstablishments.map((e) => (
+                        <option key={e.id} value={e.id}>
+                          {e.name}
+                        </option>
+                      ))}
+                    </NativeSelect>
+                  ) : (
+                    <Input
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      placeholder="Nombre del campo destino"
+                    />
+                  )}
+                </FormField>
               ) : (
-                <Input
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  placeholder="Nombre del campo destino"
-                />
+                <FormField label="Destino *">
+                  <Input value={destination} onChange={(e) => setDestination(e.target.value)} placeholder="Potrero / campo de destino" />
+                </FormField>
               )}
-            </FormField>
-          ) : (
-            <FormField label="Destino">
-              <Input value={destination} onChange={(e) => setDestination(e.target.value)} placeholder="Potrero / campo de destino" />
-            </FormField>
-          )}
+            </div>
 
-          <FormField label="Notas">
-            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Observaciones..." />
-          </FormField>
+            <div className="space-y-4">
+              <p className="h-5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Datos generales
+              </p>
+              <FormField label="Fecha de actividad">
+                <Input type="date" value={activityDate} onChange={(e) => setActivityDate(e.target.value)} />
+              </FormField>
+              <FormField label="Notas">
+                <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Observaciones..." />
+              </FormField>
+            </div>
+          </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-between border-t border-border pt-4 mt-auto">
             <Button variant="outline" type="button" onClick={() => setStep(1)}>
               Atras
             </Button>
-            <Button onClick={handleSubmit} loading={submitting}>
+            <Button onClick={handleSubmit} loading={submitting} disabled={!origin || !(subtype === "field_transfer" ? destinationEstId : destination)}>
               Registrar
             </Button>
           </div>

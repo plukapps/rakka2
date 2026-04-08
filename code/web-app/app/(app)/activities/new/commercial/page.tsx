@@ -44,7 +44,7 @@ function FormField({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex max-w-xs flex-col gap-1">
       <Label>{label}</Label>
       {children}
     </div>
@@ -67,6 +67,7 @@ export default function CommercialActivityPage() {
   const [buyer, setBuyer] = useState("")
   const [destination, setDestination] = useState("")
   const [pricePerHead, setPricePerHead] = useState("")
+  const [activityDate, setActivityDate] = useState(new Date().toISOString().slice(0, 10))
   const [notes, setNotes] = useState("")
 
   // Pre-fill from query params
@@ -107,7 +108,7 @@ export default function CommercialActivityPage() {
         animalIds: selected.map((a) => a.id),
         selectionMethod,
         unknownCaravanas: [],
-        activityDate: ts,
+        activityDate: new Date(activityDate).getTime(),
         responsible: user.name,
         notes,
         createdBy: user.uid,
@@ -176,18 +177,20 @@ export default function CommercialActivityPage() {
 
   return (
     <div className=" space-y-6">
-      <div className="flex items-center gap-2">
+      <div className="flex h-8 items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => router.back()}>← Volver</Button>
         <h1 className="text-lg font-semibold text-foreground">Actividad comercial</h1>
       </div>
 
       {step === 1 && (
-        <div className="space-y-4 rounded-xl border border-border bg-card p-6">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        <div className="flex min-h-[calc(100dvh-10rem)] flex-col rounded-xl border border-border bg-card p-6">
+          <p className="pb-4 mb-[50px] border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
             Paso 1: Seleccionar animales
           </p>
-          <AnimalSelector estId={estId} selected={selected} onChange={setSelected} onMethodChange={setSelectionMethod} />
-          <div className="flex justify-end pt-2">
+          <div className="flex-1 py-4">
+            <AnimalSelector estId={estId} selected={selected} onChange={setSelected} onMethodChange={setSelectionMethod} />
+          </div>
+          <div className="flex justify-end border-t border-border pt-4 mt-auto">
             <Button onClick={() => setStep(2)} disabled={selected.length === 0}>
               Continuar ({selected.length})
             </Button>
@@ -196,18 +199,10 @@ export default function CommercialActivityPage() {
       )}
 
       {step === 2 && (
-        <div className="space-y-4 rounded-xl border border-border bg-card p-6">
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className="text-xs text-primary hover:underline"
-          >
-            ← Cambiar seleccion ({selected.length} animales)
-          </button>
-
+        <div className="flex min-h-[500px] flex-col rounded-xl border border-border bg-card p-6">
           {/* Carencia warning */}
           {animalsWithCarencia.length > 0 && (
-            <div className="rounded-md border border-red-200 bg-red-50 p-3 space-y-2">
+            <div className="rounded-md border border-red-200 bg-red-50 p-3 mb-4 space-y-2">
               <p className="text-xs font-medium text-red-800">
                 {animalsWithCarencia.length} animal{animalsWithCarencia.length !== 1 ? "es" : ""} con carencia activa. Deben ser removidos para continuar.
               </p>
@@ -222,45 +217,56 @@ export default function CommercialActivityPage() {
             </div>
           )}
 
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          <p className="pb-4 mb-[50px] border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
             Paso 2: Datos comerciales
           </p>
-
-          <FormField label="Tipo">
-            <NativeSelect value={subtype} onChange={(e) => setSubtype(e.target.value as CommercialSubtype)}>
-              <option value="sale">Venta</option>
-              <option value="dispatch">Despacho</option>
-            </NativeSelect>
-          </FormField>
-
-          <FormField label="Comprador">
-            <Input value={buyer} onChange={(e) => setBuyer(e.target.value)} placeholder="Nombre del comprador" />
-          </FormField>
-
-          <FormField label="Destino">
-            <Input value={destination} onChange={(e) => setDestination(e.target.value)} placeholder="Destino" />
-          </FormField>
-
-          <FormField label="Precio por cabeza">
-            <Input
-              type="number"
-              step="0.01"
-              value={pricePerHead}
-              onChange={(e) => setPricePerHead(e.target.value)}
-              placeholder="0.00"
-            />
-            {totalPrice !== null && (
-              <p className="text-xs text-muted-foreground">
-                Total: ${totalPrice.toLocaleString("es-AR", { minimumFractionDigits: 2 })} ({selected.length} cabezas)
+          <div className="flex-1 grid grid-cols-2 gap-8 py-4">
+            <div className="space-y-4">
+              <p className="h-5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Detalle comercial
               </p>
-            )}
-          </FormField>
+              <FormField label="Tipo">
+                <NativeSelect value={subtype} onChange={(e) => setSubtype(e.target.value as CommercialSubtype)}>
+                  <option value="sale">Venta</option>
+                  <option value="dispatch">Despacho</option>
+                </NativeSelect>
+              </FormField>
+              <FormField label="Comprador">
+                <Input value={buyer} onChange={(e) => setBuyer(e.target.value)} placeholder="Nombre del comprador" />
+              </FormField>
+              <FormField label="Destino">
+                <Input value={destination} onChange={(e) => setDestination(e.target.value)} placeholder="Destino" />
+              </FormField>
+              <FormField label="Precio por cabeza">
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={pricePerHead}
+                  onChange={(e) => setPricePerHead(e.target.value)}
+                  placeholder="0.00"
+                />
+                {totalPrice !== null && (
+                  <p className="text-xs text-muted-foreground">
+                    Total: ${totalPrice.toLocaleString("es-AR", { minimumFractionDigits: 2 })} ({selected.length} cabezas)
+                  </p>
+                )}
+              </FormField>
+            </div>
 
-          <FormField label="Notas">
-            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Observaciones..." />
-          </FormField>
+            <div className="space-y-4">
+              <p className="h-5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Datos generales
+              </p>
+              <FormField label="Fecha de actividad">
+                <Input type="date" value={activityDate} onChange={(e) => setActivityDate(e.target.value)} />
+              </FormField>
+              <FormField label="Notas">
+                <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Observaciones..." />
+              </FormField>
+            </div>
+          </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-between border-t border-border pt-4 mt-auto">
             <Button variant="outline" type="button" onClick={() => setStep(1)}>
               Atras
             </Button>

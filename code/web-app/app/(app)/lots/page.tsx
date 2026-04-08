@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAllLots } from "@/hooks/useLots"
 import { useAnimals } from "@/hooks/useAnimals"
 import { LotCard } from "@/components/lots/LotCard"
@@ -11,10 +12,22 @@ import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
 
 export default function LotsPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const allLots = useAllLots()
   const animals = useAnimals()
   const [search, setSearch] = useState("")
   const [showDissolved, setShowDissolved] = useState(false)
+  const [createdLot, setCreatedLot] = useState<{ id: string; name: string } | null>(null)
+
+  useEffect(() => {
+    const id = searchParams.get("created")
+    const name = searchParams.get("name")
+    if (id && name) {
+      setCreatedLot({ id, name })
+      router.replace("/lots")
+    }
+  }, [searchParams, router])
 
   const sinLoteCount = useMemo(
     () => animals.filter((a) => a.status === "active" && a.lotId === null).length,
@@ -98,6 +111,26 @@ export default function LotsPage() {
           filtered.map((lot) => <LotCard key={lot.id} lot={lot} />)
         )}
       </div>
+
+      {createdLot && (
+        <div className="fixed bottom-6 left-1/2 z-50 w-full max-w-lg -translate-x-1/2">
+          <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 shadow-lg">
+            <span className="text-sm text-emerald-800">
+              Lote &quot;{createdLot.name}&quot; creado exitosamente
+            </span>
+            <div className="flex items-center gap-2">
+              <Link href={`/lots/${createdLot.id}`}>
+                <Button size="sm" variant="outline">Ver</Button>
+              </Link>
+              <button onClick={() => setCreatedLot(null)} className="rounded-full p-1 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-800">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

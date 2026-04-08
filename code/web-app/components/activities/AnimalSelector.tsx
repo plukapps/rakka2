@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn, formatCaravana, categoryLabel, carenciaLabel, parseRfidLineWithWeight } from "@/lib/utils"
 import { useLots } from "@/hooks/useLots"
+import { Upload, X } from "lucide-react"
 
 type Tab = "individual" | "lot" | "rfid_file" | "rfid_bluetooth"
 
@@ -47,14 +48,72 @@ function NativeSelect({
 const TABS: { key: Tab; label: string }[] = [
   { key: "individual", label: "Individual" },
   { key: "lot", label: "Por lote" },
-  { key: "rfid_file", label: "Archivo RFID" },
-  { key: "rfid_bluetooth", label: "Bluetooth RFID" },
+  { key: "rfid_file", label: "Lectura desde archivo" },
+  { key: "rfid_bluetooth", label: "Lectura con Bastón" },
 ]
 
 const RFID_TABS: { key: Tab; label: string }[] = [
-  { key: "rfid_file", label: "Archivo RFID" },
-  { key: "rfid_bluetooth", label: "Bluetooth RFID" },
+  { key: "rfid_file", label: "Lectura desde archivo" },
+  { key: "rfid_bluetooth", label: "Lectura con Bastón" },
 ]
+
+// ---- Animal Detail Modal ----
+
+function AnimalDetailModal({
+  animal,
+  onClose,
+}: {
+  animal: Animal
+  onClose: () => void
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div
+        className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-lg space-y-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">Detalle del animal</h3>
+          <button type="button" onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground">
+            Cerrar
+          </button>
+        </div>
+        <div className="flex justify-center">
+          <TagView caravana={animal.caravana} size="lg" />
+        </div>
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <p className="text-muted-foreground">Caravana</p>
+            <p className="font-medium">{formatCaravana(animal.caravana, "full")}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Categoría</p>
+            <p className="font-medium">{categoryLabel(animal.category)}</p>
+          </div>
+          {animal.breed && (
+            <div>
+              <p className="text-muted-foreground">Raza</p>
+              <p className="font-medium">{animal.breed}</p>
+            </div>
+          )}
+          {animal.sex && (
+            <div>
+              <p className="text-muted-foreground">Sexo</p>
+              <p className="font-medium">{animal.sex === "male" ? "Macho" : "Hembra"}</p>
+            </div>
+          )}
+          {animal.hasActiveCarencia && (
+            <div className="col-span-2">
+              <StatusBadge variant="warning">
+                {carenciaLabel(animal.carenciaExpiresAt)}
+              </StatusBadge>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function AnimalSelector({
   estId,
@@ -69,6 +128,7 @@ export function AnimalSelector({
 }: AnimalSelectorProps) {
   const [tab, setTab] = useState<Tab>(rfidOnly ? "rfid_file" : "individual")
   const [allAnimals, setAllAnimals] = useState<Animal[]>([])
+  const [detailAnimal, setDetailAnimal] = useState<Animal | null>(null)
   const lots = useLots()
 
   function handleTabChange(newTab: Tab) {
@@ -106,16 +166,16 @@ export function AnimalSelector({
   return (
     <div className="space-y-4">
       {/* Tab bar */}
-      <div className="flex gap-1 rounded-lg bg-muted p-1">
+      <div className="inline-flex gap-1 rounded-xl bg-muted p-1">
         {tabList.map((t) => (
           <button
             key={t.key}
             type="button"
             className={cn(
-              "flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+              "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
               tab === t.key
                 ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-foreground/60 hover:text-foreground"
             )}
             onClick={() => handleTabChange(t.key)}
           >
@@ -138,41 +198,45 @@ export function AnimalSelector({
         <BluetoothTab animals={available} selected={selected} onAdd={addAnimal} />
       )}
 
-      {/* Selected animals list */}
+      {/* Selected animals grid */}
       {selected.length > 0 && (
         <div className="space-y-2">
           <Label>Seleccionados ({selected.length})</Label>
-          <div className="max-h-64 space-y-1 overflow-y-auto rounded-lg border border-border p-2">
-            {selected.map((animal) => (
-              <div
-                key={animal.id}
-                className="flex items-center justify-between rounded-md bg-muted/50 px-2 py-1.5"
-              >
-                <div className="flex items-center gap-2">
-                  <TagView caravana={animal.caravana} size="sm" />
-                  <div className="text-xs">
-                    <span className="font-medium">{categoryLabel(animal.category)}</span>
-                    {animal.breed && (
-                      <span className="text-muted-foreground"> - {animal.breed}</span>
-                    )}
-                  </div>
-                  {animal.hasActiveCarencia && (
-                    <StatusBadge variant="warning">
-                      {carenciaLabel(animal.carenciaExpiresAt)}
-                    </StatusBadge>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeAnimal(animal.id)}
-                  className="ml-2 text-xs text-muted-foreground hover:text-destructive"
+          <div className="max-h-64 overflow-y-auto rounded-lg border border-border p-2">
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
+              {selected.map((animal) => (
+                <div
+                  key={animal.id}
+                  className="group relative flex items-center gap-1.5 rounded-md bg-muted/50 px-2 py-1.5"
                 >
-                  x
-                </button>
-              </div>
-            ))}
+                  <button
+                    type="button"
+                    onClick={() => setDetailAnimal(animal)}
+                    className="shrink-0 cursor-pointer"
+                  >
+                    <TagView caravana={animal.caravana} size="sm" />
+                  </button>
+                  <span className="truncate text-xs font-medium">{categoryLabel(animal.category)}</span>
+                  {animal.hasActiveCarencia && (
+                    <StatusBadge variant="warning">!</StatusBadge>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeAnimal(animal.id)}
+                    className="ml-auto shrink-0 rounded-full p-0.5 text-muted-foreground/40 hover:text-muted-foreground"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+      )}
+
+      {/* Detail modal */}
+      {detailAnimal && (
+        <AnimalDetailModal animal={detailAnimal} onClose={() => setDetailAnimal(null)} />
       )}
     </div>
   )
@@ -202,6 +266,7 @@ function IndividualTab({
   return (
     <div className="space-y-2">
       <Input
+        className="max-w-xs"
         placeholder="Buscar por caravana..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -257,7 +322,7 @@ function LotTab({
 
   return (
     <div className="space-y-2">
-      <NativeSelect value={lotId} onChange={(e) => handleSelect(e.target.value)}>
+      <NativeSelect className="max-w-xs" value={lotId} onChange={(e) => handleSelect(e.target.value)}>
         <option value="">Seleccionar lote...</option>
         {lots.map((l) => (
           <option key={l.id} value={l.id}>
@@ -297,6 +362,7 @@ function RfidFileTab({
   const [notInStock, setNotInStock] = useState<string[]>([])
   const [totalRead, setTotalRead] = useState(0)
   const [fileName, setFileName] = useState("")
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -345,15 +411,48 @@ function RfidFileTab({
 
   return (
     <div className="space-y-3">
-      <Input type="file" accept=".txt,.csv" onChange={handleFile} />
-
-      {totalRead > 0 && (
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".txt,.csv"
+        onChange={handleFile}
+        className="hidden"
+      />
+      {!fileName ? (
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="flex w-full max-w-sm flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border px-4 py-8 text-center transition-colors hover:border-primary/40 hover:bg-muted/30"
+        >
+          <Upload className="h-8 w-8 text-muted-foreground/60" />
+          <span className="text-sm font-medium text-foreground">Seleccionar archivo</span>
+          <span className="text-xs text-muted-foreground">Formatos aceptados: .txt, .csv</span>
+        </button>
+      ) : (
         <div className="space-y-2">
           <div className="rounded-lg border border-border p-3 space-y-1">
             <p className="text-sm font-medium text-foreground">
               Lectura exitosa — {totalRead} caravana{totalRead !== 1 ? "s" : ""} leída{totalRead !== 1 ? "s" : ""}
             </p>
-            <p className="text-xs text-muted-foreground">{fileName}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-muted-foreground">{fileName}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setFileName("")
+                  setTotalRead(0)
+                  setInStock([])
+                  setNotInStock([])
+                  onChange([])
+                  onUnrecognized?.([])
+                  onFileName?.(null)
+                  if (fileInputRef.current) fileInputRef.current.value = ""
+                }}
+                className="text-xs text-primary hover:underline"
+              >
+                Cambiar archivo
+              </button>
+            </div>
           </div>
 
           {inStock.length > 0 && (

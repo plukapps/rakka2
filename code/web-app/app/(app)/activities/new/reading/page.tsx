@@ -21,7 +21,7 @@ function FormField({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex max-w-xs flex-col gap-1">
       <Label>{label}</Label>
       {children}
     </div>
@@ -37,6 +37,7 @@ export default function ReadingActivityPage() {
   const [unknownCaravanas, setUnknownCaravanas] = useState<string[]>([])
   const [selectionMethod, setSelectionMethod] = useState<SelectionMethod>("rfid_file")
   const [fileName, setFileName] = useState<string | null>(null)
+  const [activityDate, setActivityDate] = useState(new Date().toISOString().slice(0, 10))
   const [responsible, setResponsible] = useState("")
   const [notes, setNotes] = useState("")
   const [submitting, setSubmitting] = useState(false)
@@ -55,7 +56,7 @@ export default function ReadingActivityPage() {
         selectionMethod,
         unknownCaravanas,
         fileName: fileName || undefined,
-        activityDate: ts,
+        activityDate: new Date(activityDate).getTime(),
         responsible: responsible || user.name,
         notes,
         createdBy: user.uid,
@@ -85,43 +86,52 @@ export default function ReadingActivityPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
+      <div className="flex h-8 items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => router.back()}>
           &larr; Volver
         </Button>
         <h1 className="text-lg font-semibold text-foreground">Lectura RFID</h1>
       </div>
 
-      <div className="space-y-4 rounded-xl border border-border bg-card p-6">
-        <AnimalSelector
-          estId={estId}
-          selected={selected}
-          onChange={setSelected}
-          onUnrecognized={setUnknownCaravanas}
-          onMethodChange={setSelectionMethod}
-          onFileName={setFileName}
-          rfidOnly
-        />
+      <div className="flex min-h-[calc(100dvh-10rem)] flex-col rounded-xl border border-border bg-card p-6">
+        <p className="pb-4 mb-[50px] border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
+          Lectura RFID
+        </p>
+        <div className="flex-1 space-y-4">
+          <AnimalSelector
+            estId={estId}
+            selected={selected}
+            onChange={setSelected}
+            onUnrecognized={setUnknownCaravanas}
+            onMethodChange={setSelectionMethod}
+            onFileName={setFileName}
+            rfidOnly
+          />
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField label="Responsable">
-            <Input
-              value={responsible}
-              onChange={(e) => setResponsible(e.target.value)}
-              placeholder={user?.name ?? "Nombre del responsable"}
-            />
-          </FormField>
+          <div className="grid grid-cols-3 gap-4">
+            <FormField label="Fecha de actividad">
+              <Input type="date" value={activityDate} onChange={(e) => setActivityDate(e.target.value)} />
+            </FormField>
 
-          <FormField label="Notas">
-            <Input
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Observaciones..."
-            />
-          </FormField>
+            <FormField label="Responsable">
+              <Input
+                value={responsible}
+                onChange={(e) => setResponsible(e.target.value)}
+                placeholder={user?.name ?? "Nombre del responsable"}
+              />
+            </FormField>
+
+            <FormField label="Notas">
+              <Input
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Observaciones..."
+              />
+            </FormField>
+          </div>
         </div>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-end border-t border-border pt-4 mt-auto">
           <Button
             onClick={handleSubmit}
             loading={submitting}

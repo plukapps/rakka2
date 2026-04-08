@@ -43,7 +43,7 @@ function FormField({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex max-w-xs flex-col gap-1">
       <Label>{label}</Label>
       {children}
     </div>
@@ -73,6 +73,7 @@ export default function FieldControlActivityPage() {
   // Form state
   const [subtype, setSubtype] = useState<FieldControlSubtype>("weighing")
   const [weightsPerAnimal, setWeightsPerAnimal] = useState<Record<string, string>>({})
+  const [activityDate, setActivityDate] = useState(new Date().toISOString().slice(0, 10))
   const [notes, setNotes] = useState("")
 
   // Total active animals in establishment (for count comparison)
@@ -151,7 +152,7 @@ export default function FieldControlActivityPage() {
         animalIds: selected.map((a) => a.id),
         selectionMethod,
         unknownCaravanas: [],
-        activityDate: ts,
+        activityDate: new Date(activityDate).getTime(),
         responsible: user.name,
         notes,
         createdBy: user.uid,
@@ -206,16 +207,17 @@ export default function FieldControlActivityPage() {
 
   return (
     <div className=" space-y-6">
-      <div className="flex items-center gap-2">
+      <div className="flex h-8 items-center gap-2">
         <Button variant="ghost" size="sm" onClick={() => router.back()}>← Volver</Button>
         <h1 className="text-lg font-semibold text-foreground">Control de campo</h1>
       </div>
 
       {step === 1 && (
-        <div className="space-y-4 rounded-xl border border-border bg-card p-6">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        <div className="flex min-h-[calc(100dvh-10rem)] flex-col rounded-xl border border-border bg-card p-6">
+          <p className="pb-4 mb-[50px] border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
             Paso 1: Seleccionar animales
           </p>
+          <div className="flex-1 py-4">
           <AnimalSelector
             estId={estId}
             selected={selected}
@@ -223,7 +225,8 @@ export default function FieldControlActivityPage() {
             onMethodChange={setSelectionMethod}
             onWeightMap={setWeightMap}
           />
-          <div className="flex justify-end pt-2">
+          </div>
+          <div className="flex justify-end border-t border-border pt-4 mt-auto">
             <Button onClick={() => setStep(2)} disabled={selected.length === 0}>
               Continuar ({selected.length})
             </Button>
@@ -232,82 +235,88 @@ export default function FieldControlActivityPage() {
       )}
 
       {step === 2 && (
-        <div className="space-y-4 rounded-xl border border-border bg-card p-6">
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className="text-xs text-primary hover:underline"
-          >
-            ← Cambiar seleccion ({selected.length} animales)
-          </button>
-
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        <div className="flex min-h-[500px] flex-col rounded-xl border border-border bg-card p-6">
+          <p className="pb-4 mb-[50px] border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
             Paso 2: Datos del control
           </p>
+          <div className="flex-1 grid grid-cols-2 gap-8 py-4">
+            <div className="space-y-4">
+              <p className="h-5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Detalle del control
+              </p>
+              <FormField label="Tipo de control">
+                <NativeSelect value={subtype} onChange={(e) => setSubtype(e.target.value as FieldControlSubtype)}>
+                  {Object.entries(SUBTYPE_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>{v}</option>
+                  ))}
+                </NativeSelect>
+              </FormField>
 
-          <FormField label="Tipo de control">
-            <NativeSelect value={subtype} onChange={(e) => setSubtype(e.target.value as FieldControlSubtype)}>
-              {Object.entries(SUBTYPE_LABELS).map(([k, v]) => (
-                <option key={k} value={k}>{v}</option>
-              ))}
-            </NativeSelect>
-          </FormField>
-
-          {subtype === "weighing" && (
-            <div className="space-y-2">
-              <Label>Peso por animal (kg)</Label>
-              {Object.keys(weightMap).length > 0 && (
-                <p className="text-xs text-emerald-700">
-                  Pesos pre-cargados desde archivo RFID
-                </p>
-              )}
-              <div className="max-h-64 overflow-y-auto space-y-1 rounded-lg border border-border p-2">
-                {selected.map((animal) => (
-                  <div key={animal.id} className="flex items-center gap-3 px-1 py-1">
-                    <span className="text-xs font-mono text-muted-foreground w-28 shrink-0">
-                      {formatCaravana(animal.caravana, "serie")}
-                    </span>
-                    <Input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      className="h-7 text-sm"
-                      placeholder="kg"
-                      value={weightsPerAnimal[animal.id] ?? ""}
-                      onChange={(e) =>
-                        setWeightsPerAnimal((prev) => ({
-                          ...prev,
-                          [animal.id]: e.target.value,
-                        }))
-                      }
-                    />
+              {subtype === "weighing" && (
+                <div className="space-y-2">
+                  <Label>Peso por animal (kg)</Label>
+                  {Object.keys(weightMap).length > 0 && (
+                    <p className="text-xs text-emerald-700">
+                      Pesos pre-cargados desde archivo RFID
+                    </p>
+                  )}
+                  <div className="max-h-64 overflow-y-auto space-y-1 rounded-lg border border-border p-2">
+                    {selected.map((animal) => (
+                      <div key={animal.id} className="flex items-center gap-3 px-1 py-1">
+                        <span className="text-xs font-mono text-muted-foreground w-28 shrink-0">
+                          {formatCaravana(animal.caravana, "serie")}
+                        </span>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          className="h-7 text-sm"
+                          placeholder="kg"
+                          value={weightsPerAnimal[animal.id] ?? ""}
+                          onChange={(e) =>
+                            setWeightsPerAnimal((prev) => ({
+                              ...prev,
+                              [animal.id]: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                </div>
+              )}
 
-          {subtype === "count" && (
-            <div className="rounded-md border border-border p-3 space-y-1">
-              <p className="text-sm font-medium text-foreground">
-                {selected.length} animales seleccionados
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Total activos en el establecimiento: {totalActive}
-              </p>
-              {totalActive - selected.length > 0 && (
-                <p className="text-xs text-amber-600">
-                  Diferencia: {totalActive - selected.length} animales no contabilizados
-                </p>
+              {subtype === "count" && (
+                <div className="rounded-md border border-border p-3 space-y-1">
+                  <p className="text-sm font-medium text-foreground">
+                    {selected.length} animales seleccionados
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Total activos en el establecimiento: {totalActive}
+                  </p>
+                  {totalActive - selected.length > 0 && (
+                    <p className="text-xs text-amber-600">
+                      Diferencia: {totalActive - selected.length} animales no contabilizados
+                    </p>
+                  )}
+                </div>
               )}
             </div>
-          )}
 
-          <FormField label="Notas">
-            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Observaciones..." />
-          </FormField>
+            <div className="space-y-4">
+              <p className="h-5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Datos generales
+              </p>
+              <FormField label="Fecha de actividad">
+                <Input type="date" value={activityDate} onChange={(e) => setActivityDate(e.target.value)} />
+              </FormField>
+              <FormField label="Notas">
+                <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Observaciones..." />
+              </FormField>
+            </div>
+          </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-between border-t border-border pt-4 mt-auto">
             <Button variant="outline" type="button" onClick={() => setStep(1)}>
               Atras
             </Button>

@@ -149,20 +149,6 @@ export default function HomePage() {
       {/* Header */}
       <h1 className="text-lg font-semibold text-foreground">{activeEst?.name ?? "Inicio"}</h1>
 
-      {/* Quick access buttons */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {quickActions.map((action) => (
-          <Link key={action.href} href={action.href}>
-            <Card className="cursor-pointer transition-colors hover:bg-muted/50">
-              <CardContent className="flex flex-col items-center gap-2 text-center">
-                <span className="text-muted-foreground">{action.icon}</span>
-                <span className="text-sm font-medium text-foreground">{action.label}</span>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
-
       {/* Global search */}
       <div ref={searchRef} className="relative">
         <Input
@@ -199,6 +185,22 @@ export default function HomePage() {
             )}
           </div>
         )}
+      </div>
+
+      <div className="border-b border-border" />
+
+      {/* Quick access buttons */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {quickActions.map((action) => (
+          <Link key={action.href} href={action.href}>
+            <Card className="cursor-pointer transition-colors hover:bg-muted/50">
+              <CardContent className="flex flex-col items-center gap-2 text-center">
+                <span className="text-muted-foreground">{action.icon}</span>
+                <span className="text-sm font-medium text-foreground">{action.label}</span>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
       </div>
 
       {/* Recent activity */}

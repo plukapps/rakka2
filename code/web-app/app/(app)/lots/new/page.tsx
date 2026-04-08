@@ -152,7 +152,7 @@ export default function NewLotPage() {
         lotRepository.update(estId, lot.id, { animalCount: selectedAnimalIds.size })
       }
 
-      router.push(`/lots/${lot.id}`)
+      router.push(`/lots?created=${lot.id}&name=${encodeURIComponent(data.name)}`)
     } finally {
       setSubmitting(false)
     }

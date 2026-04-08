@@ -26,7 +26,7 @@ function FormField({
 }: {
   label: string
   error?: string
-  hint?: string
+  hint?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
@@ -34,8 +34,42 @@ function FormField({
       <Label>{label}</Label>
       {children}
       {error && <p className="text-xs text-destructive">{error}</p>}
-      {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
+      {hint && !error && <div className="text-xs text-muted-foreground">{hint}</div>}
     </div>
+  )
+}
+
+function getCaravanaHint(value: string): React.ReactNode {
+  const len = value.length
+  const parts = [
+    { label: "País", start: 0, end: 3 },
+    { label: "Ceros", start: 3, end: 6 },
+    { label: "Serie", start: 6, end: 11 },
+    { label: "Número", start: 11, end: 15 },
+  ]
+
+  if (len === 15) {
+    return <span className="text-emerald-600 font-medium">Caravana completa — {value.slice(0, 3)} | {value.slice(3, 6)} | {value.slice(6, 11)} | {value.slice(11, 15)}</span>
+  }
+
+  return (
+    <span className="flex flex-wrap gap-x-1">
+      {parts.map((p, i) => {
+        const isActive = len >= p.start && len < p.end
+        const isFilled = len >= p.end
+        const filledValue = isFilled ? value.slice(p.start, p.end) : (len > p.start ? value.slice(p.start, len) : "")
+        return (
+          <span key={p.label}>
+            <span className={isActive ? "text-foreground font-semibold" : isFilled ? "text-foreground" : ""}>
+              {p.label}
+              {filledValue ? ` (${filledValue})` : ` (${p.end - p.start})`}
+            </span>
+            {i < parts.length - 1 && " + "}
+          </span>
+        )
+      })}
+      <span className="ml-1">{len}/15</span>
+    </span>
   )
 }
 
@@ -165,6 +199,7 @@ function IndividualForm({
   })
 
   const watchedEntryType = watch("entryType")
+  const watchedCaravana = watch("caravana") ?? ""
 
   async function onSubmit(data: IndividualFormValues) {
     if (!animalRepository.isCaravanaUnique(estId, data.caravana)) {
@@ -208,7 +243,7 @@ function IndividualForm({
         <FormField
           label="Caravana *"
           error={errors.caravana?.message}
-          hint="15 dígitos: código país (3) + ceros (3) + serie (5) + número (4). No se puede modificar."
+          hint={getCaravanaHint(watchedCaravana)}
         >
           <Input
             placeholder="858000123456789"
