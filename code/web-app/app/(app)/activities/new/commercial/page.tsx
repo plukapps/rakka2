@@ -184,7 +184,7 @@ export default function CommercialActivityPage() {
 
       {step === 1 && (
         <div className="flex min-h-[calc(100dvh-10rem)] flex-col rounded-xl border border-border bg-card p-6">
-          <p className="pb-4 mb-[50px] border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
+          <p className="pb-4 mb-5 border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
             Paso 1: Seleccionar animales
           </p>
           <div className="flex-1 py-4">
@@ -217,7 +217,7 @@ export default function CommercialActivityPage() {
             </div>
           )}
 
-          <p className="pb-4 mb-[50px] border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
+          <p className="pb-4 mb-5 border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
             Paso 2: Datos comerciales
           </p>
           <div className="flex-1 grid grid-cols-2 gap-8 py-4">
