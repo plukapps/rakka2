@@ -6,12 +6,15 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+export type AnimalSortBy = "serie_asc" | "serie_desc" | "num_asc" | "num_desc"
+
 export interface AnimalFilterState {
   search: string
   lotId: string
   category: string
   carenciaOnly: boolean
   statusFilter: "active" | "all"
+  sortBy: AnimalSortBy
 }
 
 interface AnimalFiltersProps {
@@ -125,7 +128,8 @@ export function ViewModeToggle({
 export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFiltersProps) {
   const hasActiveFilters =
     filters.search || filters.lotId || filters.category ||
-    filters.carenciaOnly || filters.statusFilter !== "active"
+    filters.carenciaOnly || filters.statusFilter !== "active" ||
+    filters.sortBy !== "serie_asc"
 
   return (
     <div className="flex flex-wrap gap-2 items-center">

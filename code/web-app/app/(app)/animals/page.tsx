@@ -7,7 +7,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import { useAnimals } from "@/hooks/useAnimals"
 import { useLots } from "@/hooks/useLots"
 import { AnimalCard, LIST_COL_TEMPLATE, LIST_COL_GAP, type ViewMode } from "@/components/animals/AnimalCard"
-import { AnimalFilters, ViewModeToggle, type AnimalFilterState } from "@/components/animals/AnimalFilters"
+import { AnimalFilters, ViewModeToggle, type AnimalFilterState, type AnimalSortBy } from "@/components/animals/AnimalFilters"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 
@@ -17,6 +17,7 @@ const DEFAULT_FILTERS: AnimalFilterState = {
   category: "",
   carenciaOnly: false,
   statusFilter: "active",
+  sortBy: "serie_asc",
 }
 
 const MODE_CONFIG: Record<ViewMode, { cols: number; rowHeight: number; gap: number }> = {
@@ -65,6 +66,19 @@ export default function AnimalsPage() {
       if (filters.category && a.category !== filters.category) return false
       if (filters.search && !a.caravana.toLowerCase().includes(filters.search.toLowerCase())) return false
       return true
+    }).sort((a, b) => {
+      const sortAnimal = (x: typeof a) => ({
+        serie: x.caravana.slice(6, 11),
+        num: x.caravana.slice(11),
+      })
+      const pa = sortAnimal(a)
+      const pb = sortAnimal(b)
+      switch (filters.sortBy as AnimalSortBy) {
+        case "serie_asc":  return pa.serie !== pb.serie ? pa.serie.localeCompare(pb.serie) : pa.num.localeCompare(pb.num)
+        case "serie_desc": return pa.serie !== pb.serie ? pb.serie.localeCompare(pa.serie) : pb.num.localeCompare(pa.num)
+        case "num_asc":    return pa.num !== pb.num ? pa.num.localeCompare(pb.num) : pa.serie.localeCompare(pb.serie)
+        case "num_desc":   return pa.num !== pb.num ? pb.num.localeCompare(pa.num) : pb.serie.localeCompare(pa.serie)
+      }
     })
   }, [animals, filters])
 
@@ -105,7 +119,17 @@ export default function AnimalsPage() {
         />
       </div>
 
-      <div className="flex justify-end mt-5">
+      <div className="flex items-center justify-end gap-2 mt-5">
+        <select
+          value={filters.sortBy}
+          onChange={(e) => setFilters({ ...filters, sortBy: e.target.value as AnimalSortBy })}
+          className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          <option value="serie_asc">Serie ↑</option>
+          <option value="serie_desc">Serie ↓</option>
+          <option value="num_asc">Número ↑</option>
+          <option value="num_desc">Número ↓</option>
+        </select>
         <ViewModeToggle value={viewMode} onChange={handleViewModeChange} />
       </div>
 
