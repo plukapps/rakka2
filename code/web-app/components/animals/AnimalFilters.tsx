@@ -84,6 +84,77 @@ function ViewModeButton({
   )
 }
 
+const SortAscIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+    <path d="M19 17H22L18 21L14 17H17V3H19V17M9 13H7C5.9 13 5 13.9 5 15V16C5 17.11 5.9 18 7 18H9V19H5V21H9C10.11 21 11 20.11 11 19V15C11 13.9 10.11 13 9 13M9 16H7V15H9V16M9 3H7C5.9 3 5 3.9 5 5V9C5 10.11 5.9 11 7 11H9C10.11 11 11 10.11 11 9V5C11 3.9 10.11 3 9 3M9 9H7V5H9V9Z" />
+  </svg>
+)
+
+const SortDescIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+    <path d="M19 7H22L18 3L14 7H17V21H19M9 21H5V19H9V18H7C5.9 18 5 17.11 5 16V15C5 13.9 5.9 13 7 13H9C10.11 13 11 13.9 11 15V19C11 20.11 10.11 21 9 21M9 15H7V16H9M7 3H9C10.11 3 11 3.9 11 5V9C11 10.11 10.11 11 9 11H7C5.9 11 5 10.11 5 9V5C5 3.9 5.9 3 7 3M7 9H9V5H7Z" />
+  </svg>
+)
+
+function SortIconButton({
+  active,
+  onClick,
+  title,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      className={cn(
+        "flex h-full w-8 items-center justify-center border-l border-input transition-colors",
+        active
+          ? "bg-primary text-primary-foreground"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+      )}
+    >
+      {children}
+    </button>
+  )
+}
+
+export function SortToggle({
+  value,
+  onChange,
+}: {
+  value: AnimalSortBy
+  onChange: (v: AnimalSortBy) => void
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex h-8 items-center rounded-lg border border-input overflow-hidden">
+        <span className="px-2.5 text-xs text-muted-foreground font-medium select-none">Serie</span>
+        <SortIconButton active={value === "serie_asc"} onClick={() => onChange("serie_asc")} title="Serie ascendente">
+          <SortAscIcon />
+        </SortIconButton>
+        <SortIconButton active={value === "serie_desc"} onClick={() => onChange("serie_desc")} title="Serie descendente">
+          <SortDescIcon />
+        </SortIconButton>
+      </div>
+      <div className="flex h-8 items-center rounded-lg border border-input overflow-hidden">
+        <span className="px-2.5 text-xs text-muted-foreground font-medium select-none">Número</span>
+        <SortIconButton active={value === "num_asc"} onClick={() => onChange("num_asc")} title="Número ascendente">
+          <SortAscIcon />
+        </SortIconButton>
+        <SortIconButton active={value === "num_desc"} onClick={() => onChange("num_desc")} title="Número descendente">
+          <SortDescIcon />
+        </SortIconButton>
+      </div>
+    </div>
+  )
+}
+
 export function ViewModeToggle({
   value,
   onChange,
