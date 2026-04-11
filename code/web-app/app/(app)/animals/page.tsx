@@ -7,7 +7,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import { useAnimals } from "@/hooks/useAnimals"
 import { useLots } from "@/hooks/useLots"
 import { AnimalCard, LIST_COL_TEMPLATE, LIST_COL_GAP, type ViewMode } from "@/components/animals/AnimalCard"
-import { AnimalFilters, ViewModeToggle, type AnimalFilterState, type AnimalSortBy } from "@/components/animals/AnimalFilters"
+import { AnimalFilters, ViewModeToggle, SortToggle, type AnimalFilterState, type AnimalSortBy } from "@/components/animals/AnimalFilters"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 
@@ -120,16 +120,7 @@ export default function AnimalsPage() {
       </div>
 
       <div className="flex items-center justify-end gap-2 mt-5">
-        <select
-          value={filters.sortBy}
-          onChange={(e) => setFilters({ ...filters, sortBy: e.target.value as AnimalSortBy })}
-          className="h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          <option value="serie_asc">Serie ↑</option>
-          <option value="serie_desc">Serie ↓</option>
-          <option value="num_asc">Número ↑</option>
-          <option value="num_desc">Número ↓</option>
-        </select>
+        <SortToggle value={filters.sortBy} onChange={(v) => setFilters({ ...filters, sortBy: v })} />
         <ViewModeToggle value={viewMode} onChange={handleViewModeChange} />
       </div>
 

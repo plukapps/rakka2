@@ -27,7 +27,7 @@
       "Bash(npm install:*)"
     ],
     "deny": [
-      "Bash(git push*)",
+      "Bash(git push -f*)",
       "Bash(firebase deploy*)",
       "Bash(rm -rf*)"
     ]
