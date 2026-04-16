@@ -358,14 +358,16 @@ function RfidPickReading({
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onBack}>← Volver</Button>
         <h1 className="text-lg font-semibold text-foreground">Seleccioná una lectura RFID</h1>
+        <div className="ml-auto">
+          <Link href="/activities/new/reading">
+            <Button variant="outline" size="sm">+ Nueva lectura</Button>
+          </Link>
+        </div>
       </div>
 
       {readingsWithCount.length === 0 ? (
         <div className="rounded-xl border border-border bg-card p-8 text-center">
           <p className="text-sm text-muted-foreground">No hay lecturas RFID registradas.</p>
-          <Link href="/activities/new/reading" className="mt-2 inline-block text-sm text-primary hover:underline">
-            Registrar lectura RFID →
-          </Link>
         </div>
       ) : (
         <div className="space-y-2">

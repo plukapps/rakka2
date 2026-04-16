@@ -32,7 +32,7 @@
 - **Lote**: select con los lotes activos del establecimiento + opción "Sin lote".
 - **Categoría**: select con las categorías (vaca, toro, ternero/a, vaquillona, novillo, otro).
 - **Estado**: select (Todos / Activos / Egresados).
-- **Con carencia activa**: checkbox.
+- **Con carencia activa**: toggle switch (estilo similar a ViewModeToggle — pill con fondo primary cuando activo).
 - **View mode**: dropdown select al final del toolbar con tres opciones: `Relajado` (default), `Compacto`, `Lista`. La selección se persiste en `localStorage` (`animals-view-mode`).
 - **Contador**: texto "X / Y" (filtrados / total) junto al título, actualiza en tiempo real.
 - **Limpiar filtros**: botón `secondary` (con fondo) que aparece cuando hay al menos un filtro activo.

@@ -413,21 +413,21 @@ function RfidFileTab({
     <div className="space-y-3">
       <input
         ref={fileInputRef}
+        id="rfid-file-upload"
         type="file"
-        accept=".txt,.csv"
+        accept=".txt,.csv,.dat"
         onChange={handleFile}
-        className="hidden"
+        className="sr-only"
       />
       {!fileName ? (
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="flex w-full max-w-sm flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border px-4 py-8 text-center transition-colors hover:border-primary/40 hover:bg-muted/30"
+        <label
+          htmlFor="rfid-file-upload"
+          className="flex w-full max-w-sm cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border px-4 py-8 text-center transition-colors hover:border-primary/40 hover:bg-muted/30"
         >
           <Upload className="h-8 w-8 text-muted-foreground/60" />
           <span className="text-sm font-medium text-foreground">Seleccionar archivo</span>
-          <span className="text-xs text-muted-foreground">Formatos aceptados: .txt, .csv</span>
-        </button>
+          <span className="text-xs text-muted-foreground">Formatos aceptados: .txt, .csv, .dat</span>
+        </label>
       ) : (
         <div className="space-y-2">
           <div className="rounded-lg border border-border p-3 space-y-1">

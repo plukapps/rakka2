@@ -191,6 +191,7 @@ export interface ActivityBase {
   notes: string;
   createdAt: number;
   createdBy: string;
+  archived?: boolean;
 }
 
 export interface ReadingActivity extends ActivityBase {

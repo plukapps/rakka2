@@ -13,6 +13,8 @@
 ┌────────────────────────────────────────────────────────┐
 │ Page Header: "Actividades"   [+ Registrar actividad]   │
 ├────────────────────────────────────────────────────────┤
+│ Tabs: [Activas] [Archivadas]                           │
+├────────────────────────────────────────────────────────┤
 │ Toolbar: [Tipo ▾] [Fecha desde] [Fecha hasta]          │
 │                                    "38 actividades"    │
 ├────────────────────────────────────────────────────────┤
@@ -58,6 +60,10 @@
   - General: título libre ingresado por el usuario.
 - **Metadatos**: cantidad de animales, nombre del responsable, fecha relativa.
 - Click en la fila → (si existe) detalle de actividad; si no, sin acción (MVP).
+
+### Tabs
+- **Activas**: muestra actividades no archivadas (default).
+- **Archivadas**: muestra actividades con `archived: true`.
 
 ### Estados
 - **Cargando**: skeleton de filas.
@@ -401,6 +407,13 @@ Grid 2 columnas con los campos comunes:
 - Título "Animales" con contador "(N animales)".
 - Lista de filas: caravana + categoría del animal. Cada fila es clickeable → perfil del animal (`/animals/[id]`).
 - Si el animal fue egresado por esta actividad (comercial): badge "Egresado" en la fila.
+
+### Acción: Archivar / Desarchivar
+- Botón en el header del detalle (junto al badge de tipo).
+- Si la actividad no está archivada: botón "Archivar" (variant outline).
+- Si está archivada: botón "Desarchivar" (variant outline) + badge "Archivada" visible en el header.
+- La acción actualiza el campo `archived` en el nodo de la actividad.
+- No elimina la actividad ni sus datos asociados.
 
 ### Estados
 - **Cargando**: skeleton.

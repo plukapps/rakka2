@@ -8,7 +8,6 @@ import { useAnimals } from "@/hooks/useAnimals"
 import { useAlerts } from "@/hooks/useAlerts"
 import { activityRepository } from "@/lib/repositories/activity"
 import { animalRepository } from "@/lib/repositories/animal"
-import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
@@ -193,12 +192,10 @@ export default function HomePage() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {quickActions.map((action) => (
           <Link key={action.href} href={action.href}>
-            <Card className="cursor-pointer transition-colors hover:bg-muted/50">
-              <CardContent className="flex flex-col items-center gap-2 text-center">
-                <span className="text-muted-foreground">{action.icon}</span>
-                <span className="text-sm font-medium text-foreground">{action.label}</span>
-              </CardContent>
-            </Card>
+            <div className="rounded-xl border border-border bg-card p-4 flex flex-col items-center gap-2 text-center cursor-pointer transition-colors hover:bg-muted/50">
+              <span className="text-muted-foreground">{action.icon}</span>
+              <span className="text-sm font-medium text-foreground">{action.label}</span>
+            </div>
           </Link>
         ))}
       </div>
@@ -209,24 +206,26 @@ export default function HomePage() {
         {recentActivities.length === 0 ? (
           <p className="text-sm text-muted-foreground">Sin actividades registradas.</p>
         ) : (
-          <div className="space-y-2">
+          <div className="divide-y divide-border rounded-xl border border-border bg-card">
             {recentActivities.map((act) => (
-              <Card key={act.id} size="sm">
-                <CardContent className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <StatusBadge variant={activityTypeVariant[act.type] ?? "neutral"}>
-                      {activityTypeLabel(act.type)}
-                    </StatusBadge>
-                    <span className="text-sm text-foreground">
-                      {act.animalIds.length} {act.animalIds.length === 1 ? "animal" : "animales"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>{act.responsible}</span>
-                    <span>{formatDate(act.activityDate)}</span>
-                  </div>
-                </CardContent>
-              </Card>
+              <Link
+                key={act.id}
+                href={`/activities/${act.id}`}
+                className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <StatusBadge variant={activityTypeVariant[act.type] ?? "neutral"}>
+                    {activityTypeLabel(act.type)}
+                  </StatusBadge>
+                  <span className="text-sm text-foreground">
+                    {act.animalIds.length} {act.animalIds.length === 1 ? "animal" : "animales"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span>{act.responsible}</span>
+                  <span>{formatDate(act.activityDate)}</span>
+                </div>
+              </Link>
             ))}
           </div>
         )}
@@ -248,29 +247,29 @@ export default function HomePage() {
         return (
           <section className="space-y-3">
             <h2 className="text-sm font-semibold text-foreground">Resumen de lotes</h2>
-            <div className="space-y-2">
+            <div className="divide-y divide-border rounded-xl border border-border bg-card">
               {lotsWithStats.map(({ lot: l, stats }) => (
-                <Link key={l.id} href={`/lots/${l.id}`}>
-                  <Card size="sm" className="cursor-pointer hover:bg-muted/50 transition-colors">
-                    <CardContent className="flex items-center justify-between gap-2">
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{l.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {stats.animalsWithWeight} animales · {formatWeight(stats.avgWeight)} prom.
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-semibold text-foreground">
-                          {formatGdp(stats.avgGdpRecent)}
-                        </p>
-                        {stats.lastWeightDate && (
-                          <p className="text-xs text-muted-foreground">
-                            {formatDate(stats.lastWeightDate)}
-                          </p>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                <Link
+                  key={l.id}
+                  href={`/lots/${l.id}`}
+                  className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{l.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {stats.animalsWithWeight} animales · {formatWeight(stats.avgWeight)} prom.
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-foreground">
+                      {formatGdp(stats.avgGdpRecent)}
+                    </p>
+                    {stats.lastWeightDate && (
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(stats.lastWeightDate)}
+                      </p>
+                    )}
+                  </div>
                 </Link>
               ))}
             </div>
@@ -289,19 +288,17 @@ export default function HomePage() {
         {nextAlerts.length === 0 ? (
           <p className="text-sm text-muted-foreground">Sin alertas pendientes.</p>
         ) : (
-          <div className="space-y-2">
+          <div className="divide-y divide-border rounded-xl border border-border bg-card">
             {nextAlerts.map((alert) => (
-              <Card key={alert.id} size="sm">
-                <CardContent className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <StatusBadge variant={urgencyVariant[alert.urgency] ?? "neutral"}>
-                      {alert.urgency === "critical" ? "Critica" : alert.urgency === "warning" ? "Advertencia" : "Info"}
-                    </StatusBadge>
-                    <span className="text-sm text-foreground">{alert.description}</span>
-                  </div>
-                  <span className="shrink-0 text-xs text-muted-foreground">{formatDate(alert.relevantDate)}</span>
-                </CardContent>
-              </Card>
+              <div key={alert.id} className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <StatusBadge variant={urgencyVariant[alert.urgency] ?? "neutral"}>
+                    {alert.urgency === "critical" ? "Critica" : alert.urgency === "warning" ? "Advertencia" : "Info"}
+                  </StatusBadge>
+                  <span className="text-sm text-foreground">{alert.description}</span>
+                </div>
+                <span className="shrink-0 text-xs text-muted-foreground">{formatDate(alert.relevantDate)}</span>
+              </div>
             ))}
           </div>
         )}

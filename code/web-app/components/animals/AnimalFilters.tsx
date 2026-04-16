@@ -203,7 +203,7 @@ export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFilter
     filters.sortBy !== "serie_asc"
 
   return (
-    <div className="flex flex-wrap gap-2 items-center">
+    <div className="flex flex-col gap-2">
       <Input
         placeholder="Buscar caravana..."
         value={filters.search}
@@ -211,6 +211,7 @@ export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFilter
         className="w-64"
       />
 
+      <div className="flex flex-wrap gap-2 items-center">
       <NativeSelect
         value={filters.lotId}
         onChange={(v) => onChange({ ...filters, lotId: v })}
@@ -247,21 +248,25 @@ export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFilter
         <option value="all">Todos</option>
       </NativeSelect>
 
-      <label className="flex items-center gap-1.5 text-sm text-foreground cursor-pointer">
-        <input
-          type="checkbox"
-          checked={filters.carenciaOnly}
-          onChange={(e) => onChange({ ...filters, carenciaOnly: e.target.checked })}
-          className="h-4 w-4 rounded border-input accent-primary"
-        />
+      <button
+        type="button"
+        onClick={() => onChange({ ...filters, carenciaOnly: !filters.carenciaOnly })}
+        className={cn(
+          "flex h-8 items-center rounded-lg border px-2.5 text-xs font-medium transition-colors",
+          filters.carenciaOnly
+            ? "border-primary bg-primary text-primary-foreground"
+            : "border-input text-muted-foreground hover:text-foreground hover:bg-muted"
+        )}
+      >
         Con carencia activa
-      </label>
+      </button>
 
       {hasActiveFilters && (
         <Button variant="secondary" size="sm" onClick={onReset}>
           Limpiar
         </Button>
       )}
+      </div>
     </div>
   )
 }

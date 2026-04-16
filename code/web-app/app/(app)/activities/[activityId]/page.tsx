@@ -19,6 +19,7 @@ import type {
 } from "@/lib/types"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
+import { Button } from "@/components/ui/button"
 import { TagView } from "@/components/animals/TagView"
 import {
   activityTypeLabel,
@@ -322,14 +323,25 @@ export default function ActivityDetailPage() {
   const [activity, setActivity] = useState<Activity | null | undefined>(undefined)
   const [animals, setAnimals] = useState<Animal[]>([])
 
+  function handleArchive() {
+    if (!estId || !activity) return
+    activityRepository.archive(estId, activity.id, !activity.archived)
+  }
+
   useEffect(() => {
     if (!estId) return
-    const act = activityRepository.getById(estId, activityId)
-    setActivity(act ?? null)
-    if (act) {
-      const all = animalRepository.getAll(estId)
-      setAnimals(all.filter((a) => act.animalIds.includes(a.id)))
+
+    function load() {
+      const act = activityRepository.getById(estId!, activityId)
+      setActivity(act ?? null)
+      if (act) {
+        const all = animalRepository.getAll(estId!)
+        setAnimals(all.filter((a) => act.animalIds.includes(a.id)))
+      }
     }
+
+    load()
+    return activityRepository.subscribe(estId, load)
   }, [estId, activityId])
 
   if (activity === undefined) return null
@@ -355,8 +367,16 @@ export default function ActivityDetailPage() {
           <StatusBadge variant={typeVariant[activity.type] ?? "neutral"}>
             {activityTypeLabel(activity.type)}
           </StatusBadge>
+          {activity.archived && (
+            <StatusBadge variant="neutral">Archivada</StatusBadge>
+          )}
           <h1 className="text-lg font-semibold text-foreground">{activityDescription(activity)}</h1>
-          <span className="ml-auto text-sm text-muted-foreground">{formatDateTime(activity.activityDate)}</span>
+          <div className="ml-auto flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">{formatDateTime(activity.activityDate)}</span>
+            <Button variant="outline" size="sm" onClick={handleArchive}>
+              {activity.archived ? "Desarchivar" : "Archivar"}
+            </Button>
+          </div>
         </div>
       </div>
 
