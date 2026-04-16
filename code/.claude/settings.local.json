@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(open:*)",
+      "WebFetch(domain:www.escritoriovaldez.com.uy)",
+      "WebFetch(domain:www.martinmaidana.com)",
+      "WebFetch(domain:www.mercadoganadero.com.uy)",
+      "WebFetch(domain:gaudinhnos.com.uy)",
+      "WebFetch(domain:www.correaysanroman.com.uy)",
+      "WebFetch(domain:www.inac.uy)",
+      "Bash(pip3 install:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(python3:*)"
+    ]
+  }
+}
