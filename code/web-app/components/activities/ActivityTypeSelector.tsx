@@ -13,12 +13,11 @@ interface ActivityOption {
 }
 
 const ACTIVITY_OPTIONS: ActivityOption[] = [
-  { type: "reading", label: "Lectura RFID", icon: Radio, href: "/activities/new/reading" },
+  { type: "reading", label: "Lectura", icon: Radio, href: "/activities/new/reading" },
   { type: "sanitary", label: "Sanitaria", icon: Syringe, href: "/activities/new/sanitary" },
   { type: "commercial", label: "Comercial", icon: HandCoins, href: "/activities/new/commercial" },
   { type: "field_control", label: "Control de campo", icon: ClipboardCheck, href: "/activities/new/field-control" },
   { type: "movement", label: "Movimiento", icon: ArrowRightLeft, href: "/activities/new/movement" },
-  { type: "reproduction", label: "Reproduccion", icon: Heart, href: "/activities/new/reproduction" },
   { type: "general", label: "General", icon: FileText, href: "/activities/new/general" },
 ]
 

@@ -1,34 +1,54 @@
-# Diseño Desktop — Actividad de Lectura RFID
+# Diseño Desktop — Actividad de Lectura
 
 **Rutas**: `/activities/new/reading` (formulario) · `/activities/[activityId]` (detalle, cuando es tipo `reading`)  
 **Propósito**: Registrar lecturas de caravanas electrónicas como actividad, ya sea via Bluetooth o por carga de archivo.
 
-> **Nota**: La lectura RFID es un tipo de actividad (`type: "reading"`). Se accede desde el hub de actividades como cualquier otro tipo. El historial de lecturas se ve en el listado general de actividades filtrando por tipo "Lectura".
+> **Nota**: La lectura es un tipo de actividad (`type: "reading"`). Se accede desde el hub de actividades o desde el acceso rápido "Registrar Lectura" en Home. El historial de lecturas se ve en el listado general de actividades filtrando por tipo "Lectura".
 
 ---
 
 ## 1. Formulario: Nueva lectura (`/activities/new/reading`)
 
-### Layout
+### Flujo de 2 pasos
+
+El formulario está dividido en dos pasos secuenciales. Indicador de progreso: "Paso N de 2" en el header.
+
+**Paso 1 — Seleccionar animales**: muestra el selector de animales (tabs Bluetooth / Archivo). El botón "Siguiente" se habilita solo cuando hay al menos 1 caravana seleccionada.
+
+**Paso 2 — Datos de la lectura**: muestra los campos de fecha, responsable y notas. Botón "← Volver" regresa al paso 1 sin perder la selección. Botón "Registrar lectura (N)" envía.
+
+### Layout Paso 1
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│ Page Header: "Lectura RFID"                 [← Tipo]     │
+│ [← Volver]  "Lectura"                      Paso 1 de 2  │
 ├──────────────────────────────────────────────────────────┤
 │                                                          │
-│  Método: ● Bluetooth  ○ Archivo                          │
-│                                                          │
+│  Seleccionar animales                                    │
+│  ─────────────────────────────────────────────────────   │
 │  [Panel de lectura según método]                         │
 │                                                          │
-│  Responsable: [____________]                             │
-│  Notas: [____________]                                   │
-│                                                          │
-│  [Registrar lectura (N)]                                 │
-│                                                          │
+│                         [Siguiente (N caravanas) →]      │
 └──────────────────────────────────────────────────────────┘
 ```
 
-A diferencia de otros tipos de actividad, el formulario de lectura NO tiene el layout de dos columnas (selector de animales + datos). La lectura en sí misma ES la selección de animales.
+### Layout Paso 2
+
+```
+┌──────────────────────────────────────────────────────────┐
+│ [← Volver]  "Lectura"                      Paso 2 de 2  │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  Datos de la lectura                                     │
+│  ─────────────────────────────────────────────────────   │
+│  Fecha: [__________]  Responsable: [__________]          │
+│  Notas: [__________]                                     │
+│                                                          │
+│                         [Registrar lectura (N)]          │
+└──────────────────────────────────────────────────────────┘
+```
+
+A diferencia de otros tipos de actividad, el formulario de lectura NO tiene el layout de dos columnas (selector de animales + datos). La lectura en sí misma ES la selección de animales, separada en pasos.
 
 ### Método Bluetooth
 
@@ -71,24 +91,22 @@ A diferencia de otros tipos de actividad, el formulario de lectura NO tiene el l
 │                                                        │
 │  Archivo cargado: "terneros sopas.txt" (48 caravanas)  │
 │                                                        │
-│  ✔ Reconocidas (45):                                   │
-│    858000000011234 — Vaca (Lote Norte)                 │
+│  ✔ En stock (45):                                      │
+│    858000000011234 — Vaca (Lote Norte)  [×]            │
+│    858000000022345 — Toro (Sin lote)    [×]            │
 │    ...                                                 │
 │                                                        │
-│  ⚠ No encontradas (3):                                │
+│  ⚠ Sin registro (3):                                   │
 │    858000054596559                                     │
 │    ...                                                 │
 │                                                        │
-│  Responsable: [____________]                           │
-│  Notas: [____________]                                 │
-│                                                        │
-│  [Registrar lectura (48)]                              │
 └────────────────────────────────────────────────────────┘
 ```
 
 - **Drag & drop**: área destacada. Acepta `.txt` y `.csv`.
-- **Preview post-carga**: lista separada en "Reconocidas" y "No encontradas".
-- Las no encontradas se almacenan como `unknownCaravanas` en la actividad.
+- **Preview post-carga**: lista separada en "En stock" y "Sin registro".
+- **Descarte individual**: cada animal en stock tiene botón [×] para quitarlo de la selección antes de confirmar. Los descartados quedan visualmente atenuados.
+- Las sin registro se almacenan como `unknownCaravanas` en la actividad.
 
 ---
 

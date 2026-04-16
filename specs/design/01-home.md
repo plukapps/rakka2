@@ -37,6 +37,8 @@ Diseño de **dos columnas** en desktop: columna principal (izquierda, ~65%) y co
 
 ## 3. Sección: Búsqueda global
 
+Título de sección: **"Búsqueda Rápida"** (`text-sm font-semibold`).
+
 Barra de búsqueda prominente en la parte superior del contenido.
 
 - **Input**: placeholder "Buscar animal por caravana o nombre..."
@@ -50,14 +52,16 @@ Barra de búsqueda prominente en la parte superior del contenido.
 
 ## 4. Sección: Accesos rápidos
 
+Título de sección: **"Acciones Rápidas"** (`text-sm font-semibold`).
+
 Grid de **4 botones** en una fila horizontal (o 2x2 si el espacio lo requiere).
 
 | Botón | Destino |
 |---|---|
-| Registrar actividad | `/activities/new` |
-| Ingresar animal | `/animals/new` |
+| Registrar Lectura | `/activities/new/reading` |
+| Nueva Actividad | `/activities/new` |
 | Ver lotes | `/lots` |
-| Ver animales | `/animals` |
+| Stock Animales | `/animals` |
 
 - Cada botón: ícono grande + texto + fondo de card con hover.
 - Tamaño uniforme.

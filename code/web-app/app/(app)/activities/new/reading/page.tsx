@@ -33,6 +33,7 @@ export default function ReadingActivityPage() {
   const estId = useAppStore((s) => s.activeEstablishment?.id)
   const user = useAuthStore((s) => s.user)
 
+  const [step, setStep] = useState<1 | 2>(1)
   const [selected, setSelected] = useState<Animal[]>([])
   const [unknownCaravanas, setUnknownCaravanas] = useState<string[]>([])
   const [selectionMethod, setSelectionMethod] = useState<SelectionMethod>("rfid_file")
@@ -67,7 +68,7 @@ export default function ReadingActivityPage() {
           animalId: animal.id,
           estId,
           type: "reading",
-          description: `Lectura RFID — ${selectionMethod === "rfid_bluetooth" ? "Bluetooth" : "Archivo"}`,
+          description: `Lectura — ${selectionMethod === "rfid_bluetooth" ? "Bluetooth" : "Archivo"}`,
           activityId: activity.id,
           lotId: animal.lotId,
           lotName: null,
@@ -87,60 +88,80 @@ export default function ReadingActivityPage() {
   return (
     <div className="space-y-6">
       <div className="flex h-8 items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={() => router.back()}>
+        <Button variant="ghost" size="sm" onClick={() => step === 1 ? router.back() : setStep(1)}>
           &larr; Volver
         </Button>
-        <h1 className="text-lg font-semibold text-foreground">Lectura RFID</h1>
+        <h1 className="text-lg font-semibold text-foreground">Lectura</h1>
+        <span className="ml-auto text-xs text-muted-foreground">Paso {step} de 2</span>
       </div>
 
       <div className="flex min-h-[calc(100dvh-10rem)] flex-col rounded-xl border border-border bg-card p-6">
-        <p className="pb-4 mb-5 border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
-          Lectura RFID
-        </p>
-        <div className="flex-1 space-y-4">
-          <AnimalSelector
-            estId={estId}
-            selected={selected}
-            onChange={setSelected}
-            onUnrecognized={setUnknownCaravanas}
-            onMethodChange={setSelectionMethod}
-            onFileName={setFileName}
-            rfidOnly
-          />
-
-          <div className="grid grid-cols-3 gap-4">
-            <FormField label="Fecha de actividad">
-              <Input type="date" value={activityDate} onChange={(e) => setActivityDate(e.target.value)} />
-            </FormField>
-
-            <FormField label="Responsable">
-              <Input
-                value={responsible}
-                onChange={(e) => setResponsible(e.target.value)}
-                placeholder={user?.name ?? "Nombre del responsable"}
+        {step === 1 ? (
+          <>
+            <p className="pb-4 mb-5 border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
+              Seleccionar animales
+            </p>
+            <div className="flex-1">
+              <AnimalSelector
+                estId={estId}
+                selected={selected}
+                onChange={setSelected}
+                onUnrecognized={setUnknownCaravanas}
+                onMethodChange={setSelectionMethod}
+                onFileName={setFileName}
+                rfidOnly
               />
-            </FormField>
+            </div>
+            <div className="flex justify-end border-t border-border pt-4 mt-auto">
+              <Button
+                onClick={() => setStep(2)}
+                disabled={totalCaravanas === 0}
+              >
+                Siguiente ({totalCaravanas} caravana{totalCaravanas !== 1 ? "s" : ""}) &rarr;
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="pb-4 mb-5 border-b border-border text-xs font-bold text-foreground uppercase tracking-wide">
+              Datos de la lectura
+            </p>
+            <div className="flex-1 space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <FormField label="Fecha de actividad">
+                  <Input type="date" value={activityDate} onChange={(e) => setActivityDate(e.target.value)} />
+                </FormField>
 
-            <FormField label="Notas">
-              <Input
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Observaciones..."
-              />
-            </FormField>
-          </div>
-        </div>
+                <FormField label="Responsable">
+                  <Input
+                    value={responsible}
+                    onChange={(e) => setResponsible(e.target.value)}
+                    placeholder={user?.name ?? "Nombre del responsable"}
+                  />
+                </FormField>
 
-        <div className="flex justify-end border-t border-border pt-4 mt-auto">
-          <Button
-            onClick={handleSubmit}
-            loading={submitting}
-            disabled={totalCaravanas === 0}
-          >
-            Registrar lectura ({totalCaravanas} caravana
-            {totalCaravanas !== 1 ? "s" : ""})
-          </Button>
-        </div>
+                <FormField label="Notas">
+                  <Input
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Observaciones..."
+                  />
+                </FormField>
+              </div>
+            </div>
+
+            <div className="flex justify-end border-t border-border pt-4 mt-auto">
+              <Button
+                onClick={handleSubmit}
+                loading={submitting}
+                disabled={totalCaravanas === 0}
+              >
+                Registrar lectura ({totalCaravanas} caravana
+                {totalCaravanas !== 1 ? "s" : ""})
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

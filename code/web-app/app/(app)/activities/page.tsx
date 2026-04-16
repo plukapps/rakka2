@@ -138,15 +138,15 @@ export default function ActivitiesPage() {
                     href={`/activities/${act.id}`}
                     className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
                   >
-                    <div className="flex items-center gap-5">
-                      <StatusBadge variant="neutral" className="w-[115px] h-[18px] justify-center shrink-0 text-xs">
-                        {activityTypeLabel(act.type)}
-                      </StatusBadge>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {activityTitle(act)}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        {activityTitle(act)}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <StatusBadge variant="neutral" className="h-[18px] justify-center shrink-0 text-xs">
+                          {activityTypeLabel(act.type)}
+                        </StatusBadge>
+                        <p className="text-xs text-muted-foreground">
                           {act.responsible}
                           {" · "}
                           {act.type === "reading"
@@ -155,7 +155,7 @@ export default function ActivitiesPage() {
                         </p>
                       </div>
                     </div>
-                    <span className="text-xs text-muted-foreground">{formatDate(act.activityDate)}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">{formatDate(act.activityDate)}</span>
                   </Link>
                 ))}
               </div>

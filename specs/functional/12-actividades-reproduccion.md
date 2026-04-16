@@ -1,5 +1,7 @@
 # Actividades de Reproducción
 
+> **MVP**: El tipo "Reproducción" está oculto en el selector de actividades hasta que se complete el diseño del flujo. La ruta `/activities/new/reproduction` existe pero no se muestra en el hub.
+
 **Dependencias:** Framework de actividades (`04-actividades-framework.md`), Animales (`02-animales.md`)
 
 ---

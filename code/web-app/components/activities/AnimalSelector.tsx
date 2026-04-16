@@ -343,9 +343,7 @@ function LotTab({
 
 function RfidFileTab({
   animals,
-  selected,
   onChange,
-  onAdd,
   onUnrecognized,
   onWeightMap,
   onFileName,
@@ -353,16 +351,24 @@ function RfidFileTab({
   animals: Animal[]
   selected: Animal[]
   onChange: (animals: Animal[]) => void
-  onAdd: (a: Animal) => void
+  onAdd?: (a: Animal) => void
   onUnrecognized?: (caravanas: string[]) => void
   onWeightMap?: (map: Record<string, number>) => void
   onFileName?: (name: string | null) => void
 }) {
-  const [inStock, setInStock] = useState<Animal[]>([])
-  const [notInStock, setNotInStock] = useState<string[]>([])
-  const [totalRead, setTotalRead] = useState(0)
+  const [allCaravanas, setAllCaravanas] = useState<string[]>([])
+  const [excluded, setExcluded] = useState<Set<string>>(new Set())
+  const [caravanaToAnimal, setCaravanaToAnimal] = useState<Record<string, Animal>>({})
   const [fileName, setFileName] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function applyExclusion(caravanas: string[], ex: Set<string>, map: Record<string, Animal>) {
+    const included = caravanas.filter((c) => !ex.has(c))
+    const newAnimals = included.filter((c) => map[c]).map((c) => map[c])
+    const newUnknown = included.filter((c) => !map[c])
+    onChange(newAnimals)
+    onUnrecognized?.(newUnknown)
+  }
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -372,13 +378,10 @@ function RfidFileTab({
     const reader = new FileReader()
     reader.onload = (ev) => {
       const text = ev.target?.result as string
-      const lines = text
-        .split(/[\r\n]+/)
-        .map((l) => l.trim())
-        .filter(Boolean)
+      const lines = text.split(/[\r\n]+/).map((l) => l.trim()).filter(Boolean)
 
-      const found: Animal[] = []
-      const unknown: string[] = []
+      const caravanas: string[] = []
+      const map: Record<string, Animal> = {}
       const seen = new Set<string>()
       const weightMap: Record<string, number> = {}
 
@@ -386,28 +389,44 @@ function RfidFileTab({
         const parsed = parseRfidLineWithWeight(line)
         if (!parsed || seen.has(parsed.caravana)) continue
         seen.add(parsed.caravana)
+        caravanas.push(parsed.caravana)
         const animal = animals.find((a) => a.caravana === parsed.caravana)
         if (animal) {
-          found.push(animal)
+          map[parsed.caravana] = animal
           if (parsed.weight != null) weightMap[animal.id] = parsed.weight
-        } else {
-          unknown.push(parsed.caravana)
         }
       }
 
-      setTotalRead(seen.size)
-      setInStock(found)
-      setNotInStock(unknown)
-      onUnrecognized?.(unknown)
+      setAllCaravanas(caravanas)
+      setCaravanaToAnimal(map)
+      setExcluded(new Set())
       if (Object.keys(weightMap).length > 0) onWeightMap?.(weightMap)
-
-      // Add found animals to selection (without duplicates)
-      const existingIds = new Set(selected.map((a) => a.id))
-      const newAnimals = found.filter((a) => !existingIds.has(a.id))
-      onChange([...selected, ...newAnimals])
+      applyExclusion(caravanas, new Set(), map)
     }
     reader.readAsText(file)
   }
+
+  function removeCaravana(caravana: string) {
+    const next = new Set(excluded)
+    next.add(caravana)
+    setExcluded(next)
+    applyExclusion(allCaravanas, next, caravanaToAnimal)
+  }
+
+  function reset() {
+    setFileName("")
+    setAllCaravanas([])
+    setExcluded(new Set())
+    setCaravanaToAnimal({})
+    onChange([])
+    onUnrecognized?.([])
+    onFileName?.(null)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
+
+  const visibleCaravanas = allCaravanas.filter((c) => !excluded.has(c))
+  const totalRead = allCaravanas.length
+  const totalVisible = visibleCaravanas.length
 
   return (
     <div className="space-y-3">
@@ -429,51 +448,51 @@ function RfidFileTab({
           <span className="text-xs text-muted-foreground">Formatos aceptados: .txt, .csv, .dat</span>
         </label>
       ) : (
-        <div className="space-y-2">
-          <div className="rounded-lg border border-border p-3 space-y-1">
-            <p className="text-sm font-medium text-foreground">
-              Lectura exitosa — {totalRead} caravana{totalRead !== 1 ? "s" : ""} leída{totalRead !== 1 ? "s" : ""}
-            </p>
-            <div className="flex items-center gap-2">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                {totalVisible} de {totalRead} caravana{totalRead !== 1 ? "s" : ""}
+              </p>
               <p className="text-xs text-muted-foreground">{fileName}</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setFileName("")
-                  setTotalRead(0)
-                  setInStock([])
-                  setNotInStock([])
-                  onChange([])
-                  onUnrecognized?.([])
-                  onFileName?.(null)
-                  if (fileInputRef.current) fileInputRef.current.value = ""
-                }}
-                className="text-xs text-primary hover:underline"
-              >
-                Cambiar archivo
-              </button>
+            </div>
+            <button type="button" onClick={reset} className="text-xs text-primary hover:underline">
+              Cambiar archivo
+            </button>
+          </div>
+
+          <div className="max-h-64 overflow-y-auto rounded-lg border border-border p-2">
+            <div className="flex flex-wrap gap-2">
+              {visibleCaravanas.map((caravana) => (
+                <div key={caravana} className="relative">
+                  <TagView caravana={caravana} size="md" />
+                  <button
+                    type="button"
+                    onClick={() => removeCaravana(caravana)}
+                    className="absolute bottom-0 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-white shadow hover:bg-red-600 transition-colors"
+                    title="Descartar"
+                  >
+                    <X className="h-2.5 w-2.5" />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
 
-          {inStock.length > 0 && (
-            <div className="rounded-md border border-emerald-200 bg-emerald-50 p-2">
-              <p className="text-xs font-medium text-emerald-800">
-                {inStock.length} en stock del establecimiento
-              </p>
-            </div>
-          )}
-
-          {notInStock.length > 0 && (
-            <div className="rounded-md border border-amber-200 bg-amber-50 p-2 space-y-1">
-              <p className="text-xs font-medium text-amber-800">
-                {notInStock.length} sin registro en este establecimiento
-              </p>
-              <div className="max-h-32 overflow-y-auto">
-                <p className="text-xs text-amber-700 font-mono">
-                  {notInStock.map((c) => formatCaravana(c, "serie")).join(", ")}
-                </p>
-              </div>
-            </div>
+          {excluded.size > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {excluded.size} descartada{excluded.size !== 1 ? "s" : ""} ·{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setExcluded(new Set())
+                  applyExclusion(allCaravanas, new Set(), caravanaToAnimal)
+                }}
+                className="text-primary hover:underline"
+              >
+                restaurar todas
+              </button>
+            </p>
           )}
         </div>
       )}

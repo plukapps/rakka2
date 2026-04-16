@@ -19,8 +19,8 @@ import { calculateLotWeightStats } from "@/lib/gdp"
 
 const quickActions = [
   {
-    href: "/activities/new",
-    label: "Registrar actividad",
+    href: "/activities/new/reading",
+    label: "Registrar Lectura",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -28,8 +28,8 @@ const quickActions = [
     ),
   },
   {
-    href: "/animals/new",
-    label: "Ingresar animal",
+    href: "/activities/new",
+    label: "Nueva Actividad",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
@@ -47,7 +47,7 @@ const quickActions = [
   },
   {
     href: "/animals",
-    label: "Ver animales",
+    label: "Stock Animales",
     icon: (
       <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3c-1.2 5.4-5 7-5 11a5 5 0 0010 0c0-4-3.8-5.6-5-11z" />
@@ -144,12 +144,13 @@ export default function HomePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <h1 className="text-lg font-semibold text-foreground">{activeEst?.name ?? "Inicio"}</h1>
 
       {/* Global search */}
-      <div ref={searchRef} className="relative">
+      <div ref={searchRef} className="relative space-y-2">
+        <h2 className="text-sm font-semibold text-foreground">Búsqueda Rápida</h2>
         <Input
           placeholder="Buscar animal por caravana..."
           value={search}
@@ -189,6 +190,8 @@ export default function HomePage() {
       <div className="border-b border-border" />
 
       {/* Quick access buttons */}
+      <div className="space-y-2">
+      <h2 className="text-sm font-semibold text-foreground">Acciones Rápidas</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {quickActions.map((action) => (
           <Link key={action.href} href={action.href}>
@@ -198,6 +201,7 @@ export default function HomePage() {
             </div>
           </Link>
         ))}
+      </div>
       </div>
 
       {/* Recent activity */}

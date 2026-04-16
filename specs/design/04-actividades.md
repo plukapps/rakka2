@@ -28,7 +28,7 @@
 ```
 
 ### Toolbar
-- **Tipo**: select multi (Lectura, Sanitaria, Comercial, Campo, Movimiento, Reproducción, General).
+- **Tipo**: select multi (Lectura, Sanitaria, Comercial, Campo, Movimiento, General).
 - **Fecha desde / hasta**: date pickers para filtrar por rango.
 - **Contador**: "X actividades" (las que cumplen los filtros).
 
@@ -36,8 +36,8 @@
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│ [Badge Tipo]  Descripción corta                        │
-│               X animales · Responsable · hace 2 días  │
+│ Descripción corta                        hace 2 días   │
+│ [Badge Tipo]  Responsable · X animales                 │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -81,21 +81,18 @@
 │ Page Header: "¿Qué tipo de actividad?"   [← Cancelar] │
 ├────────────────────────────────────────────────────────┤
 │                                                        │
-│  [Lectura RFID]  [Sanitaria]    [Comercial]            │
+│  [Lectura]       [Sanitaria]    [Comercial]            │
 │  (bluetooth,     (vacunación,   (venta,                │
 │   archivo)        tratamiento)   despacho)             │
 │                                                        │
-│  [Control campo] [Movimiento]   [Reproducción]         │
-│  (pesaje, conteo,(traslado,     (servicio,             │
-│   cond. corp...) transferencia)  diagnóstico...)       │
-│                                                        │
-│  [General]                                             │
-│  (libre)                                               │
+│  [Control campo] [Movimiento]   [General]              │
+│  (pesaje, conteo,(traslado,     (libre)                │
+│   cond. corp...) transferencia)                        │
 │                                                        │
 └────────────────────────────────────────────────────────┘
 ```
 
-- Grilla 3x2 de cards.
+- Grilla 3x2 de cards (6 tipos visibles — Reproducción oculta en MVP).
 - Cada card: ícono grande + nombre + descripción de 1 línea.
 - Click → navega al formulario del tipo correspondiente.
 
@@ -122,9 +119,9 @@ Presente en todos los formularios de actividad. Permite seleccionar los animales
 - Zona de drag & drop para archivo `.txt` / `.csv`.
 - También: botón "Seleccionar archivo".
 - Al cargar: lista de caravanas reconocidas vs. desconocidas.
-  - Reconocidas: se muestran como animales (caravana + categoría + lote).
+  - Reconocidas: lista con caravana + categoría, todas pre-seleccionadas. Botón X individual por animal para descartarlo antes de confirmar.
   - Desconocidas: badge warning "No encontrada en el establecimiento".
-- Se puede deseleccionar cualquier animal antes de continuar.
+- Se puede deseleccionar cualquier animal de la lista antes de continuar.
 
 #### Tab 3: Por lote
 - Select de lote activo.
@@ -393,7 +390,7 @@ Grid 2 columnas con los campos comunes:
 
 **Comercial**: Tipo (Venta/Despacho), Comprador/Destinatario, Destino, Precio por cabeza, Precio total.
 
-**Lectura RFID**: Método (Bluetooth/Archivo), nombre del archivo (si aplica). La sección "Animales" se reemplaza por la grilla de caravanas con tabs (Todas / En stock / Sin registro). Ver detalle en `specs/design/07-rfid.md`.
+**Lectura**: Método (Bluetooth/Archivo), nombre del archivo (si aplica). La sección "Animales" se reemplaza por la grilla de caravanas con tabs (Todas / En stock / Sin registro). Ver detalle en `specs/design/07-rfid.md`.
 
 **Control de campo**: Subtipo, campos específicos según subtipo (peso, resultado, etc.).
 
