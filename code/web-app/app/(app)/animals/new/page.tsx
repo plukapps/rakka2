@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useMemo, useRef } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { animalRepository } from "@/lib/repositories/animal"
@@ -10,10 +10,13 @@ import { useAuthStore } from "@/lib/stores/authStore"
 import { useLots } from "@/hooks/useLots"
 import { useAnimals } from "@/hooks/useAnimals"
 import { activityRepository } from "@/lib/repositories/activity"
+import { traceabilityRepository } from "@/lib/repositories/traceability"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { cn, formatDate, formatCaravana, categoryLabel } from "@/lib/utils"
+import { Upload, X } from "lucide-react"
+import { cn, formatDate, formatCaravana, categoryLabel, parseRfidLineWithWeight } from "@/lib/utils"
+import { TagView } from "@/components/animals/TagView"
 import type { Animal, AnimalCategory, AnimalSex, AnimalEntryType, Activity } from "@/lib/types"
 
 // ─── Shared UI helpers ────────────────────────────────────────────────────────
@@ -102,7 +105,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Step = "select-method" | "individual" | "rfid-pick" | "rfid-review"
+type Step = "select-method" | "individual" | "rfid-pick" | "rfid-review" | "rfid-file-direct"
 
 interface IndividualFormValues {
   caravana: string
@@ -143,14 +146,14 @@ interface AnimalRow {
 
 // ─── Method selector ─────────────────────────────────────────────────────────
 
-function MethodSelector({ onSelect }: { onSelect: (method: "individual" | "rfid-pick") => void }) {
+function MethodSelector({ onSelect }: { onSelect: (method: "individual" | "rfid-file-direct" | "rfid-pick") => void }) {
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-lg font-semibold text-foreground">Ingresar animales</h1>
         <p className="text-sm text-muted-foreground mt-1">¿Cómo querés registrarlos?</p>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <button
           onClick={() => onSelect("individual")}
           className="flex flex-col gap-2 rounded-xl border border-border bg-card p-6 text-left hover:border-ring hover:shadow-sm transition-all"
@@ -160,14 +163,184 @@ function MethodSelector({ onSelect }: { onSelect: (method: "individual" | "rfid-
           <span className="text-sm text-muted-foreground">Ingresá un animal cargando sus datos manualmente.</span>
         </button>
         <button
+          onClick={() => onSelect("rfid-file-direct")}
+          className="flex flex-col gap-2 rounded-xl border border-border bg-card p-6 text-left hover:border-ring hover:shadow-sm transition-all"
+        >
+          <span className="text-2xl">📂</span>
+          <span className="font-semibold text-foreground">Desde archivo RFID</span>
+          <span className="text-sm text-muted-foreground">Cargá un archivo del lector y registrá los animales directamente.</span>
+        </button>
+        <button
           onClick={() => onSelect("rfid-pick")}
           className="flex flex-col gap-2 rounded-xl border border-border bg-card p-6 text-left hover:border-ring hover:shadow-sm transition-all"
         >
           <span className="text-2xl">📡</span>
-          <span className="font-semibold text-foreground">Desde lectura RFID</span>
+          <span className="font-semibold text-foreground">Desde lectura guardada</span>
           <span className="text-sm text-muted-foreground">Importá caravanas de una lectura ya registrada.</span>
         </button>
       </div>
+    </div>
+  )
+}
+
+// ─── RFID: direct file upload ─────────────────────────────────────────────────
+
+function RfidDirectUpload({
+  existingCaravanas,
+  onReady,
+  onBack,
+}: {
+  existingCaravanas: Set<string>
+  onReady: (caravanas: string[], fileName: string) => void
+  onBack: () => void
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [fileName, setFileName] = useState("")
+  const [caravanas, setCaravanas] = useState<string[]>([])
+  const [excluded, setExcluded] = useState<Set<string>>(new Set())
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setFileName(file.name)
+    setExcluded(new Set())
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string
+      const lines = text.split(/[\r\n]+/).map((l) => l.trim()).filter(Boolean)
+      const seen = new Set<string>()
+      const result: string[] = []
+      for (const line of lines) {
+        const parsed = parseRfidLineWithWeight(line)
+        if (!parsed || seen.has(parsed.caravana)) continue
+        seen.add(parsed.caravana)
+        result.push(parsed.caravana)
+      }
+      setCaravanas(result)
+    }
+    reader.readAsText(file)
+  }
+
+  function discard(caravana: string) {
+    setExcluded((prev) => new Set([...prev, caravana]))
+  }
+
+  function reset() {
+    setFileName("")
+    setCaravanas([])
+    setExcluded(new Set())
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
+
+  const newCaravanas = caravanas.filter((c) => !existingCaravanas.has(c) && !excluded.has(c))
+  const knownCaravanas = caravanas.filter((c) => existingCaravanas.has(c))
+  const discardedCount = excluded.size
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" onClick={onBack}>← Volver</Button>
+        <h1 className="text-lg font-semibold text-foreground">Agregar stock desde archivo RFID</h1>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+        <input
+          ref={fileInputRef}
+          id="rfid-direct-upload"
+          type="file"
+          accept=".txt,.csv,.dat"
+          onChange={handleFile}
+          className="sr-only"
+        />
+
+        {!fileName ? (
+          <label
+            htmlFor="rfid-direct-upload"
+            className="flex w-full cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed border-border px-4 py-12 text-center transition-colors hover:border-primary/40 hover:bg-muted/30"
+          >
+            <Upload className="h-10 w-10 text-muted-foreground/50" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Seleccionar archivo del lector RFID</p>
+              <p className="text-xs text-muted-foreground mt-1">Formatos aceptados: .txt, .csv, .dat</p>
+            </div>
+          </label>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">{fileName}</p>
+                <p className="text-xs text-muted-foreground">
+                  {newCaravanas.length} a registrar
+                  {knownCaravanas.length > 0 && ` · ${knownCaravanas.length} ya en sistema`}
+                  {discardedCount > 0 && ` · ${discardedCount} descartada${discardedCount !== 1 ? "s" : ""}`}
+                </p>
+              </div>
+              <button type="button" onClick={reset} className="text-xs text-primary hover:underline">
+                Cambiar archivo
+              </button>
+            </div>
+
+            {/* A registrar */}
+            {newCaravanas.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  A registrar ({newCaravanas.length})
+                </p>
+                <div className="max-h-64 overflow-y-auto rounded-xl border border-border p-3">
+                  <div className="flex flex-wrap gap-2">
+                    {newCaravanas.map((c) => (
+                      <div key={c} className="relative">
+                        <TagView caravana={c} size="md" />
+                        <button
+                          type="button"
+                          onClick={() => discard(c)}
+                          className="absolute -right-1.5 bottom-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-white shadow hover:bg-red-600 transition-colors"
+                          title="Descartar"
+                        >
+                          <X className="h-2.5 w-2.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {discardedCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setExcluded(new Set())}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Restaurar {discardedCount} descartada{discardedCount !== 1 ? "s" : ""}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Ya en sistema */}
+            {knownCaravanas.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Ya en el sistema ({knownCaravanas.length})
+                </p>
+                <div className="max-h-32 overflow-y-auto rounded-xl border border-border p-3 opacity-50">
+                  <div className="flex flex-wrap gap-2">
+                    {knownCaravanas.map((c) => (
+                      <TagView key={c} caravana={c} size="md" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {caravanas.length > 0 && (
+        <div className="flex justify-end">
+          <Button onClick={() => onReady(newCaravanas, fileName)} disabled={newCaravanas.length === 0}>
+            Continuar ({newCaravanas.length} a registrar) →
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
@@ -418,22 +591,36 @@ function RfidPickReading({
 // ─── RFID: review and complete ────────────────────────────────────────────────
 
 function RfidReview({
-  reading,
+  caravanas: allCaravanas,
   existingCaravanas,
+  title,
+  subtitle,
+  backLabel,
+  isStockEntry,
+  fileName,
   estId,
   userId,
   lots,
   onBack,
 }: {
-  reading: Activity
+  caravanas: string[]
   existingCaravanas: Set<string>
+  title: string
+  subtitle?: string
+  backLabel: string
+  isStockEntry?: boolean
+  fileName?: string
   estId: string
   userId: string
   lots: { id: string; name: string }[]
   onBack: () => void
 }) {
   const router = useRouter()
+  const user = useAuthStore((s) => s.user)
   const [submitting, setSubmitting] = useState(false)
+  const [activityDate, setActivityDate] = useState(new Date().toISOString().slice(0, 10))
+  const [responsible, setResponsible] = useState("")
+  const [notes, setNotes] = useState("")
 
   const [common, setCommon] = useState<CommonData>({
     entryType: "purchase",
@@ -445,7 +632,7 @@ function RfidReview({
     purchasePriceUsd: "",
   })
 
-  const unknownCaravanas = reading.unknownCaravanas ?? []
+  const unknownCaravanas = allCaravanas
 
   const registerable = useMemo(
     () => unknownCaravanas.filter((c) => !existingCaravanas.has(c)),
@@ -493,9 +680,11 @@ function RfidReview({
     if (selectedCount === 0) return
     setSubmitting(true)
     try {
+      const createdAnimals: { id: string; lotId: string | null }[] = []
+
       for (const [caravana, row] of Object.entries(rows)) {
         if (!row.included || row.alreadyExists) continue
-        animalRepository.create({
+        const animal = animalRepository.create({
           estId,
           caravana,
           category: row.overrides.category ?? common.category,
@@ -511,27 +700,82 @@ function RfidReview({
             : null,
           createdBy: userId,
         })
+        createdAnimals.push({ id: animal.id, lotId: animal.lotId })
       }
+
+      if (isStockEntry && createdAnimals.length > 0) {
+        const responsibleName = responsible || user?.name || ""
+        const dateTs = new Date(activityDate).getTime()
+
+        const activity = activityRepository.create({
+          estId,
+          type: "stock_entry",
+          animalIds: createdAnimals.map((a) => a.id),
+          selectionMethod: "rfid_file",
+          fileName: fileName || null,
+          activityDate: dateTs,
+          responsible: responsibleName,
+          notes,
+          createdBy: userId,
+          entryType: common.entryType,
+        } as any)
+
+        for (const { id: animalId, lotId } of createdAnimals) {
+          traceabilityRepository.create({
+            animalId,
+            estId,
+            type: "entry",
+            description: `Ingreso de stock${fileName ? ` · ${fileName}` : ""}`,
+            activityId: activity.id,
+            lotId,
+            lotName: null,
+            responsibleName,
+            timestamp: dateTs,
+          })
+        }
+      }
+
       router.push(`/animals?ingreso=${selectedCount}`)
     } finally {
       setSubmitting(false)
     }
   }
 
-  const readingName =
-    reading.selectionMethod === "rfid_file" && reading.fileName
-      ? reading.fileName
-      : "Lectura Bluetooth"
-
   return (
     <div className=" space-y-6">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={onBack}>← Cambiar lectura</Button>
+        <Button variant="ghost" size="sm" onClick={onBack}>← {backLabel}</Button>
         <div>
-          <h1 className="text-lg font-semibold text-foreground">{readingName}</h1>
-          <p className="text-xs text-muted-foreground">{formatDate(reading.activityDate)}</p>
+          <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+          {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
         </div>
       </div>
+
+      {/* Activity metadata — solo para stock_entry */}
+      {isStockEntry && (
+        <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+          <SectionLabel>Datos del ingreso</SectionLabel>
+          <div className="grid grid-cols-3 gap-4">
+            <FormField label="Fecha">
+              <Input type="date" value={activityDate} onChange={(e) => setActivityDate(e.target.value)} />
+            </FormField>
+            <FormField label="Responsable">
+              <Input
+                value={responsible}
+                onChange={(e) => setResponsible(e.target.value)}
+                placeholder={user?.name ?? "Nombre"}
+              />
+            </FormField>
+            <FormField label="Notas">
+              <Input
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Observaciones..."
+              />
+            </FormField>
+          </div>
+        </div>
+      )}
 
       {/* Common data */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-4">
@@ -620,8 +864,8 @@ function RfidReview({
         </FormField>
       </div>
 
-      {/* Animal list */}
-      <div className="space-y-2">
+      {/* Animal grid */}
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <SectionLabel>Animales a ingresar</SectionLabel>
           <span className="text-xs text-muted-foreground">
@@ -629,102 +873,144 @@ function RfidReview({
           </span>
         </div>
 
-        {unknownCaravanas.map((caravana) => {
-          const row = rows[caravana]
-          if (!row) return null
-          const hasOverride = Object.keys(row.overrides).length > 0
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+          {unknownCaravanas.map((caravana) => {
+            const row = rows[caravana]
+            if (!row) return null
+            const hasOverride = Object.keys(row.overrides).length > 0
 
-          return (
-            <div
-              key={caravana}
-              className={cn(
-                "rounded-xl border bg-card transition-all",
-                row.alreadyExists ? "border-border opacity-60" : "border-border"
-              )}
-            >
-              <div className="flex items-center gap-3 px-4 py-3">
-                <input
-                  type="checkbox"
-                  checked={row.included}
-                  disabled={row.alreadyExists}
-                  onChange={() => toggleIncluded(caravana)}
-                  className="h-4 w-4 accent-primary"
-                />
-                <span className="flex-1 font-mono text-sm text-foreground">
-                  {formatCaravana(caravana, "full")}
-                </span>
-                {row.alreadyExists ? (
-                  <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs text-destructive">
-                    Ya existe
-                  </span>
-                ) : hasOverride ? (
-                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
-                    Personalizado
-                  </span>
-                ) : (
-                  <span className="text-xs text-muted-foreground">Datos comunes</span>
+            return (
+              <div
+                key={caravana}
+                className={cn(
+                  "relative flex flex-col items-center gap-2 rounded-xl border bg-card p-3 transition-all",
+                  row.alreadyExists
+                    ? "border-border opacity-50 cursor-not-allowed"
+                    : row.included
+                    ? "border-primary/40 ring-1 ring-primary/20"
+                    : "border-border opacity-60"
                 )}
+              >
+                {/* Checkbox top-left */}
                 {!row.alreadyExists && (
+                  <input
+                    type="checkbox"
+                    checked={row.included}
+                    onChange={() => toggleIncluded(caravana)}
+                    className="absolute left-2 top-2 h-3.5 w-3.5 accent-primary"
+                  />
+                )}
+
+                {/* Tag */}
+                <button
+                  type="button"
+                  disabled={row.alreadyExists}
+                  onClick={() => !row.alreadyExists && toggleIncluded(caravana)}
+                  className="mt-2"
+                >
+                  <TagView caravana={caravana} size="md" />
+                </button>
+
+                {/* Footer */}
+                {row.alreadyExists ? (
+                  <span className="text-[10px] text-destructive">Ya existe</span>
+                ) : (
                   <button
+                    type="button"
                     onClick={() => toggleExpanded(caravana)}
-                    className="text-xs text-primary hover:underline"
+                    className={cn(
+                      "text-[10px] hover:underline",
+                      hasOverride ? "text-amber-600 font-medium" : "text-muted-foreground"
+                    )}
                   >
-                    {row.expanded ? "Cerrar" : "Personalizar"}
+                    {hasOverride ? "Personalizado" : "Personalizar"}
                   </button>
                 )}
               </div>
-
-              {row.expanded && !row.alreadyExists && (
-                <div className="border-t border-border px-4 py-3 grid grid-cols-2 gap-3">
-                  <FormField label="Categoría">
-                    <NativeSelect
-                      value={row.overrides.category ?? common.category}
-                      onChange={(e) => setOverride(caravana, { category: e.target.value as AnimalCategory })}
-                    >
-                      <option value="vaca">Vaca</option>
-                      <option value="toro">Toro</option>
-                      <option value="novillo">Novillo</option>
-                      <option value="vaquillona">Vaquillona</option>
-                      <option value="ternero">Ternero</option>
-                      <option value="ternera">Ternera</option>
-                      <option value="otro">Otro</option>
-                    </NativeSelect>
-                  </FormField>
-                  <FormField label="Sexo">
-                    <NativeSelect
-                      value={row.overrides.sex ?? common.sex}
-                      onChange={(e) => setOverride(caravana, { sex: e.target.value as AnimalSex })}
-                    >
-                      <option value="female">Hembra</option>
-                      <option value="male">Macho</option>
-                    </NativeSelect>
-                  </FormField>
-                  <FormField label="Raza">
-                    <Input
-                      placeholder={common.breed || "Angus, Hereford..."}
-                      value={row.overrides.breed ?? ""}
-                      onChange={(e) => setOverride(caravana, { breed: e.target.value })}
-                    />
-                  </FormField>
-                  <FormField label="Origen">
-                    <Input
-                      placeholder={common.origin || "Procedencia..."}
-                      value={row.overrides.origin ?? ""}
-                      onChange={(e) => setOverride(caravana, { origin: e.target.value })}
-                    />
-                  </FormField>
-                </div>
-              )}
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
+
+      {/* Personalizar modal */}
+      {unknownCaravanas.map((caravana) => {
+        const row = rows[caravana]
+        if (!row?.expanded || row.alreadyExists) return null
+        return (
+          <div
+            key={`modal-${caravana}`}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+            onClick={() => toggleExpanded(caravana)}
+          >
+            <div
+              className="w-full max-w-sm rounded-xl border border-border bg-card p-5 shadow-lg space-y-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <TagView caravana={caravana} size="md" />
+                  <span className="text-sm font-semibold text-foreground">Personalizar</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => toggleExpanded(caravana)}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Cerrar
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <FormField label="Categoría">
+                  <NativeSelect
+                    value={row.overrides.category ?? common.category}
+                    onChange={(e) => setOverride(caravana, { category: e.target.value as AnimalCategory })}
+                  >
+                    <option value="vaca">Vaca</option>
+                    <option value="toro">Toro</option>
+                    <option value="novillo">Novillo</option>
+                    <option value="vaquillona">Vaquillona</option>
+                    <option value="ternero">Ternero</option>
+                    <option value="ternera">Ternera</option>
+                    <option value="otro">Otro</option>
+                  </NativeSelect>
+                </FormField>
+                <FormField label="Sexo">
+                  <NativeSelect
+                    value={row.overrides.sex ?? common.sex}
+                    onChange={(e) => setOverride(caravana, { sex: e.target.value as AnimalSex })}
+                  >
+                    <option value="female">Hembra</option>
+                    <option value="male">Macho</option>
+                  </NativeSelect>
+                </FormField>
+                <FormField label="Raza">
+                  <Input
+                    placeholder={common.breed || "Angus, Hereford..."}
+                    value={row.overrides.breed ?? ""}
+                    onChange={(e) => setOverride(caravana, { breed: e.target.value })}
+                  />
+                </FormField>
+                <FormField label="Origen">
+                  <Input
+                    placeholder={common.origin || "Procedencia..."}
+                    value={row.overrides.origin ?? ""}
+                    onChange={(e) => setOverride(caravana, { origin: e.target.value })}
+                  />
+                </FormField>
+              </div>
+              <div className="flex justify-end">
+                <Button size="sm" onClick={() => toggleExpanded(caravana)}>Listo</Button>
+              </div>
+            </div>
+          </div>
+        )
+      })}
 
       {/* Actions */}
       <div className="flex justify-end gap-2 pb-8">
         <Button variant="outline" onClick={onBack}>Cancelar</Button>
         <Button onClick={onSubmit} disabled={selectedCount === 0} loading={submitting}>
-          Ingresar {selectedCount > 0 ? `${selectedCount} animales` : "animales"}
+          {isStockEntry ? "Registrar ingreso" : "Ingresar"}{selectedCount > 0 ? ` · ${selectedCount} animales` : ""}
         </Button>
       </div>
     </div>
@@ -738,9 +1024,13 @@ export default function NewAnimalPage() {
   const user = useAuthStore((s) => s.user)
   const lots = useLots()
   const animals = useAnimals()
+  const searchParams = useSearchParams()
 
-  const [step, setStep] = useState<Step>("select-method")
+  const initialMethod = searchParams.get("method") as Step | null
+  const [step, setStep] = useState<Step>(initialMethod === "rfid-file-direct" ? "rfid-file-direct" : "select-method")
   const [selectedReading, setSelectedReading] = useState<Activity | null>(null)
+  const [directCaravanas, setDirectCaravanas] = useState<string[]>([])
+  const [directFileName, setDirectFileName] = useState<string>("")
 
   const readings = useMemo(() => {
     if (!estId) return []
@@ -763,7 +1053,11 @@ export default function NewAnimalPage() {
           </Link>
         </div>
         <MethodSelector
-          onSelect={(method) => setStep(method === "individual" ? "individual" : "rfid-pick")}
+          onSelect={(method) => {
+            if (method === "individual") setStep("individual")
+            else if (method === "rfid-file-direct") setStep("rfid-file-direct")
+            else setStep("rfid-pick")
+          }}
         />
       </div>
     )
@@ -780,6 +1074,16 @@ export default function NewAnimalPage() {
     )
   }
 
+  if (step === "rfid-file-direct") {
+    return (
+      <RfidDirectUpload
+        existingCaravanas={existingCaravanas}
+        onReady={(caravanas, fileName) => { setDirectCaravanas(caravanas); setDirectFileName(fileName); setStep("rfid-review") }}
+        onBack={() => setStep("select-method")}
+      />
+    )
+  }
+
   if (step === "rfid-pick") {
     return (
       <RfidPickReading
@@ -791,15 +1095,36 @@ export default function NewAnimalPage() {
     )
   }
 
-  if (step === "rfid-review" && selectedReading) {
+  if (step === "rfid-review") {
+    const caravanas = selectedReading
+      ? (selectedReading.unknownCaravanas ?? [])
+      : directCaravanas
+
+    const title = selectedReading
+      ? (selectedReading.selectionMethod === "rfid_file" && selectedReading.fileName
+        ? selectedReading.fileName
+        : "Lectura Bluetooth")
+      : "Agregar stock"
+
+    const subtitle = selectedReading ? formatDate(selectedReading.activityDate) : undefined
+    const backLabel = selectedReading ? "Cambiar lectura" : "Volver"
+    const onBack = selectedReading
+      ? () => setStep("rfid-pick")
+      : () => setStep("rfid-file-direct")
+
     return (
       <RfidReview
-        reading={selectedReading}
+        caravanas={caravanas}
         existingCaravanas={existingCaravanas}
+        title={title}
+        subtitle={subtitle}
+        backLabel={backLabel}
+        isStockEntry={!selectedReading}
+        fileName={!selectedReading ? directFileName : undefined}
         estId={estId}
         userId={user.uid}
         lots={lots}
-        onBack={() => setStep("rfid-pick")}
+        onBack={onBack}
       />
     )
   }

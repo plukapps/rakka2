@@ -41,6 +41,10 @@ export const activityRepository = {
     store.setActivity({ ...act, archived });
   },
 
+  delete(estId: string, activityId: string): void {
+    getMockStore().deleteActivity(estId, activityId);
+  },
+
   subscribe(estId: string, fn: () => void): () => void {
     return getMockStore().subscribe(`activities/${estId}`, fn);
   },

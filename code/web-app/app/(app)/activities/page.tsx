@@ -9,12 +9,18 @@ import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import { formatDate, activityTypeLabel, cn } from "@/lib/utils"
+import { Trash2 } from "lucide-react"
 
 function activityTitle(act: Activity): string {
   switch (act.type) {
     case "reading": {
       const count = act.animalIds.length + (act.unknownCaravanas?.length ?? 0)
       const base = `Lectura ${count} caravana${count !== 1 ? "s" : ""}`
+      return act.fileName ? `${base} · ${act.fileName}` : base
+    }
+    case "stock_entry": {
+      const n = act.animalIds.length
+      const base = `Ingreso ${n} animal${n !== 1 ? "es" : ""}`
       return act.fileName ? `${base} · ${act.fileName}` : base
     }
     case "sanitary": {
@@ -133,30 +139,38 @@ export default function ActivitiesPage() {
               <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</h2>
               <div className="divide-y divide-border rounded-xl border border-border bg-card">
                 {items.map((act) => (
-                  <Link
-                    key={act.id}
-                    href={`/activities/${act.id}`}
-                    className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors"
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {activityTitle(act)}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <StatusBadge variant="neutral" className="h-[18px] justify-center shrink-0 text-xs">
-                          {activityTypeLabel(act.type)}
-                        </StatusBadge>
-                        <p className="text-xs text-muted-foreground">
-                          {act.responsible}
-                          {" · "}
-                          {act.type === "reading"
-                            ? `${act.animalIds.length + (act.unknownCaravanas?.length ?? 0)} caravana${(act.animalIds.length + (act.unknownCaravanas?.length ?? 0)) !== 1 ? "s" : ""}`
-                            : `${act.animalIds.length} animal${act.animalIds.length !== 1 ? "es" : ""}`}
+                  <div key={act.id} className="flex items-center hover:bg-muted/50 transition-colors">
+                    <Link
+                      href={`/activities/${act.id}`}
+                      className="flex flex-1 items-center justify-between px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {activityTitle(act)}
                         </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <StatusBadge variant="neutral" className="h-[18px] justify-center shrink-0 text-xs">
+                            {activityTypeLabel(act.type)}
+                          </StatusBadge>
+                          <p className="text-xs text-muted-foreground">
+                            {act.responsible}
+                            {" · "}
+                            {act.type === "reading"
+                              ? `${act.animalIds.length + (act.unknownCaravanas?.length ?? 0)} caravana${(act.animalIds.length + (act.unknownCaravanas?.length ?? 0)) !== 1 ? "s" : ""}`
+                              : `${act.animalIds.length} animal${act.animalIds.length !== 1 ? "es" : ""}`}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <span className="text-xs text-muted-foreground shrink-0">{formatDate(act.activityDate)}</span>
-                  </Link>
+                      <span className="text-xs text-muted-foreground shrink-0">{formatDate(act.activityDate)}</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => estId && activityRepository.delete(estId, act.id)}
+                      className="p-3 text-muted-foreground hover:text-destructive transition-colors"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
                 ))}
               </div>
             </section>

@@ -78,6 +78,7 @@ export interface Lot {
 
 export type ActivityType =
   | "reading"
+  | "stock_entry"
   | "sanitary"
   | "commercial"
   | "field_control"
@@ -198,6 +199,11 @@ export interface ReadingActivity extends ActivityBase {
   type: "reading";
 }
 
+export interface StockEntryActivity extends ActivityBase {
+  type: "stock_entry";
+  entryType: AnimalEntryType;
+}
+
 export interface SanitaryActivity extends ActivityBase, SanitaryFields {
   type: "sanitary";
 }
@@ -224,6 +230,7 @@ export interface GeneralActivity extends ActivityBase, GeneralFields {
 
 export type Activity =
   | ReadingActivity
+  | StockEntryActivity
   | SanitaryActivity
   | CommercialActivity
   | FieldControlActivity

@@ -158,6 +158,11 @@ class MockStore {
     this.emit(`activities/${activity.estId}`);
   }
 
+  deleteActivity(estId: string, activityId: string) {
+    this.activities.delete(`${estId}/${activityId}`);
+    this.emit(`activities/${estId}`);
+  }
+
   // ---- Traceability ----
 
   getTraceabilityForAnimal(estId: string, animalId: string): TraceabilityEvent[] {

@@ -132,11 +132,16 @@ export default function HomePage() {
         <h1 className="text-lg font-semibold text-foreground">{activeEst?.name ?? "Inicio"}</h1>
         <EmptyState
           title="No hay animales en este establecimiento"
-          description="Ingresa tu primer animal para comenzar a gestionar tu rodeo."
+          description="Ingresá tu stock para comenzar a gestionar tu rodeo."
           action={
-            <Link href="/animals/new">
-              <Button>Ingresar primer animal</Button>
-            </Link>
+            <div className="flex flex-col items-center gap-2 sm:flex-row">
+              <Link href="/animals/new?method=rfid-file-direct">
+                <Button>Cargar desde archivo RFID</Button>
+              </Link>
+              <Link href="/animals/new">
+                <Button variant="outline">Ingresar manualmente</Button>
+              </Link>
+            </div>
           }
         />
       </div>

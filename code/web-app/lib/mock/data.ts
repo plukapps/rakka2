@@ -25,7 +25,7 @@ export const MOCK_USER: User = {
   uid: "user_001",
   name: "Juan Pérez",
   email: "juan@example.com",
-  establishmentIds: { est_001: true, est_002: true },
+  establishmentIds: { est_001: true, est_002: true, est_003: true },
   createdAt: daysAgo(365),
 };
 
@@ -49,6 +49,15 @@ export const MOCK_ESTABLISHMENTS: Establishment[] = [
     ownerId: "user_001",
     status: "active",
     createdAt: daysAgo(200),
+  },
+  {
+    id: "est_003",
+    name: "Campo Nuevo",
+    description: "",
+    location: "",
+    ownerId: "user_001",
+    status: "active",
+    createdAt: daysAgo(1),
   },
 ];
 

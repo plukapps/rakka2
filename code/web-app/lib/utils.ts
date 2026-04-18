@@ -156,6 +156,7 @@ export function categoryLabel(cat: string): string {
 export function activityTypeLabel(type: string): string {
   const labels: Record<string, string> = {
     reading: "Lectura",
+    stock_entry: "Ingreso de stock",
     sanitary: "Sanitaria",
     commercial: "Comercial",
     field_control: "Control de campo",

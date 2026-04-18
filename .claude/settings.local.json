@@ -30,7 +30,8 @@
       "WebFetch(domain:www.correo.com.uy)",
       "mcp__github__search_code",
       "WebFetch(domain:github.com)",
-      "Bash(echo \"EXIT: $?\")"
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(pkill -f \"next dev\")"
     ]
   }
 }
