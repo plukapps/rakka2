@@ -8,7 +8,7 @@ import { formatCaravana, formatWeight, formatGdp, sexLabel, categoryLabel } from
 export type ViewMode = "relaxed" | "compacted" | "list"
 
 // Shared between list header (page.tsx) and list rows (here)
-export const LIST_COL_TEMPLATE = "84px 140px 1fr 80px 1fr 90px 90px auto"
+export const LIST_COL_TEMPLATE = "84px 140px 1fr 1fr 80px 1fr 90px 90px auto"
 export const LIST_COL_GAP = 24
 
 interface AnimalCardProps {
@@ -71,22 +71,25 @@ export function AnimalCard({ animal, lot, viewMode = "relaxed" }: AnimalCardProp
           <span className="font-mono text-sm text-foreground truncate">
             {formatCaravana(animal.caravana, "serie")}
           </span>
-          <span className="text-sm text-muted-foreground truncate">
+          <span className="text-muted-foreground truncate" style={{ fontSize: "0.830rem" }}>
+            {categoryLabel(animal.category)}
+          </span>
+          <span className="text-muted-foreground truncate" style={{ fontSize: "0.830rem" }}>
             {animal.breed || "—"}
           </span>
-          <span className="text-sm text-muted-foreground truncate">
+          <span className="text-muted-foreground truncate" style={{ fontSize: "0.830rem" }}>
             {sexLabel(animal.sex)}
           </span>
-          <span className="text-sm text-muted-foreground/70 truncate">
+          <span className="text-muted-foreground/70 truncate" style={{ fontSize: "0.830rem" }}>
             {lot?.name ?? <span className="text-muted-foreground/40">Sin lote</span>}
           </span>
-          <span className="text-sm text-muted-foreground tabular-nums">
+          <span className="text-muted-foreground tabular-nums" style={{ fontSize: "0.830rem" }}>
             {formatWeight(animal.lastWeight)}
           </span>
-          <span className="text-sm text-muted-foreground tabular-nums">
+          <span className="text-muted-foreground tabular-nums" style={{ fontSize: "0.830rem" }}>
             {formatGdp(animal.gdpRecent)}
           </span>
-          <span>
+          <span style={{ fontSize: "0.830rem" }}>
             {animal.hasActiveCarencia
               ? <CarenciaIndicator animal={animal} size="sm" />
               : <StatusContent animal={animal} />}

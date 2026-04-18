@@ -137,14 +137,15 @@ export default function AnimalsPage() {
             className="grid items-center border-b border-border bg-muted/40 px-4 py-2.5 text-xs font-semibold text-foreground"
             style={{ gridTemplateColumns: LIST_COL_TEMPLATE, gap: LIST_COL_GAP }}
           >
-            <span>Tag</span>
-            <span>Caravana</span>
-            <span>Raza</span>
-            <span>Sexo</span>
-            <span>Lote</span>
-            <span>Peso</span>
+            <span>TAG</span>
+            <span>CARAVANA</span>
+            <span>CATEGORÍA</span>
+            <span>RAZA</span>
+            <span>SEXO</span>
+            <span>LOTE</span>
+            <span>PESO</span>
             <span>GDP</span>
-            <span>Estado</span>
+            <span>ESTADO</span>
           </div>
 
           {/* Table rows (virtualized) */}
