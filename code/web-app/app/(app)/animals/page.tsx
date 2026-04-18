@@ -15,7 +15,7 @@ const DEFAULT_FILTERS: AnimalFilterState = {
   search: "",
   lotId: "",
   category: "",
-  carenciaOnly: false,
+  carenciaFilter: "all",
   statusFilter: "active",
   sortBy: "serie_asc",
 }
@@ -60,7 +60,8 @@ export default function AnimalsPage() {
   const filtered = useMemo(() => {
     return animals.filter((a) => {
       if (filters.statusFilter === "active" && a.status !== "active") return false
-      if (filters.carenciaOnly && !a.hasActiveCarencia) return false
+      if (filters.carenciaFilter === "active" && !a.hasActiveCarencia) return false
+      if (filters.carenciaFilter === "inactive" && a.hasActiveCarencia) return false
       if (filters.lotId === "none" && a.lotId !== null) return false
       if (filters.lotId && filters.lotId !== "none" && a.lotId !== filters.lotId) return false
       if (filters.category && a.category !== filters.category) return false

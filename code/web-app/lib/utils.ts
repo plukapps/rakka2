@@ -63,9 +63,14 @@ export function isCarenciaExpiringSoon(carenciaExpiresAt: number | null): boolea
   return daysUntil(carenciaExpiresAt) <= 7
 }
 
-export function carenciaLabel(carenciaExpiresAt: number | null): string {
+export function carenciaLabel(carenciaExpiresAt: number | null, short = false): string {
   if (!carenciaExpiresAt) return "Sin carencia"
   const days = daysUntil(carenciaExpiresAt)
+  if (short) {
+    if (days < 0) return "v."
+    if (days === 0) return "hoy"
+    return `v ${days}d`
+  }
   if (days < 0) return "Carencia vencida"
   if (days === 0) return "Vence hoy"
   if (days === 1) return "Vence mañana"
