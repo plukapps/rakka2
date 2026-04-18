@@ -14,8 +14,7 @@
 │ Page Header: "Animales"  [+ Ingresar animal]           │
 ├────────────────────────────────────────────────────────┤
 │ Toolbar de filtros                                     │
-│ [Buscar caravana...] [Lote ▾] [Categoría ▾]           │
-│ [Estado ▾] [Con carencia ☐]      "142 animales"        │
+│ [Buscar caravana...] [Lotes ▾] [Categoría ▾] [Estado ▾] [Carencia ▾]  │
 ├────────────────────────────────────────────────────────┤
 │                                                        │
 │  [Card] [Card] [Card] [Card]                           │
@@ -28,14 +27,17 @@
 
 ### Toolbar de filtros
 
-- **Búsqueda**: input de texto, busca por caravana (cualquier parte del número). Ancho más generoso (`w-64`).
-- **Lote**: select con los lotes activos del establecimiento + opción "Sin lote".
-- **Categoría**: select con las categorías (vaca, toro, ternero/a, vaquillona, novillo, otro).
-- **Estado**: select (Todos / Activos / Egresados).
-- **Con carencia activa**: toggle switch (estilo similar a ViewModeToggle — pill con fondo primary cuando activo).
-- **View mode**: dropdown select al final del toolbar con tres opciones: `Relajado` (default), `Compacto`, `Lista`. La selección se persiste en `localStorage` (`animals-view-mode`).
+Todo en una sola fila: búsqueda + filtros en línea.
+
+- **Búsqueda**: input de texto, busca por caravana. Ancho `w-56`. Fondo `rgb(250, 248, 243)`. Altura `h-7`, texto `text-xs`.
+- **Lotes**: select — placeholder "Lotes", opciones: "Sin lote" + lotes del establecimiento.
+- **Categoría**: select — placeholder "Categoría", opciones: vaca, toro, ternero/a, vaquillona, novillo, otro.
+- **Estado**: select — opciones: "Estado" (todos), "Activos".
+- **Carencia**: select — opciones: "Carencia" (todos), "Con carencia", "Sin carencia".
+- Todos los selects: altura `h-7`, texto `text-xs`, padding `px-2`.
+- **View mode**: toggle de íconos (Relajado / Compacto / Lista) separado del grupo de filtros. Se persiste en `localStorage` (`animals-view-mode`).
 - **Contador**: texto "X / Y" (filtrados / total) junto al título, actualiza en tiempo real.
-- **Limpiar filtros**: botón `secondary` (con fondo) que aparece cuando hay al menos un filtro activo.
+- **Limpiar filtros**: botón `secondary` `h-7 text-xs` que aparece cuando hay al menos un filtro activo.
 
 ### Modos de vista
 
@@ -53,6 +55,7 @@ El listado soporta tres modos de vista, seleccionables desde el toolbar:
 
 - **StatusBadge** lógica tres casos: `status=active` → "Activo" (success); `exited+death` → "Inactivo" (neutral); `exited+otros` → "Egresado" (neutral).
 - **StatusBadge** y **CarenciaIndicator**: `border-radius: 4px` (rectangular, no pill).
+- **CarenciaIndicator** en modo `sm` (vista relajada): sin dot, texto abreviado — `v Xd` (ej. "v 6d"), `hoy`, o `v.` si ya venció.
 - El lote aparece en línea propia debajo de categoría · raza, en color `muted-foreground/70`.
 - Si no tiene lote, la línea de lote no se renderiza.
 
