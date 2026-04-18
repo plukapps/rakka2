@@ -145,6 +145,10 @@ export function parseRfidLineWithWeight(
 }
 
 // Label helpers
+export function sexLabel(sex: string): string {
+  return sex === "female" ? "Hembra" : "Macho"
+}
+
 export function categoryLabel(cat: string): string {
   const labels: Record<string, string> = {
     vaca: "Vaca",

@@ -139,11 +139,12 @@ export default function AnimalsPage() {
           >
             <span>Tag</span>
             <span>Caravana</span>
-            <span>Estado</span>
-            <span>Categoría</span>
             <span>Raza</span>
-            <span>Carencia</span>
-            <span className="text-right">Lote</span>
+            <span>Sexo</span>
+            <span>Lote</span>
+            <span>Peso</span>
+            <span>GDP</span>
+            <span>Estado</span>
           </div>
 
           {/* Table rows (virtualized) */}

@@ -3,12 +3,12 @@ import type { Animal, Lot } from "@/lib/types"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { CarenciaIndicator } from "@/components/animals/CarenciaIndicator"
 import { TagView } from "@/components/animals/TagView"
-import { categoryLabel, formatCaravana } from "@/lib/utils"
+import { formatCaravana, formatWeight, formatGdp, sexLabel, categoryLabel } from "@/lib/utils"
 
 export type ViewMode = "relaxed" | "compacted" | "list"
 
 // Shared between list header (page.tsx) and list rows (here)
-export const LIST_COL_TEMPLATE = "84px 1fr 1fr 1fr 1fr 1fr 1fr"
+export const LIST_COL_TEMPLATE = "84px 140px 1fr 80px 1fr 90px 90px auto"
 export const LIST_COL_GAP = 24
 
 interface AnimalCardProps {
@@ -71,16 +71,25 @@ export function AnimalCard({ animal, lot, viewMode = "relaxed" }: AnimalCardProp
           <span className="font-mono text-sm text-foreground truncate">
             {formatCaravana(animal.caravana, "serie")}
           </span>
-          <StatusContent animal={animal} />
           <span className="text-sm text-muted-foreground truncate">
-            {categoryLabel(animal.category)}
+            {animal.breed || "—"}
           </span>
           <span className="text-sm text-muted-foreground truncate">
-            {animal.breed ?? ""}
+            {sexLabel(animal.sex)}
           </span>
-          <span><CarenciaIndicator animal={animal} size="sm" /></span>
-          <span className="text-sm text-muted-foreground/70 text-right truncate">
-            {lot?.name ?? ""}
+          <span className="text-sm text-muted-foreground/70 truncate">
+            {lot?.name ?? <span className="text-muted-foreground/40">Sin lote</span>}
+          </span>
+          <span className="text-sm text-muted-foreground tabular-nums">
+            {formatWeight(animal.lastWeight)}
+          </span>
+          <span className="text-sm text-muted-foreground tabular-nums">
+            {formatGdp(animal.gdpRecent)}
+          </span>
+          <span>
+            {animal.hasActiveCarencia
+              ? <CarenciaIndicator animal={animal} size="sm" />
+              : <StatusContent animal={animal} />}
           </span>
         </div>
       </Link>
