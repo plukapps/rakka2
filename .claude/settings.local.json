@@ -31,7 +31,13 @@
       "mcp__github__search_code",
       "WebFetch(domain:github.com)",
       "Bash(echo \"EXIT: $?\")",
-      "Bash(pkill -f \"next dev\")"
+      "Bash(pkill -f \"next dev\")",
+      "Bash(git -C /Users/santilod/dev2/rakka2 add code/web-app/app/\\\\\\(app\\\\\\)/animals/page.tsx code/web-app/components/animals/AnimalFilters.tsx code/web-app/components/animals/CarenciaIndicator.tsx code/web-app/lib/utils.ts)",
+      "Bash(git -C /Users/santilod/dev2/rakka2 commit -m ' *)",
+      "Bash(git -C /Users/santilod/dev2/rakka2 add specs/design/02-animales.md)",
+      "Bash(git -C /Users/santilod/dev2/rakka2 add specs/design/02-animales.md code/web-app/lib/utils.ts code/web-app/components/animals/AnimalCard.tsx code/web-app/app/\\\\\\(app\\\\\\)/animals/page.tsx)",
+      "Bash(git -C /Users/santilod/dev2/rakka2 add code/web-app/components/animals/AnimalCard.tsx code/web-app/app/\\\\\\(app\\\\\\)/animals/page.tsx)",
+      "Bash(git *)"
     ]
   }
 }
