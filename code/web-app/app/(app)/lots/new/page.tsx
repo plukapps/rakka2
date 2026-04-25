@@ -335,31 +335,36 @@ function InfoStep({
 
 // ─── MethodStep ───────────────────────────────────────────────────────────────
 
-const METHOD_OPTIONS: { value: AnimalMethod; label: string; description: string }[] = [
+const METHOD_OPTIONS: { value: AnimalMethod; label: string; description: string; disabled: boolean }[] = [
   {
     value: "manual",
     label: "Selección manual",
     description: "Buscá y elegí animales del listado uno por uno.",
+    disabled: true,
   },
   {
     value: "reading_live",
     label: "Lectura RFID en vivo",
     description: "Usá una lectura RFID guardada para agregar animales en bloque.",
+    disabled: false,
   },
   {
     value: "reading_file",
     label: "Importar archivo de lectura",
     description: "Cargá un archivo CSV o TXT con caravanas leídas.",
+    disabled: true,
   },
   {
     value: "filter",
     label: "Por filtro automático",
     description: "Aplicá criterios (categoría, raza, peso, edad) para seleccionar animales.",
+    disabled: true,
   },
   {
     value: "lot_transfer",
     label: "Mover desde otro lote",
     description: "Trasladá todos o parte de los animales de un lote existente.",
+    disabled: true,
   },
 ]
 
@@ -377,10 +382,12 @@ function MethodStep({
         <label
           key={opt.value}
           className={cn(
-            "flex items-start gap-3 rounded-xl border p-4 cursor-pointer transition-colors",
-            method === opt.value
-              ? "border-foreground bg-card"
-              : "border-border bg-card hover:border-foreground/40"
+            "flex items-start gap-3 rounded-xl border p-4 transition-colors",
+            opt.disabled
+              ? "opacity-40 cursor-not-allowed border-border bg-card"
+              : method === opt.value
+              ? "border-foreground bg-card cursor-pointer"
+              : "border-border bg-card cursor-pointer hover:border-foreground/40"
           )}
         >
           <input
@@ -388,7 +395,8 @@ function MethodStep({
             name="animal-method"
             value={opt.value}
             checked={method === opt.value}
-            onChange={() => onMethodChange(opt.value)}
+            disabled={opt.disabled}
+            onChange={() => !opt.disabled && onMethodChange(opt.value)}
             className="mt-0.5 shrink-0 accent-foreground"
           />
           <div>
@@ -879,7 +887,7 @@ export function NewLotModal({ onClose }: { onClose: () => void }) {
 
   const [step, setStep] = useState<WizardStep>("info")
   const [createdLot, setCreatedLot] = useState<Lot | null>(null)
-  const [method, setMethod] = useState<AnimalMethod>("manual")
+  const [method, setMethod] = useState<AnimalMethod>("reading_live")
   const [readingId, setReadingId] = useState("")
   const [lotTransferId, setLotTransferId] = useState("")
   const [discarded, setDiscarded] = useState<Set<string>>(new Set())
@@ -1090,11 +1098,11 @@ export function NewLotModal({ onClose }: { onClose: () => void }) {
 
         {/* Header */}
         <div className="flex items-center gap-6 px-6 py-4 border-b bg-background shrink-0">
-          <div className="shrink-0">
+          <div className="w-44 shrink-0">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Nuevo lote
             </p>
-            <p className="text-lg font-semibold mt-0.5">{STEP_TITLES[step]}</p>
+            <p className="text-lg font-semibold mt-0.5 leading-snug">{STEP_TITLES[step]}</p>
           </div>
           <div className="flex-1 flex justify-center">
             <StepIndicator current={step} />
