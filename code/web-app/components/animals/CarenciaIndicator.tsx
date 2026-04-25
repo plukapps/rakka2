@@ -27,13 +27,15 @@ export function CarenciaIndicator({ animal, size = "md" }: CarenciaIndicatorProp
           : "bg-blue-100 text-blue-700"
       )}
     >
-      <span
-        className={cn(
-          "mr-1.5 h-1.5 w-1.5 rounded-full",
-          isCritical ? "bg-red-500" : isWarning ? "bg-amber-500" : "bg-blue-500"
-        )}
-      />
-      {carenciaLabel(animal.carenciaExpiresAt)}
+      {size !== "sm" && (
+        <span
+          className={cn(
+            "mr-1.5 h-1.5 w-1.5 rounded-full",
+            isCritical ? "bg-red-500" : isWarning ? "bg-amber-500" : "bg-blue-500"
+          )}
+        />
+      )}
+      {carenciaLabel(animal.carenciaExpiresAt, size === "sm")}
     </span>
   );
 }

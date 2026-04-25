@@ -15,7 +15,7 @@ const DEFAULT_FILTERS: AnimalFilterState = {
   search: "",
   lotId: "",
   category: "",
-  carenciaOnly: false,
+  carenciaFilter: "all",
   statusFilter: "active",
   sortBy: "serie_asc",
 }
@@ -60,7 +60,8 @@ export default function AnimalsPage() {
   const filtered = useMemo(() => {
     return animals.filter((a) => {
       if (filters.statusFilter === "active" && a.status !== "active") return false
-      if (filters.carenciaOnly && !a.hasActiveCarencia) return false
+      if (filters.carenciaFilter === "active" && !a.hasActiveCarencia) return false
+      if (filters.carenciaFilter === "inactive" && a.hasActiveCarencia) return false
       if (filters.lotId === "none" && a.lotId !== null) return false
       if (filters.lotId && filters.lotId !== "none" && a.lotId !== filters.lotId) return false
       if (filters.category && a.category !== filters.category) return false
@@ -136,13 +137,15 @@ export default function AnimalsPage() {
             className="grid items-center border-b border-border bg-muted/40 px-4 py-2.5 text-xs font-semibold text-foreground"
             style={{ gridTemplateColumns: LIST_COL_TEMPLATE, gap: LIST_COL_GAP }}
           >
-            <span>Tag</span>
-            <span>Caravana</span>
-            <span>Estado</span>
-            <span>Categoría</span>
-            <span>Raza</span>
-            <span>Carencia</span>
-            <span className="text-right">Lote</span>
+            <span>TAG</span>
+            <span>CARAVANA</span>
+            <span>CATEGORÍA</span>
+            <span>RAZA</span>
+            <span>SEXO</span>
+            <span>LOTE</span>
+            <span>PESO</span>
+            <span>GDP</span>
+            <span>ESTADO</span>
           </div>
 
           {/* Table rows (virtualized) */}

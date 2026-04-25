@@ -12,7 +12,7 @@ export interface AnimalFilterState {
   search: string
   lotId: string
   category: string
-  carenciaOnly: boolean
+  carenciaFilter: "all" | "active" | "inactive"
   statusFilter: "active" | "all"
   sortBy: AnimalSortBy
 }
@@ -40,7 +40,7 @@ function NativeSelect({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className={cn(
-        "h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground outline-none",
+        "h-7 rounded-lg border border-input bg-transparent px-2 text-xs text-foreground outline-none",
         "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
         "disabled:opacity-50",
         className
@@ -199,25 +199,26 @@ export function ViewModeToggle({
 export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFiltersProps) {
   const hasActiveFilters =
     filters.search || filters.lotId || filters.category ||
-    filters.carenciaOnly || filters.statusFilter !== "active" ||
+    filters.carenciaFilter !== "all" || filters.statusFilter !== "active" ||
     filters.sortBy !== "serie_asc"
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-wrap gap-1.5 items-center">
       <Input
         placeholder="Buscar caravana..."
         value={filters.search}
         onChange={(e) => onChange({ ...filters, search: e.target.value })}
-        className="w-64"
+        className="h-7 text-xs px-2 w-56"
+        style={{ backgroundColor: "rgb(250, 248, 243)" }}
       />
 
-      <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex flex-wrap gap-1.5 items-center">
       <NativeSelect
         value={filters.lotId}
         onChange={(v) => onChange({ ...filters, lotId: v })}
-        className="w-44"
+        className="w-36"
       >
-        <option value="">Todos los lotes</option>
+        <option value="">Lotes</option>
         <option value="none">Sin lote</option>
         {lots.map((l) => (
           <option key={l.id} value={l.id}>{l.name}</option>
@@ -227,9 +228,9 @@ export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFilter
       <NativeSelect
         value={filters.category}
         onChange={(v) => onChange({ ...filters, category: v as AnimalCategory | "" })}
-        className="w-44"
+        className="w-32"
       >
-        <option value="">Todas las categorías</option>
+        <option value="">Categoría</option>
         <option value="vaca">Vaca</option>
         <option value="toro">Toro</option>
         <option value="novillo">Novillo</option>
@@ -242,27 +243,24 @@ export function AnimalFilters({ filters, lots, onChange, onReset }: AnimalFilter
       <NativeSelect
         value={filters.statusFilter}
         onChange={(v) => onChange({ ...filters, statusFilter: v as "active" | "all" })}
-        className="w-36"
+        className="w-28"
       >
-        <option value="active">Solo activos</option>
-        <option value="all">Todos</option>
+        <option value="all">Estado</option>
+        <option value="active">Activos</option>
       </NativeSelect>
 
-      <button
-        type="button"
-        onClick={() => onChange({ ...filters, carenciaOnly: !filters.carenciaOnly })}
-        className={cn(
-          "flex h-8 items-center rounded-lg border px-2.5 text-xs font-medium transition-colors",
-          filters.carenciaOnly
-            ? "border-primary bg-primary text-primary-foreground"
-            : "border-input text-muted-foreground hover:text-foreground hover:bg-muted"
-        )}
+      <NativeSelect
+        value={filters.carenciaFilter}
+        onChange={(v) => onChange({ ...filters, carenciaFilter: v as "all" | "active" | "inactive" })}
+        className="w-32"
       >
-        Con carencia activa
-      </button>
+        <option value="all">Carencia</option>
+        <option value="active">Con carencia</option>
+        <option value="inactive">Sin carencia</option>
+      </NativeSelect>
 
       {hasActiveFilters && (
-        <Button variant="secondary" size="sm" onClick={onReset}>
+        <Button variant="secondary" size="sm" className="h-7 text-xs px-2" onClick={onReset}>
           Limpiar
         </Button>
       )}

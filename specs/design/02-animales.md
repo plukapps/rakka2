@@ -14,8 +14,7 @@
 │ Page Header: "Animales"  [+ Ingresar animal]           │
 ├────────────────────────────────────────────────────────┤
 │ Toolbar de filtros                                     │
-│ [Buscar caravana...] [Lote ▾] [Categoría ▾]           │
-│ [Estado ▾] [Con carencia ☐]      "142 animales"        │
+│ [Buscar caravana...] [Lotes ▾] [Categoría ▾] [Estado ▾] [Carencia ▾]  │
 ├────────────────────────────────────────────────────────┤
 │                                                        │
 │  [Card] [Card] [Card] [Card]                           │
@@ -28,14 +27,17 @@
 
 ### Toolbar de filtros
 
-- **Búsqueda**: input de texto, busca por caravana (cualquier parte del número). Ancho más generoso (`w-64`).
-- **Lote**: select con los lotes activos del establecimiento + opción "Sin lote".
-- **Categoría**: select con las categorías (vaca, toro, ternero/a, vaquillona, novillo, otro).
-- **Estado**: select (Todos / Activos / Egresados).
-- **Con carencia activa**: toggle switch (estilo similar a ViewModeToggle — pill con fondo primary cuando activo).
-- **View mode**: dropdown select al final del toolbar con tres opciones: `Relajado` (default), `Compacto`, `Lista`. La selección se persiste en `localStorage` (`animals-view-mode`).
+Todo en una sola fila: búsqueda + filtros en línea.
+
+- **Búsqueda**: input de texto, busca por caravana. Ancho `w-56`. Fondo `rgb(250, 248, 243)`. Altura `h-7`, texto `text-xs`.
+- **Lotes**: select — placeholder "Lotes", opciones: "Sin lote" + lotes del establecimiento.
+- **Categoría**: select — placeholder "Categoría", opciones: vaca, toro, ternero/a, vaquillona, novillo, otro.
+- **Estado**: select — opciones: "Estado" (todos), "Activos".
+- **Carencia**: select — opciones: "Carencia" (todos), "Con carencia", "Sin carencia".
+- Todos los selects: altura `h-7`, texto `text-xs`, padding `px-2`.
+- **View mode**: toggle de íconos (Relajado / Compacto / Lista) separado del grupo de filtros. Se persiste en `localStorage` (`animals-view-mode`).
 - **Contador**: texto "X / Y" (filtrados / total) junto al título, actualiza en tiempo real.
-- **Limpiar filtros**: botón `secondary` (con fondo) que aparece cuando hay al menos un filtro activo.
+- **Limpiar filtros**: botón `secondary` `h-7 text-xs` que aparece cuando hay al menos un filtro activo.
 
 ### Modos de vista
 
@@ -53,6 +55,7 @@ El listado soporta tres modos de vista, seleccionables desde el toolbar:
 
 - **StatusBadge** lógica tres casos: `status=active` → "Activo" (success); `exited+death` → "Inactivo" (neutral); `exited+otros` → "Egresado" (neutral).
 - **StatusBadge** y **CarenciaIndicator**: `border-radius: 4px` (rectangular, no pill).
+- **CarenciaIndicator** en modo `sm` (vista relajada): sin dot, texto abreviado — `v Xd` (ej. "v 6d"), `hoy`, o `v.` si ya venció.
 - El lote aparece en línea propia debajo de categoría · raza, en color `muted-foreground/70`.
 - Si no tiene lote, la línea de lote no se renderiza.
 
@@ -76,21 +79,22 @@ El listado soporta tres modos de vista, seleccionables desde el toolbar:
 #### Modo Lista — 1 columna, ancho completo
 
 ```
-┌───────┬────────────┬──────────┬──────────┬──────────────────┬────────────┐
-│ Tag   │ Caravana   │ Estado   │ Carencia │ Categoría · Raza │ Lote       │
-├───────┼────────────┼──────────┼──────────┼──────────────────┼────────────┤
-│ [Tag] │ 00001 2345 │ [Activo] │ [badge]  │ Vaca · Angus     │ Lote Norte │
-└───────┴────────────┴──────────┴──────────┴──────────────────┴────────────┘
+┌───────┬────────────┬──────────┬──────────┬────────┬────────────┬───────┬──────────┬──────────┐
+│ TAG   │ CARAVANA   │ CATEGORÍA│ RAZA     │ SEXO   │ LOTE       │ PESO  │ GDP      │ ESTADO   │
+├───────┼────────────┼──────────┼──────────┼────────┼────────────┼───────┼──────────┼──────────┤
+│ [Tag] │ 00001 2345 │ Vaca     │ Angus    │ Macho  │ Lote Norte │ 320kg │ 0.85kg/d │ [Activo] │
+└───────┴────────────┴──────────┴──────────┴────────┴────────────┴───────┴──────────┴──────────┘
 ```
 
 - Una fila por animal, ancho completo, altura 68px.
 - Renderizado como tabla unificada: contenedor `rounded-lg border border-border overflow-hidden`.
-- **Header integrado** dentro del contenedor: `bg-muted/40`, texto `font-semibold` (negrita), `border-b`.
-- Columnas del header: (vacío) · Caravana · Estado · Carencia · Categoría · Raza · Lote (derecha).
-- Grid template: `48px 140px auto auto 1fr 160px`, gap 24px, padding horizontal 16px — idéntico en header y filas.
+- **Header integrado** dentro del contenedor: `bg-muted/40`, texto `font-semibold text-xs` en mayúsculas, `border-b`.
+- Columnas del header (en orden): TAG · CARAVANA · CATEGORÍA · RAZA · SEXO · LOTE · PESO · GDP · ESTADO.
+- Grid template: `84px 140px 1fr 1fr 80px 1fr 90px 90px auto`, gap 24px, padding horizontal 16px — idéntico en header y filas.
 - Filas: sin card individual. Solo `border-b border-border/60` como separador y `hover:bg-muted/40` como hover.
-- Caravana en `font-mono text-sm`. Lote alineado a la derecha.
-- La raza y el lote se omiten visualmente si están vacíos (celda vacía).
+- Caravana en `font-mono text-sm`. Resto de columnas de datos en `0.830rem`.
+- Peso y GDP con `formatWeight()` / `formatGdp()`, muestran "—" si null. Sexo con `sexLabel()`.
+- **Columna ESTADO**: si `hasActiveCarencia` → `<CarenciaIndicator size="sm">` (oculta StatusBadge); si no → `<StatusBadge>`.
 
 #### Comportamiento común a todos los modos
 
