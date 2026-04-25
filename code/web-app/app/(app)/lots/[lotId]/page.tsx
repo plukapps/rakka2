@@ -168,6 +168,7 @@ export default function LotDetailPage({
         <CardContent className="space-y-3">
           {lotAnimals.length > 0 && (
             <Input
+              className="max-w-xs"
               placeholder="Buscar por caravana..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}

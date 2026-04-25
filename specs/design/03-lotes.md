@@ -153,7 +153,7 @@ Card "Estadísticas de peso" entre el header del lote y la lista de animales. So
 - Grilla compacta de caravanas: muestra solo el TagView de cada animal en tamaño `md` (sin detalle de categoría, raza ni lote).
 - Columnas: wrap automático (`flex-wrap`).
 - Cada caravana es clickeable → `/animals/[animalId]`.
-- Búsqueda por caravana dentro del lote.
+- Búsqueda por caravana dentro del lote. Input con ancho máximo `max-w-xs` (no ocupa todo el ancho en pantallas anchas).
 - Contador "X animales".
 - **Botón "Agregar animales"**: abre panel inline de selección.
 
