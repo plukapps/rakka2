@@ -1,8 +1,9 @@
 "use client"
 
-import { use, useState, useMemo } from "react"
+import { use, useState, useMemo, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { MoreVertical } from "lucide-react"
 import { useLot, useLots, useAllLots } from "@/hooks/useLots"
 import { useAnimals } from "@/hooks/useAnimals"
 import { lotRepository } from "@/lib/repositories/lot"
@@ -11,7 +12,6 @@ import { traceabilityRepository } from "@/lib/repositories/traceability"
 import { useAppStore } from "@/lib/stores/appStore"
 import { TagView } from "@/components/animals/TagView"
 import { StatusBadge } from "@/components/ui/status-badge"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -51,6 +51,18 @@ export default function LotDetailPage({
   const [selectedFromLotIds, setSelectedFromLotIds] = useState<Set<string>>(new Set())
   const [showMoveConfirm, setShowMoveConfirm] = useState(false)
   const [showDissolveConfirm, setShowDissolveConfirm] = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false)
+      }
+    }
+    if (showMenu) document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [showMenu])
 
   const lotAnimals = useMemo(
     () => allAnimals.filter((a) => a.lotId === lotId),
@@ -195,9 +207,28 @@ export default function LotDetailPage({
                 {lot.status === "active" ? "Activo" : "Disuelto"}
               </StatusBadge>
             </div>
-            <Badge variant="secondary">
-              {lot.animalCount} {lot.animalCount === 1 ? "animal" : "animales"}
-            </Badge>
+            {lot.status === "active" && (
+              <div className="relative" ref={menuRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </button>
+                {showMenu && (
+                  <div className="absolute right-0 top-full mt-1 z-10 min-w-[160px] rounded-md border border-border bg-card shadow-md py-1">
+                    <button
+                      type="button"
+                      onClick={() => { setShowMenu(false); setShowDissolveConfirm(true) }}
+                      className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
+                    >
+                      Disolver lote
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -213,17 +244,14 @@ export default function LotDetailPage({
               <dd className="font-medium text-foreground">{formatDate(lot.createdAt)}</dd>
             </div>
             <div>
-              <dt className="text-xs text-muted-foreground">Estado</dt>
+              <dt className="text-xs text-muted-foreground">Animales</dt>
               <dd className="font-medium text-foreground">
-                {lot.status === "active" ? "Activo" : "Disuelto"}
+                {lot.animalCount} {lot.animalCount === 1 ? "animal" : "animales"}
               </dd>
             </div>
           </dl>
           {lot.status === "active" && (
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-border mt-2">
-              <Link href={`/activities/new/sanitary?lotId=${lotId}`}>
-                <Button size="sm" variant="outline">Registrar actividad sanitaria</Button>
-              </Link>
+            <div className="flex justify-end pt-2 border-t border-border mt-3">
               <Link href={`/activities/new?lotId=${lotId}`}>
                 <Button size="sm" variant="outline">Registrar actividad</Button>
               </Link>
@@ -426,31 +454,27 @@ export default function LotDetailPage({
         </Card>
       )}
 
-      {/* Dissolve lot */}
-      {lot.status === "active" && (
-        <Card>
-          <CardContent className="pt-0">
-            {!showDissolveConfirm ? (
-              <Button variant="destructive" size="sm" onClick={() => setShowDissolveConfirm(true)}>
-                Disolver lote
+      {showDissolveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowDissolveConfirm(false)}
+          />
+          <div className="relative z-10 w-full max-w-sm mx-4 rounded-lg border border-border bg-card shadow-lg p-6 space-y-4">
+            <h2 className="text-base font-semibold text-foreground">Disolver lote</h2>
+            <p className="text-sm text-muted-foreground">
+              ¿Estás seguro de que querés disolver <span className="font-medium text-foreground">{lot.name}</span>? Se desasignarán {lotAnimals.length} {lotAnimals.length === 1 ? "animal" : "animales"}.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => setShowDissolveConfirm(false)}>
+                Cancelar
               </Button>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-sm text-foreground">
-                  ¿Estás seguro de que querés disolver este lote? Se desasignarán {lotAnimals.length} animales.
-                </p>
-                <div className="flex gap-2">
-                  <Button variant="destructive" size="sm" onClick={handleDissolveLot}>
-                    Sí, disolver
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setShowDissolveConfirm(false)}>
-                    Cancelar
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              <Button variant="destructive" size="sm" onClick={handleDissolveLot}>
+                Disolver
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
