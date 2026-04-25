@@ -275,6 +275,7 @@ function MoveAnimalsContent() {
           ) : (
             <>
               <Input
+                className="max-w-xs"
                 placeholder="Buscar por caravana..."
                 value={search}
                 onChange={(e) => {

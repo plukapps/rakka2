@@ -236,7 +236,7 @@ Pantalla dedicada para mover animales entre lotes o asignar animales sin lote a 
 
 - Se muestra solo cuando hay origen seleccionado (siempre, ya que "Sin lote" es el default).
 - Requiere además destino seleccionado para habilitar la selección de animales.
-- Input de búsqueda por caravana.
+- Input de búsqueda por caravana. Ancho máximo `max-w-xs` (no ocupa todo el ancho en pantallas anchas).
 - Botones "Seleccionar todos" / "Deseleccionar todos" (visibles si hay animales en la grilla).
 - Grilla `flex-wrap gap-2` de TagView `md`. Tags seleccionados: `ring-2 ring-primary ring-offset-2`. Tags sin selección: `opacity-60 hover:opacity-100`.
 - Si el origen no tiene animales: EmptyState "Sin animales en este origen".
