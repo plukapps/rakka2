@@ -1,6 +1,6 @@
 # Web — Fase 4: Módulo Lotes
 
-**Estado:** ✅ completo  
+**Estado:** ✅ completo (actualizado con pantalla `/lots/move`)  
 **Depende de:** Fase 3 ✅
 
 ## Objetivo
@@ -33,11 +33,20 @@ Spec funcional: `specs/functional/03-lotes.md`
 - [x] Header: nombre, descripción, estado, fecha creación, contador de animales
 - [x] Lista de animales del lote (reusa `AnimalCard`)
 - [x] Búsqueda dentro del lote por caravana
-- [x] Botón "Agregar animales" → modal de búsqueda/selección de animales activos sin lote o de otro lote
-- [x] Al mover animal de otro lote: confirmación ("Este animal está en Lote Sur, ¿moverlo aquí?")
+- [x] Botón "Mover animales" → `/lots/move?to=[lotId]`
 - [x] Botón "Registrar actividad sanitaria" → `/activities/new/sanitary?lotId=xxx`
 - [x] Botón "Disolver lote" → modal de confirmación
 - [x] Al disolver: todos los animales quedan sin lote, lote pasa a `disuelto`
+
+### Pantalla mover animales (`/lots/move`)
+- [x] Selector de origen: "Sin lote" + lotes activos con conteo
+- [x] Selector de destino: lotes activos (excluye el origen si es lote)
+- [x] Pre-selección por query param `?to=lotId` o `?from=lotId`
+- [x] Grilla de tags seleccionables del origen
+- [x] Botones "Seleccionar todos" / "Deseleccionar todos"
+- [x] Confirmación inline antes de ejecutar el movimiento
+- [x] Eventos `lot_change` de trazabilidad por animal al confirmar
+- [x] Mensaje de éxito post-movimiento; selección se limpia pero origen/destino se mantienen
 
 ---
 

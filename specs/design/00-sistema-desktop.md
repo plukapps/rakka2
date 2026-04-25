@@ -141,6 +141,27 @@ Pill con fondo de color + texto:
 - `warning` → amber
 - `critical` → rojo
 
+### ConfirmModal
+
+Toda confirmación de una acción (destructiva o irreversible) se muestra en un **modal centrado**, nunca inline.
+
+```
+┌─────────────────────────────────────────┐
+│  Título de la acción                    │
+│                                         │
+│  Descripción: qué va a pasar y          │
+│  por qué no se puede deshacer.          │
+│                                         │
+│               [Cancelar]  [Confirmar]   │
+└─────────────────────────────────────────┘
+```
+
+- Overlay semitransparente (`bg-black/50`) cubre toda la pantalla.
+- El modal tiene ancho máximo 400px, centrado vertical y horizontal.
+- El botón de acción principal está a la derecha. Para acciones destructivas: variante `destructive`. Para acciones normales: variante `default`.
+- Cerrar con click en el overlay o botón "Cancelar" cancela sin ejecutar la acción.
+- Componente: `ConfirmModal` en `components/ui/confirm-modal.tsx`.
+
 ### EmptyState
 - Ícono grande + título + descripción + CTA (botón).
 - Centrado en el contenedor.
