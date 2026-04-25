@@ -101,25 +101,30 @@ export default function LotDetailPage({
               </StatusBadge>
             </div>
             {lot.status === "active" && (
-              <div className="relative" ref={menuRef}>
-                <button
-                  type="button"
-                  onClick={() => setShowMenu(!showMenu)}
-                  className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </button>
-                {showMenu && (
-                  <div className="absolute right-0 top-full mt-1 z-10 min-w-[160px] rounded-md border border-border bg-card shadow-md py-1">
-                    <button
-                      type="button"
-                      onClick={() => { setShowMenu(false); setShowDissolveConfirm(true) }}
-                      className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
-                    >
-                      Disolver lote
-                    </button>
-                  </div>
-                )}
+              <div className="flex items-center gap-2">
+                <Link href={`/activities/new?lotId=${lotId}`}>
+                  <Button size="sm" variant="outline">Registrar actividad</Button>
+                </Link>
+                <div className="relative" ref={menuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </button>
+                  {showMenu && (
+                    <div className="absolute right-0 top-full mt-1 z-10 min-w-[160px] rounded-md border border-border bg-card shadow-md py-1">
+                      <button
+                        type="button"
+                        onClick={() => { setShowMenu(false); setShowDissolveConfirm(true) }}
+                        className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
+                      >
+                        Disolver lote
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -143,13 +148,6 @@ export default function LotDetailPage({
               </dd>
             </div>
           </dl>
-          {lot.status === "active" && (
-            <div className="flex justify-end pt-2 border-t border-border mt-3">
-              <Link href={`/activities/new?lotId=${lotId}`}>
-                <Button size="sm" variant="outline">Registrar actividad</Button>
-              </Link>
-            </div>
-          )}
         </CardContent>
       </Card>
 

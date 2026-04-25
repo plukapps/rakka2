@@ -127,7 +127,9 @@ Formulario en columna central, ancho máximo 480px.
 - Descripción (si tiene) en subtítulo.
 - Fecha de creación.
 - Total de animales.
-- **Botón primario**: "Registrar actividad sobre este lote" → `/activities/new` (con lote preseleccionado).
+- **Estructura del header**: ambas cards usan la misma estructura de header: `[Título / badge]` a la izquierda · `[botón de acción] [⋮]` a la derecha.
+  - Card info general: botón "Registrar actividad" + menú ⋮ (solo lote activo).
+  - Card animales: botón "Mover animales" (solo lote activo). Sin ⋮.
 
 ### Estadísticas de peso
 
