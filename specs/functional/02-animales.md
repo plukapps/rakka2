@@ -18,7 +18,7 @@
 | Fecha de ingreso | Fecha | Sí (automático) | Generada al registrar el ingreso |
 | Estado | Enum | Sí (automático) | `activo` o `egresado` |
 | Lote actual | Referencia a Lote | No | Puede no tener lote asignado |
-| Precio de compra | Número (USD/cabeza) | No | Precio pagado por cabeza al ingresar. En USD. Inmutable una vez guardado. Ver módulo financiero (`15-modulo-financiero.md`). |
+| Precio de compra | Número (USD/cabeza) | No | Precio pagado por cabeza al ingresar. En USD. Inmutable una vez guardado. |
 
 ---
 

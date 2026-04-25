@@ -13,9 +13,7 @@ Firebase Realtime Database almacena todo como un árbol JSON. La raíz del árbo
 ├── lot_animals/          ← índice de denormalización
 ├── activities/           ← incluye lecturas RFID como type: "reading"
 ├── traceability/
-├── alerts/
-├── costs_lot/            ← costos directos por lote (módulo financiero)
-└── costs_establishment/  ← costos generales por establecimiento (módulo financiero)
+└── alerts/
 ```
 
 Cada nodo de datos que pertenece a un establecimiento está particionado por `{estId}` como segunda clave, para facilitar las Security Rules y el acceso por establecimiento activo.

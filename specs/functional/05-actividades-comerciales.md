@@ -105,4 +105,4 @@ El establecimiento mantiene un registro de todas las operaciones comerciales rea
 - Integración con sistemas contables
 - Registro de remitos o guías de traslado
 - Historial de precios de mercado o referencia de precios
-- Flujo de compra estructurado como actividad: el precio de compra se registra en el formulario de ingreso del animal (ver `02-animales.md` y `15-modulo-financiero.md`), no como actividad comercial
+- Flujo de compra estructurado como actividad: el precio de compra se registra en el formulario de ingreso del animal (ver `02-animales.md`), no como actividad comercial

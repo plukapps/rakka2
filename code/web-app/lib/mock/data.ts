@@ -7,7 +7,6 @@ import type {
   Alert,
   User,
 } from "@/lib/types";
-import type { CostoLote, CostoEstablecimiento } from "@/lib/financial-types";
 
 // ============================================================
 // Mock data — simulates Firebase RTDB state
@@ -551,72 +550,6 @@ export const MOCK_TRACEABILITY: TraceabilityEvent[] = [
     responsibleName: "Dr. González",
     timestamp: daysAgo(19),
     createdAt: daysAgo(19),
-  },
-];
-
-// --- Financial: Costos de lote ---
-
-export const MOCK_COSTS_LOT: CostoLote[] = [
-  {
-    id: "cl_001",
-    establecimientoId: "est_001",
-    loteId: "lot_002",
-    categoria: "alimentacion",
-    montoUsd: 980,
-    cabezasAlMomento: 15,
-    fecha: daysAgo(45),
-    descripcion: "Fardos de alfalfa — febrero",
-    createdAt: daysAgo(45),
-    createdBy: "user_001",
-  },
-  {
-    id: "cl_002",
-    establecimientoId: "est_001",
-    loteId: "lot_002",
-    categoria: "sanidad",
-    montoUsd: 240,
-    cabezasAlMomento: 15,
-    fecha: daysAgo(14),
-    descripcion: "Ivermectina + vitaminas",
-    createdAt: daysAgo(14),
-    createdBy: "user_001",
-  },
-  {
-    id: "cl_003",
-    establecimientoId: "est_001",
-    loteId: "lot_001",
-    categoria: "alimentacion",
-    montoUsd: 1200,
-    cabezasAlMomento: 12,
-    fecha: daysAgo(30),
-    descripcion: "Rollos de pasto — marzo",
-    createdAt: daysAgo(30),
-    createdBy: "user_001",
-  },
-];
-
-// --- Financial: Costos de establecimiento ---
-
-export const MOCK_COSTS_EST: CostoEstablecimiento[] = [
-  {
-    id: "ce_001",
-    establecimientoId: "est_001",
-    categoria: "mano_de_obra",
-    montoUsd: 850,
-    fecha: daysAgo(7),
-    descripcion: "Jornales semana del 31/03",
-    createdAt: daysAgo(7),
-    createdBy: "user_001",
-  },
-  {
-    id: "ce_002",
-    establecimientoId: "est_001",
-    categoria: "mantenimiento",
-    montoUsd: 200,
-    fecha: daysAgo(60),
-    descripcion: "Reparación alambrado potrero norte",
-    createdAt: daysAgo(60),
-    createdBy: "user_001",
   },
 ];
 
