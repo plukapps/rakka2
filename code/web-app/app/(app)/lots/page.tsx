@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useAllLots } from "@/hooks/useLots"
 import { useAnimals } from "@/hooks/useAnimals"
 import { LotCard } from "@/components/lots/LotCard"
+import { NewLotModal } from "@/app/(app)/lots/new/page"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -18,6 +19,7 @@ export default function LotsPage() {
   const animals = useAnimals()
   const [search, setSearch] = useState("")
   const [showDissolved, setShowDissolved] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
   const [createdLot, setCreatedLot] = useState<{ id: string; name: string } | null>(null)
 
   useEffect(() => {
@@ -51,9 +53,7 @@ export default function LotsPage() {
             ({filtered.length})
           </span>
         </h1>
-        <Link href="/lots/new">
-          <Button size="sm">+ Crear lote</Button>
-        </Link>
+        <Button size="sm" onClick={() => setShowCreateModal(true)}>+ Crear lote</Button>
       </div>
 
       <div className="flex items-center gap-3">
@@ -101,9 +101,7 @@ export default function LotsPage() {
             }
             action={
               allLots.length === 0 ? (
-                <Link href="/lots/new">
-                  <Button size="sm">Crear primer lote</Button>
-                </Link>
+                <Button size="sm" onClick={() => setShowCreateModal(true)}>Crear primer lote</Button>
               ) : undefined
             }
           />
@@ -111,6 +109,10 @@ export default function LotsPage() {
           filtered.map((lot) => <LotCard key={lot.id} lot={lot} />)
         )}
       </div>
+
+      {showCreateModal && (
+        <NewLotModal onClose={() => setShowCreateModal(false)} />
+      )}
 
       {createdLot && (
         <div className="fixed bottom-6 left-1/2 z-50 w-full max-w-lg -translate-x-1/2">

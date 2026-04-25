@@ -39,11 +39,45 @@ Un animal puede pertenecer a un solo lote a la vez, o a ninguno.
 
 ### Crear lote
 
-- El usuario ingresa nombre (obligatorio) y descripción (opcional).
-- Opcionalmente puede agregar animales en el mismo paso, desde dos fuentes:
-  - **Sin lote**: animales activos sin lote asignado. Se muestran como grilla de tags clickeables.
-  - **Desde otro lote**: el usuario selecciona un lote origen y elige animales de ese lote. Al confirmar el formulario, se genera un evento de trazabilidad `cambio de lote` por cada animal movido, agrupados por lote de origen.
-- El lote se crea en estado `activo`.
+El flujo de creación es un wizard de 4 pasos presentado en un modal. Los pasos son siempre los mismos en orden; el contenido del paso 3 varía según el método elegido en el paso 2.
+
+**Paso 1 — Información del lote**
+- El usuario ingresa: nombre (obligatorio), descripción (opcional), notas (opcional, texto libre).
+- Al avanzar, el lote se crea inmediatamente en estado `activo` (puede estar vacío al crearse).
+
+**Paso 2 — Origen de los animales**
+- El usuario elige **uno** de los siguientes métodos de ingreso:
+  - **Selección manual**: buscar y elegir animales del listado uno por uno o con filtros.
+  - **Lectura RFID en vivo**: conectar lector Bluetooth y leer caravanas en tiempo real.
+  - **Importar archivo de lectura**: cargar una lectura RFID guardada (CSV/TXT o Bluetooth).
+  - **Por filtro automático**: aplicar criterios (categoría, raza, peso, edad) y agregar todos los que coincidan.
+  - **Mover desde otro lote**: trasladar todos o parte de los animales de un lote existente.
+- La selección es exclusiva (radio button); no se pueden combinar métodos en el mismo wizard. Se pueden agregar más animales desde el detalle del lote después.
+
+**Paso 3 — Selección de animales (depende del método)**
+
+_Método: Lectura RFID (en vivo o archivo)_
+- El usuario selecciona una lectura guardada (`ReadingActivity`) de la lista.
+- El sistema carga **todos** los tags de la lectura: animales reconocidos (`animalIds`) y caravanas desconocidas (`unknownCaravanas`).
+- Todos los tags aparecen **pre-seleccionados** por defecto.
+- El usuario puede **descartar** individualmente los tags que no quiere agregar al lote.
+- Botones "Seleccionar todos" / "Descartar todos" disponibles.
+- Los animales reconocidos que ya tienen lote asignado se muestran con el nombre del lote — al confirmar se moverán.
+- Las caravanas desconocidas se muestran con badge "Nuevo" — al confirmar se crearán como animales nuevos en el stock con parámetros editables en el paso 4.
+
+_Otros métodos (en desarrollo):_ Muestran un placeholder informativo; el lote se crea sin animales.
+
+**Paso 4 — Confirmación**
+- Muestra el resumen del lote (nombre, descripción, notas) y la lista de cambios agrupados:
+  - **Se asignarán** — animales existentes sin lote previo.
+  - **Se moverán** — animales existentes que vienen de otro lote.
+  - **Se ingresarán al stock** — caravanas nuevas; el usuario puede editar categoría, sexo, tipo de ingreso y raza haciendo click en cada tag antes de confirmar.
+- Al confirmar se ejecutan todas las operaciones y se generan los eventos de trazabilidad.
+
+**Reglas aplicadas al confirmar:**
+- Animal sin lote previo → evento `lot_assignment`.
+- Animal con lote previo → evento `lot_change`; el contador del lote anterior se decrementa.
+- Animal nuevo → se crea en stock (status `active`) → evento `entry` + evento `lot_assignment`.
 
 ### Ver animales del lote
 

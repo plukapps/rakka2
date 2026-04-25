@@ -51,46 +51,102 @@
 
 ---
 
-## 2. Formulario nuevo lote (`/lots/new`)
+## 2. Wizard de creación de lote (modal desde `/lots`)
 
-### Layout
+Modal siempre `h-[85vh]` fijo, `max-w-4xl`. No cambia de tamaño entre pasos.
 
-Formulario en columna central, ancho máximo 480px.
+### Header del modal
 
 ```
-┌────────────────────────────────────────────────────────┐
-│ Page Header: "Crear lote"      [← Volver]              │
-├────────────────────────────────────────────────────────┤
-│                                                        │
-│  Formulario                                            │
-│                                                        │
-└────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  Nuevo lote              [1]─[2]─[3]─[4]              [×]  │
+│  Título del paso actual                                     │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Campos
+- StepIndicator de 4 pasos: Información · Método · Animales · Revisar.
+- Pasos completados: círculo relleno tenue. Paso actual: círculo negro. Pasos futuros: borde.
 
-- **Nombre** * (input texto, ej. "Lote Norte")
-- **Descripción** (textarea, opcional, ej. "Animales en potrero norte")
+### Footer del modal
 
-### Sección: Animales sin lote
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Texto de contexto                 [← Atrás]  [Continuar →] │
+└─────────────────────────────────────────────────────────────┘
+```
 
-- Input de búsqueda por caravana.
-- Grilla de TagView `md` (flex-wrap, gap-2). Cada tag es un botón clickeable.
-- Tags seleccionados: `ring-2 ring-primary ring-offset-2`. Tags no seleccionados: `opacity-60 hover:opacity-100`.
-- Contador "X seleccionados" cuando hay selección activa.
+- Texto izquierda: "Los datos se pueden modificar luego." (pasos 1–3) / "¿Todo bien? Una vez creado, podés agregar o quitar animales en cualquier momento." (paso 4).
+- Botón derecho paso 1: submits form `lot-wizard-info`.
+- Botón derecho paso 4: "✓ Crear lote".
+- Botón izquierdo en paso 1: "Cancelar". En el resto: "← Atrás".
 
-### Sección: Desde otro lote
+---
 
-- Select de lotes activos (`Seleccionar lote...`). Muestra nombre + cantidad de animales.
-- Al seleccionar un lote: aparece la grilla de TagView `md` con los animales de ese lote.
-- Click en tag alterna la selección (misma lógica visual que sección anterior).
-- El usuario puede cambiar el lote en el select para seleccionar de múltiples lotes (los previamente seleccionados se mantienen).
+### Paso 1 — Información
 
-### Acciones
-- Contador total "X animales seleccionados" (suma de ambas secciones).
-- "Crear lote" (primario) + "Cancelar" → vuelve a `/lots`.
-- Al guardar: redirige al detalle del lote recién creado.
-- Para animales movidos desde otro lote: se crea evento `lot_change` por animal al confirmar.
+Contenido centrado horizontalmente. Formulario `max-w-lg`.
+
+- **Nombre** * (input)
+- **Descripción** (input, opcional)
+- **Notas** (textarea 3 filas, opcional)
+
+---
+
+### Paso 2 — Método
+
+Contenido centrado horizontalmente. Lista de opciones `max-w-lg`.
+
+5 opciones como radio buttons en cards:
+- Selección manual
+- Lectura RFID en vivo *(implementado)*
+- Importar archivo de lectura
+- Por filtro automático
+- Mover desde otro lote *(implementado)*
+
+Card seleccionada: `border-foreground`. Card no seleccionada: `border-border hover:border-foreground/40`.
+
+---
+
+### Paso 3 — Animales (depende del método)
+
+**Lectura RFID / Mover desde lote:**
+- Select de lectura o lote origen en el tope (`max-w-lg`).
+- Contador "X de Y seleccionados" + botones "Seleccionar todos" · "Descartar todos".
+- Input de búsqueda `max-w-xs`.
+- Grilla `flex-wrap gap-3` de TagView `md`. Tags activos: `opacity-100`. Tags descartados: `opacity-35` + label "Descartado".
+- Tags desconocidos (caravanas nuevas): label "Nuevo" azul cuando activos.
+- Tags de lote existente con indicador del lote origen (amber) cuando activos.
+
+**Métodos no implementados:**
+- Pantalla centrada con ícono 🚧 + nombre del método + mensaje "Disponible próximamente. El lote se creará sin animales."
+
+---
+
+### Paso 4 — Revisar
+
+Contenido centrado horizontalmente. Ancho máximo `max-w-2xl`.
+
+```
+┌──────────────────────────────────────────────────────┐
+│  NUEVO LOTE                                          │
+│  Nombre del lote (text-3xl bold)                     │
+│  [descripción]  [notas]  ← pills/badges              │
+└──────────────────────────────────────────────────────┘
+
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│  ANIMALES    │  │  ORIGEN      │  │  LOTE ORIGEN │ ← solo si aplica
+│  6           │  │  Lectura ... │  │  Nombre lote │
+└──────────────┘  └──────────────┘  └──────────────┘
+
+┌──────────────────────────────────────────────────────┐
+│ ✓  Al crear el lote, los N animales se asignarán...  │
+│    ...mensaje descriptivo según los grupos           │
+└──────────────────────────────────────────────────────┘
+```
+
+- Tarjeta principal: nombre en `text-3xl bold`, descripción y notas como pills con borde.
+- Stats en 2 o 3 columnas según si hay nombre de origen.
+- Mensaje descriptivo menciona cantidad, movimientos y/o ingresos al stock según corresponda.
 
 ---
 

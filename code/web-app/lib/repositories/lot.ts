@@ -6,6 +6,7 @@ export interface CreateLotInput {
   estId: string;
   name: string;
   description: string;
+  notes?: string;
 }
 
 export const lotRepository = {
@@ -32,6 +33,7 @@ export const lotRepository = {
       estId: input.estId,
       name: input.name,
       description: input.description,
+      notes: input.notes,
       status: "active",
       animalCount: 0,
       createdAt: ts,

@@ -24,10 +24,22 @@ Spec funcional: `specs/functional/03-lotes.md`
 ### Componentes nuevos
 - [x] `components/lots/LotCard.tsx` — card de lote con contador y acciones rápidas
 
-### Formulario de creación (`/lotes/nuevo`)
-- [x] Campos: nombre (obligatorio), descripción
-- [x] Selector multi-animal para asignar animales al crear (opcional)
-- [x] Al confirmar: crear lote en mock store, asignar animales seleccionados
+### Wizard de creación (`/lots/nuevo`) — 4 pasos (modal 85vh)
+- [x] Step 1: nombre + descripción + notas (textarea) → crea el lote al avanzar
+- [x] Step 2: selección del método de ingreso — 5 opciones radio
+  - [x] Selección manual (placeholder)
+  - [x] Lectura RFID en vivo → implementado en Step 3
+  - [x] Importar archivo de lectura (placeholder)
+  - [x] Por filtro automático (placeholder)
+  - [x] Mover desde otro lote → implementado en Step 3
+- [x] Step 3: depende del método elegido
+  - [x] Lectura RFID: select de lectura, todos los tags pre-seleccionados, click para descartar, "Seleccionar todos"/"Descartar todos"
+  - [x] Mover desde otro lote: select de lote origen, todos los animales pre-seleccionados, click para descartar
+  - [x] Otros métodos: pantalla placeholder, el lote avanza vacío
+- [x] Step 4: confirmación con resumen de cambios agrupados por tipo
+  - [x] Animales nuevos clickeables → EditAnimalModal para editar categoría, sexo, tipo ingreso, raza
+- [x] On confirm: crear animales nuevos, asignar/mover existentes, trazabilidad por animal
+- [x] Modal siempre 85vh fijo sin resize entre pasos
 
 ### Detalle del lote (`/lotes/[lotId]`)
 - [x] Header: nombre, descripción, estado, fecha creación, contador de animales

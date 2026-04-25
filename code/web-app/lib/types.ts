@@ -69,6 +69,7 @@ export interface Lot {
   estId: string;
   name: string;
   description: string;
+  notes?: string;
   status: LotStatus;
   animalCount: number;
   createdAt: number;
