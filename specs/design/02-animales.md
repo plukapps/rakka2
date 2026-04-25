@@ -79,22 +79,22 @@ El listado soporta tres modos de vista, seleccionables desde el toolbar:
 #### Modo Lista — 1 columna, ancho completo
 
 ```
-┌───────┬────────────┬──────────┬────────┬────────────┬───────┬──────────┬──────────┐
-│ Tag   │ Caravana   │ Raza     │ Sexo   │ Lote       │ Peso  │ GDP      │ Estado   │
-├───────┼────────────┼──────────┼────────┼────────────┼───────┼──────────┼──────────┤
-│ [Tag] │ 00001 2345 │ Angus    │ Macho  │ Lote Norte │ 320kg │ 0.85kg/d │ [Activo] │
-└───────┴────────────┴──────────┴────────┴────────────┴───────┴──────────┴──────────┘
+┌───────┬────────────┬──────────┬──────────┬────────┬────────────┬───────┬──────────┬──────────┐
+│ TAG   │ CARAVANA   │ CATEGORÍA│ RAZA     │ SEXO   │ LOTE       │ PESO  │ GDP      │ ESTADO   │
+├───────┼────────────┼──────────┼──────────┼────────┼────────────┼───────┼──────────┼──────────┤
+│ [Tag] │ 00001 2345 │ Vaca     │ Angus    │ Macho  │ Lote Norte │ 320kg │ 0.85kg/d │ [Activo] │
+└───────┴────────────┴──────────┴──────────┴────────┴────────────┴───────┴──────────┴──────────┘
 ```
 
 - Una fila por animal, ancho completo, altura 68px.
 - Renderizado como tabla unificada: contenedor `rounded-lg border border-border overflow-hidden`.
-- **Header integrado** dentro del contenedor: `bg-muted/40`, texto `font-semibold` (negrita), `border-b`.
-- Columnas del header: (vacío) · Caravana · Raza · Sexo · Lote · Peso · GDP · Estado.
-- Grid template: `84px 140px 1fr 80px 1fr 90px 90px auto`, gap 24px, padding horizontal 16px — idéntico en header y filas.
+- **Header integrado** dentro del contenedor: `bg-muted/40`, texto `font-semibold text-xs` en mayúsculas, `border-b`.
+- Columnas del header (en orden): TAG · CARAVANA · CATEGORÍA · RAZA · SEXO · LOTE · PESO · GDP · ESTADO.
+- Grid template: `84px 140px 1fr 1fr 80px 1fr 90px 90px auto`, gap 24px, padding horizontal 16px — idéntico en header y filas.
 - Filas: sin card individual. Solo `border-b border-border/60` como separador y `hover:bg-muted/40` como hover.
-- Caravana en `font-mono text-sm`. Peso y GDP con `formatWeight()` / `formatGdp()`, muestran "—" si null.
-- **Columna Estado**: si `hasActiveCarencia` → `<CarenciaIndicator size="sm">` (oculta StatusBadge); si no → `<StatusBadge>`.
-- La raza y el lote se omiten visualmente si están vacíos (celda vacía).
+- Caravana en `font-mono text-sm`. Resto de columnas de datos en `0.830rem`.
+- Peso y GDP con `formatWeight()` / `formatGdp()`, muestran "—" si null. Sexo con `sexLabel()`.
+- **Columna ESTADO**: si `hasActiveCarencia` → `<CarenciaIndicator size="sm">` (oculta StatusBadge); si no → `<StatusBadge>`.
 
 #### Comportamiento común a todos los modos
 
