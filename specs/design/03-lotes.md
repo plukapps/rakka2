@@ -1,6 +1,6 @@
 # Diseño Desktop — Módulo Lotes
 
-**Rutas**: `/lots` · `/lots/new` · `/lots/[lotId]`  
+**Rutas**: `/lots` · `/lots/new` · `/lots/[lotId]` · `/lots/move`  
 **Propósito**: Gestionar agrupaciones operativas de animales.
 
 ---
@@ -155,23 +155,10 @@ Card "Estadísticas de peso" entre el header del lote y la lista de animales. So
 - Contador "X animales".
 - **Botón "Agregar animales"**: abre panel inline de selección.
 
-### Sección inline: Agregar animales sin lote
+### Botón: Mover animales
 
-- Trigger: botón "+ Agregar animales" en el header de la lista de animales del lote.
-- Input de búsqueda por caravana.
-- Grilla de TagView `md` (flex-wrap, gap-2) con animales activos sin lote.
-- Click en tag → agrega inmediatamente al lote (sin confirmación). El tag desaparece de la grilla.
-
-### Sección inline: Desde otro lote
-
-- Trigger: botón "Mover desde otro lote".
-- Select de lotes activos (excluye el lote actual).
-- Al seleccionar lote origen: grilla de TagView `md` con los animales de ese lote.
-- Click en tag alterna selección (ring-2 ring-primary cuando seleccionado).
-- Botón "Mover X animales" visible cuando hay selección. Al hacer click:
-  - Confirmación inline: "¿Mover X animales desde [Lote Y] a este lote?"
-  - Botones: "Confirmar" (default) + "Cancelar".
-  - Al confirmar: animales se mueven y se crean eventos `lot_change` por animal.
+- Botón "Mover animales" en el header de la sección de animales (solo lote activo).
+- Navega a `/lots/move?to=[lotId]`, con el lote actual pre-seleccionado como destino.
 
 ### Sección virtual: Sin lote (card especial en `/lots`)
 
@@ -206,3 +193,65 @@ Para lote **disuelto**:
 - Advertencia: "Al disolver el lote, los animales quedarán sin lote. Esta acción no se puede deshacer."
 - Muestra cantidad de animales afectados.
 - Botón "Disolver lote" (danger) + "Cancelar".
+
+---
+
+## 4. Pantalla mover animales (`/lots/move`)
+
+Pantalla dedicada para mover animales entre lotes o asignar animales sin lote a un lote. Accesible desde el detalle de lote (con destino pre-seleccionado) o desde el listado de lotes.
+
+### Layout
+
+```
+┌────────────────────────────────────────────────────────┐
+│ [← Lotes]   Mover animales                             │
+├────────────────────────────────────────────────────────┤
+│                                                        │
+│  Origen                        Destino                 │
+│  [Sin lote ▼                 ] [Seleccionar lote... ▼] │
+│                                                        │
+├────────────────────────────────────────────────────────┤
+│  47 animales disponibles    [Buscar por caravana...]   │
+│  [Seleccionar todos]  [Deseleccionar todos]            │
+│                                                        │
+│  [TAG] [TAG] [TAG] [TAG] [TAG] [TAG]                   │
+│  [TAG] [TAG] [TAG] ...                                 │
+│                                                        │
+├────────────────────────────────────────────────────────┤
+│  12 animales seleccionados                             │
+│  [Mover 12 animales]                                   │
+└────────────────────────────────────────────────────────┘
+```
+
+### Selectores origen / destino
+
+- **Origen**: select con opción "Sin lote" (primera opción, siempre visible) + todos los lotes activos. Muestra nombre + conteo de animales. Default: "Sin lote".
+- **Destino**: select con todos los lotes activos. Excluye el lote seleccionado como origen (si es un lote). Placeholder "Seleccionar lote destino...".
+- Si la página recibe `?to=lotId`: pre-selecciona ese lote como destino al cargar.
+- Si la página recibe `?from=lotId`: pre-selecciona ese lote como origen al cargar.
+
+### Grilla de animales (origen)
+
+- Se muestra solo cuando hay origen seleccionado (siempre, ya que "Sin lote" es el default).
+- Requiere además destino seleccionado para habilitar la selección de animales.
+- Input de búsqueda por caravana.
+- Botones "Seleccionar todos" / "Deseleccionar todos" (visibles si hay animales en la grilla).
+- Grilla `flex-wrap gap-2` de TagView `md`. Tags seleccionados: `ring-2 ring-primary ring-offset-2`. Tags sin selección: `opacity-60 hover:opacity-100`.
+- Si el origen no tiene animales: EmptyState "Sin animales en este origen".
+- Contador "X animales disponibles" sobre la grilla.
+
+### Acción de mover
+
+- Botón "Mover X animales" visible cuando hay ≥1 animal seleccionado y destino seleccionado.
+- Al hacer click: abre un `ConfirmModal` (ver `00-sistema-desktop.md`) con:
+  - Título: "Mover animales"
+  - Descripción: "¿Mover X animales desde [Origen] a [Destino]?"
+  - Botón principal: "Mover" (variante `default`)
+- Al confirmar: se ejecutan los movimientos, se crean eventos `lot_change` por animal (excepto si el origen es "Sin lote", donde no hay lote anterior).
+- Tras confirmar exitosamente: se limpia la selección, se mantiene la configuración origen/destino para permitir más movimientos. Muestra mensaje de éxito bajo los selectores.
+
+### Estados vacíos
+
+- **Sin destino seleccionado**: grilla deshabilitada con mensaje "Seleccioná un destino para poder mover animales."
+- **Origen sin animales**: EmptyState "No hay animales en este origen."
+- **Sin lotes activos**: EmptyState "No hay lotes activos. Creá un lote primero." con link a `/lots/new`.

@@ -51,18 +51,17 @@ Un animal puede pertenecer a un solo lote a la vez, o a ninguno.
 - Filtros: por categoría, por carencia activa.
 - Búsqueda por caravana dentro del lote.
 
-### Agregar animales al lote
+### Mover animales entre lotes o asignar sin lote
 
-Dos fuentes de origen disponibles desde la vista de detalle del lote:
+Operación disponible desde la pantalla dedicada `/lots/move`, accesible desde el detalle de cualquier lote activo.
 
-- **Sin lote**: grilla de tags de animales activos sin lote. Click en un tag lo agrega al lote inmediatamente (sin confirmación).
-- **Desde otro lote**: el usuario selecciona un lote origen, ve sus animales como grilla de tags clickeables, selecciona uno o varios, y confirma el movimiento en lote. Al confirmar, se genera un evento de trazabilidad `cambio de lote` por cada animal movido.
-
-### Mover animal entre lotes
-
-- Equivale a agregar el animal al nuevo lote: sale del anterior automáticamente.
-- Se puede hacer desde la vista del lote (sección "Desde otro lote").
-- Al mover desde otro lote se genera trazabilidad: evento `cambio de lote` por animal, con lote anterior y lote nuevo.
+- **Origen**: un lote activo o el grupo virtual "Sin lote" (animales activos sin lote asignado).
+- **Destino**: cualquier lote activo distinto al origen.
+- El usuario selecciona uno o varios animales del origen y confirma el movimiento al destino.
+- Al confirmar: cada animal pasa al lote destino y sale del lote de origen automáticamente.
+- Si el origen era un lote: se genera evento `cambio de lote` por animal, con lote anterior y lote nuevo.
+- Si el origen era "Sin lote": se genera evento `cambio de lote` por animal solo con lote nuevo (sin lote anterior).
+- El destino no puede ser el mismo lote que el origen.
 
 ### Quitar animal del lote
 
